@@ -12,7 +12,7 @@
 	"keywords": [
 		"fytool"
 	],
-	"author": "linjie",
+	"author": "shenchengsheng",
 	"license": "ISC",
 	"devDependencies": {
 		"autoprefixer": "^9.3.1",
