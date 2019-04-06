@@ -1,5 +1,8 @@
 
 import App from '../components/App';
+import Home from '../components/Home'
+import Reservation from '../components/Reservation'
+import Mine from '../components/Mine'
 
 export default [{
     path: '/',
@@ -10,7 +13,19 @@ export default [{
             redirect: '/home'
         },
         {
+            name: 'home',
             path: '/home',
+            component: Home
+        },
+        {
+            name: 'reservation',
+            path: '/reservation',
+            component: Reservation
+        },
+        {
+            name: 'mine',
+            path: '/mine',
+            component: Mine
         },
     ]
 }];

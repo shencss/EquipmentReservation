@@ -2,10 +2,11 @@ import 'babel-polyfill';
 import Vue from 'vue';
 import VueRouter from 'vue-router'
 import FastClick from 'fastclick'
-
+import store from './store/store.js';
 import {getRunToolParam,getClientType,getConfigs} from 'common/env';
 import {Config} from 'common/constants';
 import routes from 'router/router';
+import Vuex from 'vuex';
 
 // 处理app旋转事件
 // (function(doc, win) {
@@ -29,6 +30,7 @@ if ('addEventListener' in document) {
 }
 // 注册SPA的Vue路由
 Vue.use(VueRouter);
+Vue.use(Vuex);
 
 /* 根据平台选择类型 */
 
@@ -50,7 +52,8 @@ const router = new VueRouter({
 });
 /* 创建根组件 */
 new Vue({
-    router,
+	router,
+	store,
 	async mounted() {
 		/* 解析工具运行参数 */
 		const runToolParam = getRunToolParam() || '';
