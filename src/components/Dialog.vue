@@ -3,9 +3,7 @@
         <div class="dialog" v-if="visible">
             <div class="dialog-content">
                 <slot></slot>
-                <div class="close-btn" @click="closeDialog"></div>
             </div>
-            
         </div>
     </transition>
 </template>
@@ -53,24 +51,14 @@ export default {
     padding: 20px;
     z-index: 100;
     .dialog-content {
-        width: 300px;
-        padding: 20px;
+        width: 75%  ;
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         background-color: #FFF;
-        border-radius: 10px;
-        .close-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 30px;
-            height: 30px;
-            background-image: url('../images/close.png');
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-        }
+        border-radius: 5px;
+        overflow: hidden;
     }
     
 }

@@ -116,8 +116,42 @@
                 <div class="reservation-btn">预约</div>
             </div>
         </div>
-        <Dialog :visible="showDialog" @close="closeDialog">
-            <div class="equipment-name">联想电脑GT009</div>
+        <Dialog :visible="showDialog" @close="closeDialog" class="reservation-dialog">
+            <div class="dialog-title">预约该设备</div>
+            <div class="equipment-info">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name">联想电脑GT009</div>
+                <div class="line"></div>
+                <div class="equipment-type">
+                    <span>设备类型</span>
+                    <span class="value">电脑</span>
+                </div>
+                <div class="equipment-address">
+                    <span>设备地址</span>
+                    <span class="value">华工软件学院学院路B7108室</span>
+                </div>
+                <div class="available-time">
+                    <span>可预约时间</span>
+                    <span class="value">2019.04.01 - 2019.06.01</span>
+                </div>
+                <div class="equipment-note">
+                    <span>注意事项</span>
+                    <span class="value">该设备属于贵重物品请注意保护，小心使用！</span>
+                </div>
+                <div class="reservation-note">请选择预约时间：</div>
+                <div class="start-date">
+                    <label for="start-date">开始时间</label>
+                    <input v-model="startDate" type="date" name="start-date">
+                </div>
+                <div class="end-date">
+                    <label for="end-date">开始时间</label>
+                    <input v-model="endDate" type="date" name="end-date">
+                </div>
+            </div>
+            <div class="operate-btns">
+                <div class="cancel-btn" @click="closeDialog">取消</div>
+                <div class="confirm-btn">确定</div>
+            </div>
         </Dialog>
     </div>
 </template>
@@ -131,7 +165,9 @@ export default {
     },
     data() {
         return {
-            showDialog: false
+            showDialog: false,
+            startDate: '',
+            endDate: ''
         };
     },
     mounted() {
@@ -236,7 +272,88 @@ export default {
             }
         }
     }
-    
+    .reservation-dialog {
+        .dialog-title {
+            height: 30px;
+            line-height: 30px;
+            font-size: 15px;
+            text-align: center;
+            border-bottom: 1px solid #A1C4FD;
+            background-color: #A1C4FD;
+            color: #FFF;
+        }
+        .equipment-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 0 20px;
+            .equipment-icon {
+                height: 50px;
+                width: 50px;
+                background-image: url('../images/computer.png');
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+            }
+            .equipment-name {
+                font-weight: bold;
+                font-size: 15px;
+            }
+            .line {
+                width: 100%;
+                height: 2px;
+                background-color: #A1C4FD;
+                margin: 10px 0 20px 0;
+            }
+            .equipment-type, .equipment-address, .available-time, .equipment-note {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                font-size: 13px;
+                color: #AAA;
+                margin-bottom: 20px;
+                span {
+                    flex-basis: 90px;
+                }
+                .value {
+                    color: #000;
+                    flex-grow: 1;
+                }
+            }
+            .reservation-note {
+                width: 100%;
+                text-align: left;
+                font-size: 11px;
+                color: #A1C4FD;
+            }
+           .start-date, .end-date {
+               display: flex;
+               align-items: center;
+               width: 100%;
+               margin: 10px 0;
+               label {
+                   font-size: 13px;
+                   margin-right: 20px;
+               }
+           }
+        }
+        .operate-btns {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .cancel-btn, .confirm-btn {
+                padding: 0 20px;
+                height: 30px;
+                line-height: 30px;
+                text-align: center;
+                font-size: 12px;
+                background-color: #A1C4FD;
+                color: #FFF;
+                border-radius: 3px;
+                margin: 20px 10px;
+            }
+        }
+    }
 
 }
 </style>
