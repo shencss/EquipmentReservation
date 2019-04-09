@@ -8,10 +8,10 @@
             <span class="nav-icon nav-icon-reservation"></span>
             <span class="nav-name">预约</span>
         </div>
-        <div :class="['nav-item', isActive('mine') ? 'active-item' : '']" @click="checkNav('mine')">
+        <!-- <div :class="['nav-item', isActive('mine') ? 'active-item' : '']" @click="checkNav('mine')">
             <span class="nav-icon nav-icon-mine"></span>
             <span class="nav-name">我的</span>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -88,7 +88,7 @@ export default {
     }
     .active-item {
         .nav-name {
-            color: #A1C4FD;
+            color: #2196F3;
         }
         .nav-icon-home {
             background-image: url('../images/home_active.png');

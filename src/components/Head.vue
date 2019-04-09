@@ -29,8 +29,9 @@ export default {
     left: 0;
     height: 40px;
     line-height: 40px;
-    background-color: rgb(250, 250, 250);
-    color: #A1C4FD;
+    background-color: #2196F3;
+    // color: #A1C4FD;
+    color: #FFF;
     font-size: 16px;
     width: 100%;
     text-align: center;

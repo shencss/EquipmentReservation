@@ -257,13 +257,13 @@ export default {
                     font-size: 12px;
                     color: #BBB; 
                     span {
-                        color: #209cff;
+                        color: #2196F3;
                         margin-left: 10px;
                     }
                 }
             }
             .reservation-btn {
-                background-color: #A1C4FD;
+                background-color: #2196F3;
                 color: #FFF;
                 padding: 5px;
                 font-size: 12px;
@@ -278,8 +278,8 @@ export default {
             line-height: 30px;
             font-size: 15px;
             text-align: center;
-            border-bottom: 1px solid #A1C4FD;
-            background-color: #A1C4FD;
+            border-bottom: 1px solid #2196F3;
+            background-color: #2196F3;
             color: #FFF;
         }
         .equipment-info {
@@ -302,7 +302,7 @@ export default {
             .line {
                 width: 100%;
                 height: 2px;
-                background-color: #A1C4FD;
+                background-color: #2196F3;
                 margin: 10px 0 20px 0;
             }
             .equipment-type, .equipment-address, .available-time, .equipment-note {
@@ -324,7 +324,7 @@ export default {
                 width: 100%;
                 text-align: left;
                 font-size: 11px;
-                color: #A1C4FD;
+                color: #2196F3;
             }
            .start-date, .end-date {
                display: flex;
@@ -347,7 +347,7 @@ export default {
                 line-height: 30px;
                 text-align: center;
                 font-size: 12px;
-                background-color: #A1C4FD;
+                background-color: #2196F3;
                 color: #FFF;
                 border-radius: 3px;
                 margin: 20px 10px;
