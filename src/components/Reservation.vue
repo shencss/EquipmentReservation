@@ -1,10 +1,11 @@
 <template>
 	<div class="reservation">
         <div class="type-header">
-            <div :class="typeClass1" >所有预约</div>
-            <div :class="typeClass2">预约中</div>
-            <div :class="typeClass3">已预约</div>
+            <div @click="checkType('all')">所有预约</div>
+            <div @click="checkType('doing')">预约中</div>
+            <div @click="checkType('done')">已预约</div>
         </div>
+        <div class="type-underline" :class="underlineClass"></div>
         <div class="equipment-list">
             <div class="equipment-item">
                 <div class="equipment-icon"></div>
@@ -44,39 +45,54 @@
                 </div>
             </div>
         </div>
+        <Dialog :visible="showDialog" @close="closeDialog" class="cancel-dialog">
+            <div class="dialog-title">取消预约该设备</div>
+            <div class="remind-text">
+                确定取消预约该设备吗？
+            </div>
+            <div class="operate-btns">
+                <div class="cancel-btn" @click="closeDialog">取消</div>
+                <div class="confirm-btn">确定</div>
+            </div>
+        </Dialog>
     </div>
 </template>
 
 <script>
+import Dialog from './Dialog.vue';
+
 export default {
     data() {
         return {
             type: 'all',
-            typeClass1:'active',
-            typeClass2: '',
-            typeClass3:''
+            showDialog: true,
+            underlineClass: 'left'
         };
     },
-    computed:{
+    components: {
+        Dialog
     },
     methods: {
-        checkType(type) {
+        checkType(e, type) {
             if(type == 'all') {
                 this.type = 'all';
-                this.typeClass1 = 'active';
-                this.typeClass2 = '';
-                this.typeClass3 = '';
+               this.underlineClass = 'left';
+               console.log(this.underlineClass)
+               
             } else if(type == 'doing') {
                 this.type = 'doing';
-                this.typeClass1 = '';
-                this.typeClass2 = 'active';
-                this.typeClass3 = '';
+                this.underlineClass = 'center';
+              
             } else {
                 this.type = 'done';
-                this.typeClass1 = '';
-                this.typeClass2 = '';
-                this.typeClass3 = 'active';
+                this.underlineClass = 'right';
             }
+        },
+        closeDialog() {
+            this.showDialog = false;
+        },
+        goReserve() {
+
         }
     }
 }
@@ -111,6 +127,22 @@ export default {
             left: 50%;
             transform: translateX(-50%);
         }
+    }
+    .type-underline {
+        height: 2px;
+        width: 30px;
+        background-color: #2196F3;
+        position: absolute;
+        top: 30px;
+        left: 16.66%;
+        transform: translateX(-50%);
+        transition: all .5s linear;
+    }
+    .center {
+        left: 50%;
+    }
+    .right {
+        left: 83.33%;
     }
     .equipment-list {
         .equipment-item {
@@ -172,6 +204,41 @@ export default {
                 font-size: 12px;
                 border-radius: 3px;
                 cursor: pointer;
+            }
+        }
+    }
+    .cancel-dialog {
+        .dialog-title {
+            height: 30px;
+            line-height: 30px;
+            font-size: 15px;
+            text-align: center;
+            border-bottom: 1px solid #2196F3;
+            background-color: #2196F3;
+            color: #FFF;
+        }
+        .remind-text {
+            text-align: center;
+            color: #2196F3;
+            font-weight: 15px;
+            font-weight: bold;
+            margin-top: 50px;
+            margin-bottom: 30px;
+        }
+        .operate-btns {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .cancel-btn, .confirm-btn {
+                padding: 0 20px;
+                height: 30px;
+                line-height: 30px;
+                text-align: center;
+                font-size: 12px;
+                background-color: #2196F3;
+                color: #FFF;
+                border-radius: 3px;
+                margin: 20px 10px;
             }
         }
     }
