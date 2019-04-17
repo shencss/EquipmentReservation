@@ -7,42 +7,19 @@
         </div>
         <div class="type-underline" :class="underlineClass"></div>
         <div class="equipment-list">
-            <div class="equipment-item">
-                <div class="equipment-icon"></div>
+            <div class="equipment-item" v-for="(item, index) in reservationList" :key=index>
+                <div :class="['equipment-icon', icon(item)]"></div>
                 <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="status await">当前状态
-                        <span>等待批准中</span>
+                    <div class="equipment-name">{{item.equipmentName}}</div>
+                    <div :class="['status', statusClass(item.status)]">当前状态
+                        <span>{{statusText(item.status)}}</span>
                     </div>
                     <div class="available-time">预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
+                        <span>{{item.reserveStart}} - {{item.reserveEnd}}</span>
                     </div>
                 </div>
-                <div class="cancel-btn" @click="goReserve">取消预约</div>
-            </div>
-            <div class="equipment-item">
-                <div class="equipment-icon"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="status">当前状态
-                        <span>未批准</span>
-                    </div>
-                    <div class="available-time">预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
-                    </div>
-                </div>
-            </div>
-            <div class="equipment-item">
-                <div class="equipment-icon"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="status passed">当前状态
-                        <span>已通过</span>
-                    </div>
-                    <div class="available-time">预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
-                    </div>
-                </div>
+                <div v-if="item.status == 1" class="cancel-btn" @click="cancelReserve">取消预约</div>
+                <div v-if="item.status == 3" class="end-btn" @click="endReserve">结束预约</div>
             </div>
         </div>
         <Dialog :visible="showDialog" @close="closeDialog" class="cancel-dialog">
@@ -65,24 +42,51 @@ export default {
     data() {
         return {
             type: 'all',
-            showDialog: true,
-            underlineClass: 'left'
+            showDialog: false,
+            underlineClass: 'left',
+            reservationList: [
+                {
+                    equipmentName: '联系电脑',
+                    equipmentType: 1,
+                    status: 1,
+                    reserveStart: '2019/04/01',
+                    reserveEnd: '2019/04/15'
+                },
+                {
+                    equipmentName: '戴尔显示屏',
+                    equipmentType: 2,
+                    status: 2,
+                    reserveStart: '2019/04/01',
+                    reserveEnd: '2019/04/15'
+                },
+                {
+                    equipmentName: 'CHERRY键盘',
+                    equipmentType: 3,
+                    status: 3,
+                    reserveStart: '2019/04/01',
+                    reserveEnd: '2019/04/15'
+                },
+                {
+                    equipmentName: '罗技鼠标',
+                    equipmentType: 4,
+                    status: 4,
+                    reserveStart: '2019/04/01',
+                    reserveEnd: '2019/04/15'
+                }
+            ]
         };
     },
     components: {
         Dialog
     },
     methods: {
-        checkType(e, type) {
+        checkType(type) {
             if(type == 'all') {
                 this.type = 'all';
                this.underlineClass = 'left';
-               console.log(this.underlineClass)
-               
             } else if(type == 'doing') {
                 this.type = 'doing';
                 this.underlineClass = 'center';
-              
             } else {
                 this.type = 'done';
                 this.underlineClass = 'right';
@@ -91,9 +95,74 @@ export default {
         closeDialog() {
             this.showDialog = false;
         },
-        goReserve() {
-
+        cancelReserve() {
+            this.showDialog = true;
+        },
+        endReserve() {
+            this.showDialog = true;
         }
+    },
+    computed:{
+        icon() {
+            return item => {
+                switch(item.equipmentType) {
+                    case 1:
+                        return 'computer';
+                        break;
+                    case 2:
+                        return 'display';
+                        break;
+                    case 3:
+                        return 'keyboard';
+                        break;
+                    case 4:
+                        return 'mouse';
+                        break;
+                    default:
+                        return 'computer'
+                }
+            }
+        },
+        statusText() {
+            return status => {
+                switch(status) {
+                    case 1:
+                        return '等待批准中...';
+                        break;
+                    case 2:
+                        return '未批准';
+                        break;
+                    case 3:
+                        return '使用中';
+                        break;
+                    case 4:
+                        return '已结束';
+                        break;
+                    default:
+                        return '等待批准中...'
+                }
+            }
+        },
+        statusClass() {
+            return status => {
+                switch(status) {
+                    case 1:
+                        return 'await';
+                        break;
+                    case 2:
+                        return 'refuse';
+                        break;
+                    case 3:
+                        return 'using';
+                        break;
+                    case 4:
+                        return 'end';
+                        break;
+                    default:
+                        return 'await'
+                }
+            }
+        },
     }
 }
 </script>
@@ -161,6 +230,15 @@ export default {
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
             }
+            .display {
+                background-image: url('../images/display.png');
+            }
+            .keyboard {
+                background-image: url('../images/keyboard.png');
+            }
+            .mouse {
+                background-image: url('../images/mouse.png');
+            }
             .equipment-info {
                 flex-grow: 1;
                 padding: 0 10px;
@@ -173,9 +251,13 @@ export default {
                     color: #BBB;
                     margin: 5px 0;
                     span {
-                        color: #f83600;
                         margin-left: 10px;
                         font-weight: bold;
+                    }
+                }
+                .refuse {
+                    span {
+                        color: #f83600;
                     }
                 }
                 .await {
@@ -183,9 +265,14 @@ export default {
                         color: #f9d423;
                     }
                 }
-                .passed {
+                .using {
                     span {
                         color: #2af598;
+                    }
+                }
+                .end {
+                    span {
+                        color: #666;
                     }
                 }
                 .available-time {
@@ -197,7 +284,7 @@ export default {
                     }
                 }
             }
-            .cancel-btn {
+            .cancel-btn, .end-btn {
                 background-color: #f83600;
                 color: #FFF;
                 padding: 5px;
@@ -209,8 +296,8 @@ export default {
     }
     .cancel-dialog {
         .dialog-title {
-            height: 30px;
-            line-height: 30px;
+            height: 50px;
+            line-height: 50px;
             font-size: 15px;
             text-align: center;
             border-bottom: 1px solid #2196F3;

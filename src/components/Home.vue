@@ -5,138 +5,41 @@
             <input id="search-input" type="text" placeholder="搜索设备">
         </div>
         <div class="equipment-list">
-            <div class="equipment-item">
-                <div class="equipment-icon"></div>
+            <div class="equipment-item" v-for="(item, index) in equipmentList" :key=index>
+                <div :class="['equipment-icon', icon(item)]"></div>
                 <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="count">剩余数量
-                        <span>32</span>
+                    <div class="equipment-name">{{item.equipmentName}}</div>
+                    <div class="count">设备型号
+                        <span>{{item.equipmentModel}}</span>
                     </div>
                     <div class="available-time">可预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
+                        <span>{{item.reserveStart}} - {{item.reserveEnd}}</span>
                     </div>
                 </div>
-                <div class="reservation-btn" @click="goReserve">预约</div>
-            </div>
-            <div class="equipment-item">
-                <div class="equipment-icon"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="count">剩余数量
-                        <span>32</span>
-                    </div>
-                    <div class="available-time">可预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
-                    </div>
-                </div>
-                <div class="reservation-btn">预约</div>
-            </div><div class="equipment-item">
-                <div class="equipment-icon"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="count">剩余数量
-                        <span>32</span>
-                    </div>
-                    <div class="available-time">可预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
-                    </div>
-                </div>
-                <div class="reservation-btn">预约</div>
-            </div><div class="equipment-item">
-                <div class="equipment-icon"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="count">剩余数量
-                        <span>32</span>
-                    </div>
-                    <div class="available-time">可预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
-                    </div>
-                </div>
-                <div class="reservation-btn">预约</div>
-            </div><div class="equipment-item">
-                <div class="equipment-icon"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="count">剩余数量
-                        <span>32</span>
-                    </div>
-                    <div class="available-time">可预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
-                    </div>
-                </div>
-                <div class="reservation-btn">预约</div>
-            </div><div class="equipment-item">
-                <div class="equipment-icon"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="count">剩余数量
-                        <span>32</span>
-                    </div>
-                    <div class="available-time">可预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
-                    </div>
-                </div>
-                <div class="reservation-btn">预约</div>
-            </div><div class="equipment-item">
-                <div class="equipment-icon"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="count">剩余数量
-                        <span>32</span>
-                    </div>
-                    <div class="available-time">可预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
-                    </div>
-                </div>
-                <div class="reservation-btn">预约</div>
-            </div><div class="equipment-item">
-                <div class="equipment-icon"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="count">剩余数量
-                        <span>32</span>
-                    </div>
-                    <div class="available-time">可预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
-                    </div>
-                </div>
-                <div class="reservation-btn">预约</div>
-            </div><div class="equipment-item">
-                <div class="equipment-icon"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">联想电脑GT009</div>
-                    <div class="count">剩余数量
-                        <span>32</span>
-                    </div>
-                    <div class="available-time">可预约时间
-                        <span>2019.04.01 - 2019.06.01</span>
-                    </div>
-                </div>
-                <div class="reservation-btn">预约</div>
+                <div class="reservation-btn" @click="goReserve(item)">预约</div>
             </div>
         </div>
         <Dialog :visible="showDialog" @close="closeDialog" class="reservation-dialog">
             <div class="dialog-title">预约该设备</div>
             <div class="equipment-info">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name">联想电脑GT009</div>
+                <div :class="['equipment-icon', icon(selectedItem)]"></div>
+                <div class="equipment-name">{{selectedItem.equipmentName}}</div>
                 <div class="line"></div>
                 <div class="equipment-type">
                     <span>设备类型</span>
-                    <span class="value">电脑</span>
+                    <span class="value">{{type(selectedItem)}}</span>
                 </div>
                 <div class="equipment-address">
-                    <span>设备地址</span>
-                    <span class="value">华工软件学院学院路B7108室</span>
+                    <span>设备型号</span>
+                    <span class="value">{{selectedItem.equipmentModel}}</span>
                 </div>
                 <div class="available-time">
                     <span>可预约时间</span>
-                    <span class="value">2019.04.01 - 2019.06.01</span>
+                    <span class="value">{{selectedItem.reserveStart}} - {{selectedItem.reserveEnd}}</span>
                 </div>
                 <div class="equipment-note">
                     <span>注意事项</span>
-                    <span class="value">该设备属于贵重物品请注意保护，小心使用！</span>
+                    <span class="value">{{selectedItem.note}}</span>
                 </div>
                 <div class="reservation-note">请选择预约时间：</div>
                 <div class="start-date">
@@ -144,7 +47,7 @@
                     <input v-model="startDate" type="date" name="start-date">
                 </div>
                 <div class="end-date">
-                    <label for="end-date">开始时间</label>
+                    <label for="end-date">结束时间</label>
                     <input v-model="endDate" type="date" name="end-date">
                 </div>
             </div>
@@ -158,6 +61,7 @@
 
 <script>
 import Dialog from './Dialog'
+import Service from '../service/base_service'
 
 export default {
     components: {
@@ -167,18 +71,140 @@ export default {
         return {
             showDialog: false,
             startDate: '',
-            endDate: ''
+            endDate: '',
+            equipmentList: [
+                {
+                    equipmentName:'联想电脑',
+                    equipmentModel: 'GT009',
+                    equipmentType: 1,
+                    reserveStart: '2019/04/01',
+                    reserveEnd:'2019/05/01',
+                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                },
+                {
+                    equipmentName:'戴尔显示屏',
+                    equipmentModel: 'SGK004',
+                    equipmentType: 2,
+                    reserveStart: '2019/04/01',
+                    reserveEnd:'2019/05/01',
+                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                },
+                {
+                    equipmentName:'CHERRY键盘',
+                    equipmentModel: 'T-405H',
+                    equipmentType: 3,
+                    reserveStart: '2019/04/01',
+                    reserveEnd:'2019/05/01',
+                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                },
+                {
+                    equipmentName:'罗技鼠标',
+                    equipmentModel: 'P8TY-P',
+                    equipmentType: 4,
+                    reserveStart: '2019/04/01',
+                    reserveEnd:'2019/05/01',
+                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                },
+                {
+                    equipmentName:'罗技鼠标',
+                    equipmentModel: 'P8TY-P',
+                    equipmentType: 4,
+                    reserveStart: '2019/04/01',
+                    reserveEnd:'2019/05/01',
+                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                },
+                {
+                    equipmentName:'罗技鼠标',
+                    equipmentModel: 'P8TY-P',
+                    equipmentType: 4,
+                    reserveStart: '2019/04/01',
+                    reserveEnd:'2019/05/01',
+                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                },
+                {
+                    equipmentName:'罗技鼠标',
+                    equipmentModel: 'P8TY-P',
+                    equipmentType: 4,
+                    reserveStart: '2019/04/01',
+                    reserveEnd:'2019/05/01',
+                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                },
+                {
+                    equipmentName:'罗技鼠标',
+                    equipmentModel: 'P8TY-P',
+                    equipmentType: 4,
+                    reserveStart: '2019/04/01',
+                    reserveEnd:'2019/05/01',
+                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                }
+            ],
+            selectedItem: {}
         };
     },
-    mounted() {
-
+    computed: {
+        icon() {
+            return item => {
+                switch(item.equipmentType) {
+                    case 1:
+                        return 'computer';
+                        break;
+                    case 2:
+                        return 'display';
+                        break;
+                    case 3:
+                        return 'keyboard';
+                        break;
+                    case 4:
+                        return 'mouse';
+                        break;
+                    default:
+                        return 'computer'
+                }
+            }
+        },
+        type() {
+            return item => {
+                switch(item.equipmentType) {
+                    case 1:
+                        return '电脑';
+                        break;
+                    case 2:
+                        return '显示屏';
+                        break;
+                    case 3:
+                        return '键盘';
+                        break;
+                    case 4:
+                        return '鼠标';
+                        break;
+                    default:
+                        return '电脑'
+                }
+            }
+        }
     },
     methods: {
-        goReserve() {
+        goReserve(item) {
+            this.selectedItem = item;
             this.showDialog = true;
         },
         closeDialog() {
             this.showDialog = false;
+        },
+        async test() {
+            const result = await Service.queryTemplate(
+                {
+                    test: 'test001'
+                },
+                {
+                    onSuccess: res => {
+                        console.log('res....', res);
+                    },
+                    onFail: err => {
+                        console.log('err....', err);
+                    }
+                }
+            );
         }
     }
 }
@@ -237,6 +263,15 @@ export default {
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
             }
+            .display {
+                background-image: url('../images/display.png');
+            }
+            .keyboard {
+                background-image: url('../images/keyboard.png');
+            }
+            .mouse {
+                background-image: url('../images/mouse.png');
+            }
             .equipment-info {
                 flex-grow: 1;
                 padding: 0 10px;
@@ -274,8 +309,8 @@ export default {
     }
     .reservation-dialog {
         .dialog-title {
-            height: 30px;
-            line-height: 30px;
+            height: 50px;
+            line-height: 50px;
             font-size: 15px;
             text-align: center;
             border-bottom: 1px solid #2196F3;
@@ -294,6 +329,15 @@ export default {
                 background-image: url('../images/computer.png');
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
+            }
+            .display {
+                background-image: url('../images/display.png');
+            }
+            .keyboard {
+                background-image: url('../images/keyboard.png');
+            }
+            .mouse {
+                background-image: url('../images/mouse.png');
             }
             .equipment-name {
                 font-weight: bold;
