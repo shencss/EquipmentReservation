@@ -7,19 +7,22 @@
         </div>
         <div class="type-underline" :class="underlineClass"></div>
         <div class="equipment-list">
-            <div class="equipment-item" v-for="(item, index) in reservationList" :key=index>
-                <div :class="['equipment-icon', icon(item)]"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">{{item.equipmentName}}</div>
-                    <div :class="['status', statusClass(item.status)]">当前状态
-                        <span>{{statusText(item.status)}}</span>
+            <div class="item-wrap" v-for="(item, index) in reservationList" :key=index>
+                <div class="equipment-item" v-if="showItem(item.status)">
+                    <div :class="['equipment-icon', icon(item)]"></div>
+                    <div class="equipment-info">
+                        <div class="equipment-name">{{item.equipmentName}}</div>
+                        <div :class="['status', statusClass(item.status)]">当前状态
+                            <span>{{statusText(item.status)}}</span>
+                        </div>
+                        <div class="available-time">预约时间
+                            <span>{{item.reserveStart}} - {{item.reserveEnd}}</span>
+                        </div>
                     </div>
-                    <div class="available-time">预约时间
-                        <span>{{item.reserveStart}} - {{item.reserveEnd}}</span>
-                    </div>
+                    <div v-if="item.status == 1" class="cancel-btn" @click="cancelReserve">取消预约</div>
+                    <div v-if="item.status == 3" class="end-btn" @click="endReserve">结束预约</div>
+                    <div class="reserve-time">2019.04.01 18:00</div>
                 </div>
-                <div v-if="item.status == 1" class="cancel-btn" @click="cancelReserve">取消预约</div>
-                <div v-if="item.status == 3" class="end-btn" @click="endReserve">结束预约</div>
             </div>
         </div>
         <Dialog :visible="showDialog" @close="closeDialog" class="cancel-dialog">
@@ -49,29 +52,29 @@ export default {
                     equipmentName: '联系电脑',
                     equipmentType: 1,
                     status: 1,
-                    reserveStart: '2019/04/01',
-                    reserveEnd: '2019/04/15'
+                    reserveStart: '2019.04.01',
+                    reserveEnd: '2019.04.15'
                 },
                 {
                     equipmentName: '戴尔显示屏',
                     equipmentType: 2,
                     status: 2,
-                    reserveStart: '2019/04/01',
-                    reserveEnd: '2019/04/15'
+                    reserveStart: '2019.04.01',
+                    reserveEnd: '2019.04.15'
                 },
                 {
                     equipmentName: 'CHERRY键盘',
                     equipmentType: 3,
                     status: 3,
-                    reserveStart: '2019/04/01',
-                    reserveEnd: '2019/04/15'
+                    reserveStart: '2019.04.01',
+                    reserveEnd: '2019.04.15'
                 },
                 {
                     equipmentName: '罗技鼠标',
                     equipmentType: 4,
                     status: 4,
-                    reserveStart: '2019/04/01',
-                    reserveEnd: '2019/04/15'
+                    reserveStart: '2019.04.01',
+                    reserveEnd: '2019.04.15'
                 }
             ]
         };
@@ -163,6 +166,19 @@ export default {
                 }
             }
         },
+        showItem() {
+            return status => {
+                if (this.type === 'all') {
+                    return true;
+                } else if (this.type == 'doing' && status == 1) {
+                    return true;
+                } else if(this.type == 'done' && (status == 3 || status == 4)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
     }
 }
 </script>
@@ -215,6 +231,7 @@ export default {
     }
     .equipment-list {
         .equipment-item {
+            position: relative;
             height: 80px;
             width: 100%;
             display: flex;
@@ -223,6 +240,7 @@ export default {
             border-bottom: 1px solid #EEE;
             box-sizing: border-box;
             padding: 10px;
+            padding-bottom: 15px;
             .equipment-icon {
                 height: 50px;
                 width: 50px;
@@ -291,6 +309,13 @@ export default {
                 font-size: 12px;
                 border-radius: 3px;
                 cursor: pointer;
+            }
+            .reserve-time {
+                position: absolute;
+                bottom: 3px;
+                right: 3px;
+                font-size: 12px;
+                color: #BBB;
             }
         }
     }
