@@ -12,8 +12,13 @@
                     <div class="count">设备型号
                         <span>{{item.equipmentModel}}</span>
                     </div>
-                    <div class="available-time">可预约时间
-                        <span>{{item.reserveStart}} - {{item.reserveEnd}}</span>
+                    <div class="available-time">
+                        <span>可预约时间</span> 
+                        <div class="time-list">
+                            <span v-for="(period, index2) in item.periodList.slice(0, 2)" :key="index2">{{period.startDate}} - {{period.endDate}}</span>
+                            <span v-if="item.periodList && item.periodList.length > 3" style="font-size: 10px">......</span>
+                        </div>   
+                        
                     </div>
                 </div>
                 <div class="reservation-btn" @click="goReserve(item)">预约</div>
@@ -35,7 +40,9 @@
                 </div>
                 <div class="available-time">
                     <span>可预约时间</span>
-                    <span class="value">{{selectedItem.reserveStart}} - {{selectedItem.reserveEnd}}</span>
+                    <div class="time-list">
+                        <span v-for="(period, index) in selectedItem.periodList" :key="index">{{period.startDate}} - {{period.endDate}}</span>
+                    </div> 
                 </div>
                 <div class="equipment-note">
                     <span>注意事项</span>
@@ -77,64 +84,160 @@ export default {
                     equipmentName:'联想电脑',
                     equipmentModel: 'GT009',
                     equipmentType: 1,
-                    reserveStart: '2019/04/01',
-                    reserveEnd:'2019/05/01',
+                    periodList: [
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                    ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
                 },
                 {
                     equipmentName:'戴尔显示屏',
                     equipmentModel: 'SGK004',
                     equipmentType: 2,
-                    reserveStart: '2019/04/01',
-                    reserveEnd:'2019/05/01',
+                    periodList: [
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                    ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
                 },
                 {
                     equipmentName:'CHERRY键盘',
                     equipmentModel: 'T-405H',
                     equipmentType: 3,
-                    reserveStart: '2019/04/01',
-                    reserveEnd:'2019/05/01',
+                    periodList: [
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        }
+                    ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
                 },
                 {
                     equipmentName:'罗技鼠标',
                     equipmentModel: 'P8TY-P',
                     equipmentType: 4,
-                    reserveStart: '2019/04/01',
-                    reserveEnd:'2019/05/01',
+                     periodList: [
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        }
+                    ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
                 },
                 {
                     equipmentName:'罗技鼠标',
                     equipmentModel: 'P8TY-P',
                     equipmentType: 4,
-                    reserveStart: '2019/04/01',
-                    reserveEnd:'2019/05/01',
+                    periodList: [
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        }
+                    ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
                 },
                 {
                     equipmentName:'罗技鼠标',
                     equipmentModel: 'P8TY-P',
                     equipmentType: 4,
-                    reserveStart: '2019/04/01',
-                    reserveEnd:'2019/05/01',
+                    periodList: [
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        }
+                    ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
                 },
                 {
                     equipmentName:'罗技鼠标',
                     equipmentModel: 'P8TY-P',
                     equipmentType: 4,
-                    reserveStart: '2019/04/01',
-                    reserveEnd:'2019/05/01',
+                    periodList: [
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        }
+                    ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
                 },
                 {
                     equipmentName:'罗技鼠标',
                     equipmentModel: 'P8TY-P',
                     equipmentType: 4,
-                    reserveStart: '2019/04/01',
-                    reserveEnd:'2019/05/01',
+                    periodList: [
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        },
+                        {
+                            startDate: '2019.04.01',
+                            endDate: '2019.05.01'
+                        }
+                    ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
                 }
             ],
@@ -248,7 +351,7 @@ export default {
         padding: 0 10px;
         overflow-y: auto;
         .equipment-item {
-            height: 80px;
+            min-height: 80px;
             width: 100%;
             display: flex;
             justify-content: flex-start;
@@ -289,11 +392,18 @@ export default {
                     }
                 }
                 .available-time {
+                    display: flex;
+                    justify-content: flex-start;
                     font-size: 12px;
                     color: #BBB; 
-                    span {
+                    .time-list {
+                        flex-shrink: 1;
                         color: #2196F3;
                         margin-left: 10px;
+                        span {
+                            text-align: center;
+                            display: block;
+                        }
                     }
                 }
             }
@@ -363,6 +473,15 @@ export default {
                     color: #000;
                     flex-grow: 1;
                 }
+                .time-list {
+                    flex-grow: 1;
+                    span {
+                        color: #000;
+                        margin-bottom: 5px;
+                        display: block;
+                    }
+                }
+                
             }
             .reservation-note {
                 width: 100%;
