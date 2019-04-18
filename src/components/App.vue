@@ -1,15 +1,10 @@
 <template>
 	<div class="equipment-reservation">
 		<Head></Head>
-		
-			<keep-alive>
-				<router-view v-if="$route.meta.keepAlive" class="app-content"></router-view>
-			</keep-alive>
-
-
-			<router-view v-if="!$route.meta.keepAlive" class="app-content"></router-view>
-
-		<Nav></Nav>
+		<keep-alive>
+			<router-view v-if="$route.meta.keepAlive" class="app-content"></router-view>
+		</keep-alive>
+		<router-view v-if="!$route.meta.keepAlive" class="app-content"></router-view>
 	</div>
 </template>
 <script>
@@ -49,6 +44,6 @@ export default {
 	width: 100vw;
 	height: 100vh;
 	background-color: #FFF;
-	padding: 40px 0 45px 0;
+	padding: 40px 0 0 0;
 }
 </style>

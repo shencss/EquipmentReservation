@@ -13,10 +13,10 @@ export default new Vuex.Store({
                     state.navName = '设备列表';
                     break;
                 case 'reservation':
-                    state.navName = '预约中心';
+                    state.navName = '添加设备';
                     break;
                 case 'mine':
-                    state.navName = '个人信息';
+                    state.navName = '预约审批';
                     break;
                 default:
                     state.navName = '设备预约';

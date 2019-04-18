@@ -18,13 +18,13 @@ export default [{
             component: Home
         },
         {
-            name: 'reservation',
-            path: '/reservation',
+            name: 'add',
+            path: '/add',
             component: Reservation
         },
         {
-            name: 'mine',
-            path: '/mine',
+            name: 'approval',
+            path: '/approval',
             component: Mine
         },
     ]

@@ -4,24 +4,35 @@
             <input id="search-input" type="text" placeholder="搜索设备">
             <span class="search-icon"></span>
         </div>
+        <div class="type-header">
+            <div @click="checkType('all')">所有设备</div>
+            <div @click="checkType('reserving')">预约中</div>
+            <div @click="checkType('using')">使用中</div>
+            <div @click="checkType('idle')">闲置设备</div>
+            <div class="type-underline" :class="underlineClass"></div>
+        </div>
+        
         <div class="equipment-list">
-            <div class="equipment-item" v-for="(item, index) in equipmentList" :key=index>
-                <div :class="['equipment-icon', icon(item)]"></div>
-                <div class="equipment-info">
-                    <div class="equipment-name">{{item.equipmentName}}</div>
-                    <div class="count">设备型号
-                        <span>{{item.equipmentModel}}</span>
+            <div class="item-warp" v-for="(item, index) in equipmentList" :key=index>
+                <div class="equipment-item" v-if="showItem(item.status)">
+                    <div :class="['equipment-icon', icon(item)]"></div>
+                    <div class="equipment-info">
+                        <div class="equipment-name">{{item.equipmentName}}</div>
+                        <div class="count">设备型号
+                            <span>{{item.equipmentModel}}</span>
+                        </div>
+                        <div class="available-time">
+                            <span>可预约时间</span> 
+                            <div class="time-list">
+                                <span v-for="(period, index2) in item.periodList.slice(0, 2)" :key="index2">{{period.startDate}} - {{period.endDate}}</span>
+                                <span v-if="item.periodList && item.periodList.length > 3" style="font-size: 10px">......</span>
+                            </div>   
+                            
+                        </div>
                     </div>
-                    <div class="available-time">
-                        <span>可预约时间</span> 
-                        <div class="time-list">
-                            <span v-for="(period, index2) in item.periodList.slice(0, 2)" :key="index2">{{period.startDate}} - {{period.endDate}}</span>
-                            <span v-if="item.periodList && item.periodList.length > 3" style="font-size: 10px">......</span>
-                        </div>   
-                        
-                    </div>
+                    <div class="reservation-btn" v-if="item.status == 1" @click="goReserve(item)">修改信息</div>
+                    <div class="arrange-btn" v-if="item.status == 3" @click="goReserve(item)">安排预约</div>
                 </div>
-                <div class="reservation-btn" @click="goReserve(item)">预约</div>
             </div>
         </div>
         <Dialog :visible="showDialog" @close="closeDialog" class="reservation-dialog">
@@ -76,6 +87,8 @@ export default {
     },
     data() {
         return {
+            equipmentType: 'all',
+            underlineClass: 'type-1',
             showDialog: false,
             startDate: '',
             endDate: '',
@@ -102,7 +115,8 @@ export default {
                             endDate: '2019.05.01'
                         },
                     ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                    note: '该设备属于贵重物品请注意保护，小心使用！',
+                    status: 1
                 },
                 {
                     equipmentName:'戴尔显示屏',
@@ -126,7 +140,8 @@ export default {
                             endDate: '2019.05.01'
                         },
                     ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                    note: '该设备属于贵重物品请注意保护，小心使用！',
+                    status: 1
                 },
                 {
                     equipmentName:'CHERRY键盘',
@@ -146,7 +161,8 @@ export default {
                             endDate: '2019.05.01'
                         }
                     ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                    note: '该设备属于贵重物品请注意保护，小心使用！',
+                    status: 3
                 },
                 {
                     equipmentName:'罗技鼠标',
@@ -158,7 +174,8 @@ export default {
                             endDate: '2019.05.01'
                         }
                     ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                    note: '该设备属于贵重物品请注意保护，小心使用！',
+                    status: 2
                 },
                 {
                     equipmentName:'罗技鼠标',
@@ -178,7 +195,8 @@ export default {
                             endDate: '2019.05.01'
                         }
                     ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                    note: '该设备属于贵重物品请注意保护，小心使用！',
+                    status: 2
                 },
                 {
                     equipmentName:'罗技鼠标',
@@ -198,7 +216,8 @@ export default {
                             endDate: '2019.05.01'
                         }
                     ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                    note: '该设备属于贵重物品请注意保护，小心使用！',
+                    status: 1
                 },
                 {
                     equipmentName:'罗技鼠标',
@@ -218,7 +237,8 @@ export default {
                             endDate: '2019.05.01'
                         }
                     ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                    note: '该设备属于贵重物品请注意保护，小心使用！',
+                    status: 2
                 },
                 {
                     equipmentName:'罗技鼠标',
@@ -238,7 +258,8 @@ export default {
                             endDate: '2019.05.01'
                         }
                     ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
+                    note: '该设备属于贵重物品请注意保护，小心使用！',
+                    status: 3
                 }
             ],
             selectedItem: {}
@@ -284,6 +305,19 @@ export default {
                         return '电脑'
                 }
             }
+        },
+        showItem() {
+            return status => {
+                if (this.equipmentType === 'all') {
+                    return true;
+                } else if (this.equipmentType == 'reserving' && status == 1) {
+                    return true;
+                } else if(this.equipmentType == 'using' && status == 2) {
+                    return true;
+                } else if(this.equipmentType == 'idle' && status == 3) {
+                    return true;
+                }
+            }
         }
     },
     methods: {
@@ -308,6 +342,30 @@ export default {
                     }
                 }
             );
+        },
+        checkType(type) {
+            switch(type) {
+                case 'all':
+                    this.equipmentType = 'all';
+                    this.underlineClass = 'type-1';
+                    break;
+                case 'reserving':
+                    this.equipmentType = 'reserving';
+                    this.underlineClass = 'type-2';
+                    break;
+                case 'using':
+                    this.equipmentType = 'using';
+                    this.underlineClass = 'type-3';
+                    break;
+                case 'idle':
+                    this.equipmentType = 'idle';
+                    this.underlineClass = 'type-4';
+                    break;
+                default:
+                    this.equipmentType = 'all';
+                    this.underlineClass = 'type-1';
+                
+            }
         }
     }
 }
@@ -347,8 +405,47 @@ export default {
             border-radius: 10px;
         }
     }
+    .type-header {
+        position: relative;
+        height: 35px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #FFF;
+        color: #2196F3;
+        font-size: 12px;
+        div {
+            position: relative;
+            flex: 1;
+            text-align: center;
+            height: 35px;
+            line-height: 35px;
+        }
+        .type-underline {
+            height: 2px;
+            width: 30px;
+            background-color: #2196F3;
+            position: absolute;
+            top: 30px;
+            left: 12.5%;
+            transform: translateX(-50%);
+            transition: all .5s linear;
+        }
+        .type-1 {
+            left: 12.5%;
+        }
+        .type-2 {
+            left: 37.5%;
+        }
+        .type-3 {
+            left: 62.5%;
+        }
+        .type-4 {
+            left: 87.5%;
+        }
+    }
     .equipment-list {
-        max-height: calc(100vh - 135px);
+        max-height: calc(100vh - 125px);
         padding: 0 10px;
         overflow-y: auto;
         .equipment-item {
@@ -408,13 +505,16 @@ export default {
                     }
                 }
             }
-            .reservation-btn {
+            .reservation-btn, .arrange-btn {
                 background-color: #2196F3;
                 color: #FFF;
                 padding: 5px;
                 font-size: 12px;
                 border-radius: 3px;
                 cursor: pointer;
+            }
+            .arrange-btn {
+                background-color: #2af598;
             }
         }
     }

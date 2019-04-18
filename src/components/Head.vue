@@ -1,6 +1,8 @@
 <template>
 	<div class="app-head">
-        <div class="nav-name">{{navName}}</div>
+        <div class="nav-name">设备列表</div>
+        <div class="add-btn" @click="goAddPage"></div>
+        
     </div>
 </template>
 
@@ -16,7 +18,25 @@ export default {
     },
     computed: {
         navName() {
-            return this.$store.state.navName || ''
+            if(this.$route.name == 'home') {
+                return '设备列表';
+            } else if(this.$route.name == 'add') {
+                return '添加设备';
+            } else if(this.$route.name == 'approval') {
+                return '预约审批';
+            }
+        },
+    },
+    methods: {
+        goAddPage() {
+            this.$router.push({
+                name: 'add'
+            });
+        },
+        goHome() {
+            this.$router.push({
+                name: 'home'
+            });
         }
     }
 }
@@ -37,5 +57,18 @@ export default {
     text-align: center;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, .15);
     z-index: 99;
+    .add-btn, .home-btn {
+        position: absolute;
+        height: 25px;
+        width: 25px;
+        top: 7.5px;
+        right: 20px;
+        background-image: url('../images/add.png');
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+    .home-btn {
+        background-image: url('../images/home_white.png');
+    }
 }
 </style>
