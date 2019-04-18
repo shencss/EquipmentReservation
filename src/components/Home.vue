@@ -1,8 +1,8 @@
 <template>
 	<div class="home">
         <div class="search-box">
-            <span class="search-icon"></span>
             <input id="search-input" type="text" placeholder="搜索设备">
+            <span class="search-icon"></span>
         </div>
         <div class="equipment-list">
             <div class="equipment-item" v-for="(item, index) in equipmentList" :key=index>
@@ -328,7 +328,7 @@ export default {
         .search-icon {
             position: absolute;
             top: 15px;
-            left: 25px;
+            right: 25px;
             display: inline-block;
             width: 20px;
             height: 20px;
@@ -342,7 +342,8 @@ export default {
             width: 100%;
             outline: none;
             border: none;
-            padding-left: 34px;
+            padding-left: 15px;
+            padding-right: 34px;
             border-radius: 10px;
         }
     }
