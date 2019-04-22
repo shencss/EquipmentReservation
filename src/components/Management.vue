@@ -1,17 +1,9 @@
 <template>
-	<div class="home">
+	<div class="management">
         <div class="search-box">
             <input id="search-input" type="text" placeholder="搜索设备">
             <span class="search-icon"></span>
         </div>
-        <div class="type-header">
-            <div @click="checkType('all')">所有设备</div>
-            <div @click="checkType('reserving')">预约中</div>
-            <div @click="checkType('using')">使用中</div>
-            <div @click="checkType('idle')">闲置设备</div>
-            <div class="type-underline" :class="underlineClass"></div>
-        </div>
-        
         <div class="equipment-list">
             <div class="item-warp" v-for="(item, index) in equipmentList" :key=index>
                 <div class="equipment-item" v-if="showItem(item.status)">
@@ -30,8 +22,10 @@
                             
                         </div>
                     </div>
-                    <div class="reservation-btn" v-if="item.status == 1" @click="goReserve(item)">修改信息</div>
-                    <div class="arrange-btn" v-if="item.status == 3" @click="goReserve(item)">安排预约</div>
+                    <div class="operate-">
+                        <div class="modify-btn" @click="modifyEquipment(item)">修改信息</div>
+                        <div class="delete-btn" @click="deleteEquipment(item)">删除设备</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -74,12 +68,12 @@
                 <div class="confirm-btn">确定</div>
             </div>
         </Dialog>
+        <div class="add-btn"></div>
     </div>
 </template>
 
 <script>
 import Dialog from './Dialog'
-import Service from '../service/base_service'
 
 export default {
     components: {
@@ -321,9 +315,11 @@ export default {
         }
     },
     methods: {
-        goReserve(item) {
-            this.selectedItem = item;
-            this.showDialog = true;
+        modifyEquipment(item) {
+            
+        },
+        deleteEquipment(item) {
+
         },
         closeDialog() {
             this.showDialog = false;
@@ -372,7 +368,7 @@ export default {
 </script>
 
 <style lang="scss">
-.home {
+.management {
     width: 100%;
     box-sizing: border-box;
     max-height: 100vh;
@@ -405,47 +401,8 @@ export default {
             border-radius: 10px;
         }
     }
-    .type-header {
-        position: relative;
-        height: 35px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #FFF;
-        color: #2196F3;
-        font-size: 12px;
-        div {
-            position: relative;
-            flex: 1;
-            text-align: center;
-            height: 35px;
-            line-height: 35px;
-        }
-        .type-underline {
-            height: 2px;
-            width: 30px;
-            background-color: #2196F3;
-            position: absolute;
-            top: 30px;
-            left: 12.5%;
-            transform: translateX(-50%);
-            transition: all .5s linear;
-        }
-        .type-1 {
-            left: 12.5%;
-        }
-        .type-2 {
-            left: 37.5%;
-        }
-        .type-3 {
-            left: 62.5%;
-        }
-        .type-4 {
-            left: 87.5%;
-        }
-    }
     .equipment-list {
-        max-height: calc(100vh - 125px);
+        max-height: calc(100vh - 135px);
         padding: 0 10px;
         overflow-y: auto;
         .equipment-item {
@@ -505,7 +462,7 @@ export default {
                     }
                 }
             }
-            .reservation-btn, .arrange-btn {
+            .modify-btn, .delete-btn {
                 background-color: #2196F3;
                 color: #FFF;
                 padding: 5px;
@@ -513,8 +470,9 @@ export default {
                 border-radius: 3px;
                 cursor: pointer;
             }
-            .arrange-btn {
-                background-color: #2af598;
+            .delete-btn {
+                background-color: #f83600;
+                margin-top: 10px;
             }
         }
     }
@@ -617,6 +575,17 @@ export default {
                 margin: 20px 10px;
             }
         }
+    }
+    .add-btn {
+        position: fixed;
+        top: 7.5px;
+        right: 20px;
+        width: 25px;
+        height: 25px;
+        background-image: url('../images/add.png');
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        z-index: 3;
     }
 
 }

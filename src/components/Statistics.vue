@@ -1,6 +1,6 @@
 <template>
-	<div class="reservation">
-        添加设备
+	<div class="statistics">
+        统计信息
     </div>
 </template>
 
@@ -8,6 +8,9 @@
 
 export default {
     data() {
+        return {
+            
+        }
     },
     
 }

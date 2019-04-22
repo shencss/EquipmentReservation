@@ -1,7 +1,7 @@
 <template>
 	<div class="app-head">
-        <div class="nav-name">设备列表</div>
-        <div class="add-btn" @click="goAddPage"></div>
+        <div class="nav-name">{{navName}}</div>
+        <div class="add-btn" v-if="navName == '设备管理'" @click="goAddPage"></div>
         
     </div>
 </template>
@@ -18,12 +18,14 @@ export default {
     },
     computed: {
         navName() {
-            if(this.$route.name == 'home') {
+            if(this.$route.name == 'schedule') {
                 return '设备列表';
-            } else if(this.$route.name == 'add') {
-                return '添加设备';
             } else if(this.$route.name == 'approval') {
                 return '预约审批';
+            } else if(this.$route.name == 'statistics') {
+                return '信息统计';
+            } else if(this.$route.name == 'management') {
+                return '设备管理'
             }
         },
     },

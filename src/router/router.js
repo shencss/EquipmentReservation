@@ -1,8 +1,9 @@
 
 import App from '../components/App';
-import Home from '../components/Home'
-import Reservation from '../components/Reservation'
-import Mine from '../components/Mine'
+import Schedule from '../components/Schedule'
+import Statistics from '../components/Statistics'
+import Approval from '../components/Approval'
+import Management from '../components/Management'
 
 export default [{
     path: '/',
@@ -10,22 +11,27 @@ export default [{
     children: [ //二级路由。对应App.vue
         {
             path: '',
-            redirect: '/home'
+            redirect: '/schedule'
         },
         {
-            name: 'home',
-            path: '/home',
-            component: Home
-        },
-        {
-            name: 'add',
-            path: '/add',
-            component: Reservation
+            name: 'schedule',
+            path: '/schedule',
+            component: Schedule
         },
         {
             name: 'approval',
             path: '/approval',
-            component: Mine
+            component: Approval
+        },
+        {
+            name: 'statistics',
+            path: '/statistics',
+            component: Statistics
+        },
+        {
+            name: 'management',
+            path: '/management',
+            component: Management
         },
     ]
 }];

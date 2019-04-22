@@ -5,6 +5,7 @@
 			<router-view v-if="$route.meta.keepAlive" class="app-content"></router-view>
 		</keep-alive>
 		<router-view v-if="!$route.meta.keepAlive" class="app-content"></router-view>
+		<Nav></Nav>
 	</div>
 </template>
 <script>

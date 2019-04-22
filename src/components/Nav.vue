@@ -1,17 +1,21 @@
 <template>
 	<div class="app-nav">
-        <div :class="['nav-item', isActive('home') ? 'active-item' : '']" @click="checkNav('home')">
-            <span class="nav-icon nav-icon-home"></span>
-            <span class="nav-name">主页</span>
+        <div :class="['nav-item', isActive('schedule') ? 'active-item' : '']" @click="checkNav('schedule')">
+            <span class="nav-icon nav-icon-schedule"></span>
+            <span class="nav-name">排约</span>
         </div>
-        <div :class="['nav-item', isActive('reservation') ? 'active-item' : '']" @click="checkNav('reservation')">
-            <span class="nav-icon nav-icon-reservation"></span>
-            <span class="nav-name">预约</span>
+        <div :class="['nav-item', isActive('approval') ? 'active-item' : '']" @click="checkNav('approval')">
+            <span class="nav-icon nav-icon-approval"></span>
+            <span class="nav-name">审批</span>
         </div>
-        <!-- <div :class="['nav-item', isActive('mine') ? 'active-item' : '']" @click="checkNav('mine')">
-            <span class="nav-icon nav-icon-mine"></span>
-            <span class="nav-name">我的</span>
-        </div> -->
+        <div :class="['nav-item', isActive('statistics') ? 'active-item' : '']" @click="checkNav('statistics')">
+            <span class="nav-icon nav-icon-statistics"></span>
+            <span class="nav-name">统计</span>
+        </div>
+        <div :class="['nav-item', isActive('management') ? 'active-item' : '']" @click="checkNav('management')">
+            <span class="nav-icon nav-icon-management"></span>
+            <span class="nav-name">管理</span>
+        </div>
     </div>
 </template>
 
@@ -19,7 +23,7 @@
 export default {
     data() {
         return {
-            activeItem: 'home'
+            activeItem: 'schedule'
         };
     },
     mounted() {
@@ -76,28 +80,34 @@ export default {
             font-size: 10px;
             color: #AAA;
         }
-        .nav-icon-home {
-            background-image: url('../images/home.png');
-        }
-        .nav-icon-reservation {
+        .nav-icon-schedule {
             background-image: url('../images/reservation.png');
         }
-        .nav-icon-mine {
-            background-image: url('../images/mine.png');
+        .nav-icon-approval {
+            background-image: url('../images/approval.png');
+        }
+        .nav-icon-statistics {
+            background-image: url('../images/statistics.png');
+        }
+        .nav-icon-management {
+            background-image: url('../images/management.png');
         }
     }
     .active-item {
         .nav-name {
             color: #2196F3;
         }
-        .nav-icon-home {
-            background-image: url('../images/home_active.png');
-        }
-        .nav-icon-reservation {
+        .nav-icon-schedule {
             background-image: url('../images/reservation_active.png');
         }
-        .nav-icon-mine {
-            background-image: url('../images/mine_active.png');
+        .nav-icon-approval {
+            background-image: url('../images/approval_active.png');
+        }
+        .nav-icon-statistics {
+            background-image: url('../images/statistics_active.png');
+        }
+        .nav-icon-management {
+            background-image: url('../images/management_active.png');
         }
     }
 }
