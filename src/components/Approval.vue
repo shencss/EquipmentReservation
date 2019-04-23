@@ -1,7 +1,8 @@
 <template>
 	<div class="approval">
+        <div class="reserve-count">当前有<span>10</span>人预约该设备</div>
         <div class="reservation-box">
-            <div class="line">
+            <div class="line" style="margin-top: 0">
                 <span>设备名称</span>
                 <span class="value">联想电脑</span>
             </div>
@@ -14,16 +15,45 @@
                 <span class="value">T55P</span>
             </div>
             <div class="line">
+                <span>设备可预约时间</span>
+                
+            </div>
+            <div class="period">
+                <span>2019.04.23 18:00</span>
+                <span style="margin: 0 10px"> - </span>
+                <span>2019.05.23 18:00</span>
+            </div>
+            <div class="period">
+                <span>2019.04.23 18:00</span>
+                <span style="margin: 0 10px"> - </span>
+                <span>2019.05.23 18:00</span>
+            </div>
+            <div class="period">
+                <span>2019.04.23 18:00</span>
+                <span style="margin: 0 10px"> - </span>
+                <span>2019.05.23 18:00</span>
+            </div>
+            <div class="line">
                 <span>预约用户</span>
                 <span class="value">沈承胜</span>
             </div>
             <div class="line">
-                <span>预约起始日期</span>
-                <span class="value">2019.04.01</span>
+                <span>用户预约时间</span>
             </div>
-            <div class="line">
-                <span>预约结束日期</span>
-                <span class="value">2019.05.01</span>
+            <div class="period">
+                <span>2019.04.23 18:00</span>
+                <span style="margin: 0 10px"> - </span>
+                <span>2019.05.23 18:00</span>
+            </div>
+            <div class="period">
+                <span>2019.04.23 18:00</span>
+                <span style="margin: 0 10px"> - </span>
+                <span>2019.05.23 18:00</span>
+            </div>
+            <div class="period">
+                <span>2019.04.23 18:00</span>
+                <span style="margin: 0 10px"> - </span>
+                <span>2019.05.23 18:00</span>
             </div>
             <div class="line">
                 <span>备注</span>
@@ -52,7 +82,16 @@ export default {
     height: calc(100vh - 40px);
     overflow: hidden;
     background-color: rgb(245, 245, 245);
-    padding: 40px;
+    padding: 0 40px 40px 40px;
+    .reserve-count {
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        font-size: 12px;
+        span {
+            color: #2196F3;
+        }
+    }
     .reservation-box {
         background-color: #FFF;
         box-shadow: 0 0 10px rgba(0, 0, 0, .2);
@@ -62,13 +101,21 @@ export default {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-top: 20px;
             color: #AAA;
             font-size: 12px;
             .value {
                 color: #222;
                 max-width: 150px;
             }
+        }
+        .period {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: #222;
+            margin-top: 10px;
         }
 
     }
@@ -85,7 +132,7 @@ export default {
     }
     .pass-btn {
         background-color: #2196F3;
-        margin-top: 50px;
+        margin-top: 30px;
     }
 }
 </style>

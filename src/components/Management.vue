@@ -10,19 +10,18 @@
                     <div :class="['equipment-icon', icon(item)]"></div>
                     <div class="equipment-info">
                         <div class="equipment-name">{{item.equipmentName}}</div>
+                        <div class="count">设备类型
+                            <span>{{item.equipmentType}}</span>
+                        </div>
                         <div class="count">设备型号
                             <span>{{item.equipmentModel}}</span>
                         </div>
-                        <div class="available-time">
-                            <span>可预约时间</span> 
-                            <div class="time-list">
-                                <span v-for="(period, index2) in item.periodList.slice(0, 2)" :key="index2">{{period.startDate}} - {{period.endDate}}</span>
-                                <span v-if="item.periodList && item.periodList.length > 3" style="font-size: 10px">......</span>
-                            </div>   
-                            
+                        <div class="count">当前状态
+                            <span>空闲中</span>
                         </div>
                     </div>
                     <div class="operate-">
+                        <div class="check-btn">使用情况</div>
                         <div class="modify-btn" @click="modifyEquipment(item)">修改信息</div>
                         <div class="delete-btn" @click="deleteEquipment(item)">删除设备</div>
                     </div>
@@ -446,33 +445,19 @@ export default {
                         margin-left: 10px;
                     }
                 }
-                .available-time {
-                    display: flex;
-                    justify-content: flex-start;
-                    font-size: 12px;
-                    color: #BBB; 
-                    .time-list {
-                        flex-shrink: 1;
-                        color: #2196F3;
-                        margin-left: 10px;
-                        span {
-                            text-align: center;
-                            display: block;
-                        }
-                    }
-                }
             }
-            .modify-btn, .delete-btn {
+            .check-btn, .modify-btn, .delete-btn {
                 background-color: #2196F3;
                 color: #FFF;
                 padding: 5px;
                 font-size: 12px;
                 border-radius: 3px;
                 cursor: pointer;
+                margin-bottom: 10px;
             }
             .delete-btn {
                 background-color: #f83600;
-                margin-top: 10px;
+                margin-bottom: 0;
             }
         }
     }
