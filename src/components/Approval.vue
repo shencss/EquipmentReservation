@@ -38,26 +38,35 @@
                 <span class="value">沈承胜</span>
             </div>
             <div class="line">
+                <span>预约备注</span>
+                <span class="value">需要借用该设备用于毕业设计开发</span>
+            </div>
+            <div class="line">
                 <span>用户预约时间</span>
             </div>
             <div class="period">
                 <span>2019.04.23 18:00</span>
                 <span style="margin: 0 10px"> - </span>
                 <span>2019.05.23 18:00</span>
+                <input type="checkbox" value="1" v-model="approvePeriods">
             </div>
             <div class="period">
                 <span>2019.04.23 18:00</span>
                 <span style="margin: 0 10px"> - </span>
                 <span>2019.05.23 18:00</span>
+                <input type="checkbox" value="2" v-model="approvePeriods">
             </div>
             <div class="period">
                 <span>2019.04.23 18:00</span>
                 <span style="margin: 0 10px"> - </span>
                 <span>2019.05.23 18:00</span>
+                <input type="checkbox" value="3" v-model="approvePeriods">
             </div>
             <div class="line">
-                <span>备注</span>
-                <span class="value">需要借用该设备用于毕业设计开发</span>
+                <span>审批备注</span>
+            </div>
+            <div class="note">
+                <textarea name="note" id="note" cols="30" rows="3" maxlength="100"></textarea>
             </div>
         </div>
         <div class="pass-btn">同意该预约</div>
@@ -69,7 +78,7 @@
 export default {
     data() {
         return {
-
+            approvePeriods: []
         };
     },
 }
@@ -79,7 +88,7 @@ export default {
 .approval {
     width: 100%;
     box-sizing: border-box;
-    height: calc(100vh - 40px);
+    min-height: calc(100vh - 40px);
     overflow: hidden;
     background-color: rgb(245, 245, 245);
     padding: 0 40px 40px 40px;
@@ -117,7 +126,12 @@ export default {
             color: #222;
             margin-top: 10px;
         }
-
+        .note {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
     }
     .pass-btn, .refuse-btn {
         width: 80%;
