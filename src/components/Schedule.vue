@@ -23,12 +23,11 @@
                         </div>
                         <div class="available-time">
                             <span>可预约时间</span> 
-                            <div class="time-list">
-                                <span v-for="(period, index2) in item.periodList.slice(0, 2)" :key="index2">{{period.startTime}} - {{period.endTime}}</span>
-                                <span v-if="item.periodList && item.periodList.length > 3" style="font-size: 10px">......</span>
-                            </div>   
-                            
                         </div>
+                        <div class="time-list">
+                            <span v-for="(period, index2) in item.periodList.slice(0, 2)" :key="index2">{{period.startTime}} - {{period.endTime}}</span>
+                            <span v-if="item.periodList && item.periodList.length > 3" style="font-size: 10px">......</span>
+                        </div>  
                     </div>
                     <!-- <div class="arrange-btn" v-if="item.status == 3" @click="goReserve(item)">安排预约</div> -->
                     <div class="arrange-btn" @click="goReserve(item)">安排预约</div>
@@ -49,19 +48,23 @@
                     <span>设备型号</span>
                     <span class="value">{{selectedItem.equipmentModel}}</span>
                 </div>
-                <div class="available-time">
+                <div class="available-time" style="margin-bottom: 5px">
                     <span>可预约时间</span>
-                    <div class="time-list">
-                        <div class="period" v-for="(period, index) in selectedItem.periodList" :key="index">
-                            <span class="period-text">{{period.startTime}} - {{period.endTime}}</span>
-                            <div class="delete-period-btn" @click="deletePeriod(index)">-</div>
-                        </div>
-                    </div> 
                 </div>
+                <div class="time-list">
+                    <div class="period" v-for="(period, index) in selectedItem.periodList" :key="index">
+                        <span class="period-text">{{period.startTime}} - {{period.endTime}}</span>
+                        <div class="delete-period-btn" @click="deletePeriod(index)">-</div>
+                    </div>
+                </div> 
                 <div class="add-period-btn" v-if="!showPeriodForm" @click="openPeriodForm">+添加设备可预约时间</div>
                 <div class="period-form" v-else>
-                    <input type="date" v-model="periodForm.startTime"><br>
-                    <input type="date" v-model="periodForm.endTime" style="margin: 10px 0">
+                    <label>起始时间：</label>
+                    <input type="date" v-model="periodForm.startDate">
+                    <input type="time" v-model="periodForm.startTime"><br>
+                    <label>结束时间：</label>
+                    <input type="date" v-model="periodForm.endDate" style="margin: 10px 0">
+                    <input type="time" v-model="periodForm.endTime"><br>
                     <div class="operate-btns">
                         <div class="yes-btn" @click="addPeriod">√</div>
                         <div class="no-btn" @click="cancelAddPeriod">X</div>
@@ -262,6 +265,8 @@ export default {
             selectedItem: {},
             showPeriodForm: false,
             periodForm: {
+                startDate: '',
+                endDate: '',
                 startTime: '',
                 endTime: ''
             }
@@ -463,9 +468,9 @@ export default {
         }
     }
     .equipment-list {
-        max-height: calc(100vh - 170px);
-        padding: 0 10px;
+        height: calc(100vh - 135px);
         overflow-y: auto;
+        background-color: rgb(245, 245, 245);
         .equipment-item {
             min-height: 80px;
             width: 100%;
@@ -475,6 +480,7 @@ export default {
             border-bottom: 1px solid #EEE;
             box-sizing: border-box;
             padding: 10px;
+            background-color: #FFF;
             .equipment-icon {
                 height: 50px;
                 width: 50px;
@@ -512,14 +518,15 @@ export default {
                     justify-content: flex-start;
                     font-size: 12px;
                     color: #BBB; 
-                    .time-list {
-                        flex-shrink: 1;
-                        color: #2196F3;
-                        margin-left: 10px;
-                        span {
-                            text-align: center;
-                            display: block;
-                        }
+                }
+                .time-list {
+                    margin-top: 5px;
+                    flex-shrink: 1;
+                    color: #2196F3;
+                    font-size: 12px;
+                    span {
+                        display: block;
+                        margin-top: 5px;
                     }
                 }
             }
@@ -530,9 +537,10 @@ export default {
                 font-size: 12px;
                 border-radius: 3px;
                 cursor: pointer;
+                flex-shrink: 0;
             }
             .arrange-btn {
-                background-color: #2af598;
+                background-color: #1afa29;
             }
         }
     }
@@ -592,26 +600,27 @@ export default {
                     color: #000;
                     flex-grow: 1;
                 }
-                .time-list {
-                    flex-grow: 1;
-                    .period {
-                        display: flex;
-                        justify-content: flex-start;
-                        align-items: center;
-                        color: #000;
-                        margin-bottom: 5px;
-                        display: block;
-                        .delete-period-btn {
-                            display: inline-block;
-                            width: 10px;
-                            height: 10px;
-                            background-color: #f83600;
-                            color: #FFF;
-                            text-align: center;
-                            line-height: 10px;
-                            border-radius: 50%;
-                            cursor: pointer;
-                        }
+            }
+            .time-list {
+                flex-grow: 1;
+                font-size: 12px;
+                .period {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    color: #000;
+                    margin-bottom: 8px;
+                    display: block;
+                    .delete-period-btn {
+                        display: inline-block;
+                        width: 10px;
+                        height: 10px;
+                        background-color: #f83600;
+                        color: #FFF;
+                        text-align: center;
+                        line-height: 10px;
+                        border-radius: 50%;
+                        cursor: pointer;
                     }
                 }
             }
@@ -622,6 +631,8 @@ export default {
                 cursor: pointer;
             }
             .period-form {
+                font-size: 12px;
+                color: #222;
                 .yes-btn {
                     width: 25px;
                     height: 25px;

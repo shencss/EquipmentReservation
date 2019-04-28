@@ -4,6 +4,8 @@ import Schedule from '../components/Schedule'
 import Statistics from '../components/Statistics'
 import Approval from '../components/Approval'
 import Management from '../components/Management'
+import ApprovalList from '../components/ApprovalList'
+import ApprovalDetail from '../components/ApprovalDetail'
 
 export default [{
     path: '/',
@@ -21,7 +23,20 @@ export default [{
         {
             name: 'approval',
             path: '/approval',
-            component: Approval
+            component: Approval,
+            redirect: '/approval/list',
+            children: [
+                {
+                    name: 'list',
+                    path: 'list',
+                    component: ApprovalList
+                },
+                {
+                    name: 'detail',
+                    path: 'detail',
+                    component: ApprovalDetail
+                }
+            ]
         },
         {
             name: 'statistics',

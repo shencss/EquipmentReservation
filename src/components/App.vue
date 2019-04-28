@@ -44,7 +44,7 @@ export default {
 	box-sizing: border-box;
 	width: 100vw;
 	height: 100vh;
-	background-color: #FFF;
+	background-color: rgb(245, 245, 245);
 	padding: 40px 0 0 0;
 }
 </style>

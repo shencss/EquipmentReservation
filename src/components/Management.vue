@@ -401,9 +401,9 @@ export default {
         }
     }
     .equipment-list {
-        max-height: calc(100vh - 135px);
-        padding: 0 10px;
+        height: calc(100vh - 135px);
         overflow-y: auto;
+        background-color: rgb(245, 245, 245);
         .equipment-item {
             min-height: 80px;
             width: 100%;
@@ -413,6 +413,7 @@ export default {
             border-bottom: 1px solid #EEE;
             box-sizing: border-box;
             padding: 10px;
+            background-color: #FFF;
             .equipment-icon {
                 height: 50px;
                 width: 50px;

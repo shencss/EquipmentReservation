@@ -1,5 +1,6 @@
 <template>
 	<div class="app-head">
+        <div class="back-btn" v-if="navName == '预约审批'" @click="goBack"></div>
         <div class="nav-name">{{navName}}</div>
         <div class="add-btn" v-if="navName == '设备管理'" @click="goAddPage"></div>
         
@@ -20,7 +21,9 @@ export default {
         navName() {
             if(this.$route.name == 'schedule') {
                 return '设备列表';
-            } else if(this.$route.name == 'approval') {
+            } else if(this.$route.name == 'list') {
+                return '待审批预约';
+            } else if(this.$route.name == 'detail') {
                 return '预约审批';
             } else if(this.$route.name == 'statistics') {
                 return '信息统计';
@@ -39,6 +42,9 @@ export default {
             this.$router.push({
                 name: 'home'
             });
+        },
+        goBack() {
+            this.$router.go(-1);
         }
     }
 }
@@ -71,6 +77,16 @@ export default {
     }
     .home-btn {
         background-image: url('../images/home_white.png');
+    }
+    .back-btn {
+        position: absolute;
+        height: 25px;
+        width: 25px;
+        top: 7.5px;
+        left: 20px;
+        background-image: url('../images/back.png');
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
     }
 }
 </style>
