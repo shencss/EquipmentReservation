@@ -6,68 +6,114 @@
         </div>
         <div class="equipment-list">
             <div class="item-warp" v-for="(item, index) in equipmentList" :key=index>
-                <div class="equipment-item" v-if="showItem(item.status)">
+                <div class="equipment-item">
                     <div :class="['equipment-icon', icon(item)]"></div>
                     <div class="equipment-info">
                         <div class="equipment-name">{{item.equipmentName}}</div>
-                        <div class="count">设备类型
-                            <span>{{item.equipmentType}}</span>
-                        </div>
-                        <div class="count">设备型号
-                            <span>{{item.equipmentModel}}</span>
-                        </div>
                         <div class="count">当前状态
                             <span>空闲中</span>
                         </div>
-                    </div>
-                    <div class="operate-">
-                        <div class="check-btn">使用情况</div>
-                        <div class="modify-btn" @click="modifyEquipment(item)">修改信息</div>
-                        <div class="delete-btn" @click="deleteEquipment(item)">删除设备</div>
+                        <div class="operate-btns">
+                            <div class="check-btn" @click="openDialog('DetailDialog')">使用情况</div>
+                            <div class="modify-btn" @click="openDialog('ModifyDialog', item)">修改信息</div>
+                            <div class="delete-btn" @click="openDialog('DeleteDialog')">删除设备</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <Dialog :visible="showDialog" @close="closeDialog" class="reservation-dialog">
-            <div class="dialog-title">预约该设备</div>
-            <div class="equipment-info">
-                <div :class="['equipment-icon', icon(selectedItem)]"></div>
-                <div class="equipment-name">{{selectedItem.equipmentName}}</div>
-                <div class="line"></div>
-                <div class="equipment-type">
-                    <span>设备类型</span>
-                    <span class="value">{{type(selectedItem)}}</span>
+        <Dialog :visible="showDeleteDialog" @close="closeDialog('DeleteDialog')" class="delete-dialog">
+            <div class="dialog-title">删除设备</div>
+            <div class="remind-text">确认删除该设备？</div>
+            <div class="operate-btns">
+                <div class="cancel-btn" @click="closeDialog('DeleteDialog')">取消</div>
+                <div class="confirm-btn" @click="closeDialog('DeleteDialog')">确定</div>
+            </div>
+        </Dialog>
+
+        <Dialog :visible="showAddDialog" @close="closeDialog('AddDialog')" class="add-dialog">
+            <div class="dialog-title">添加设备</div>
+            <div class="add-form">
+                <label>设备名称：</label>
+                <input type="text" v-model="addForm.equipmentName" placeholder="请输入设备名称"><br>
+                <label>设备类型：</label>
+                <select name="equipmentType" v-model="addForm.equipmentType">
+                    <option value="1">电脑</option>
+                    <option value="2">笔记本</option>
+                    <option value="3">键盘</option>
+                    <option value="4">鼠标</option>
+                </select><br>
+                <label>设备型号：</label>
+                <input type="text" placeholder="请输入设备型号" v-model="addForm.equipmentModel"><br>
+                <label>注意事项：</label>
+                <textarea cols="25" rows="5" maxlength="100" placeholder="请输入设备的使用注意事项" v-model="addForm.note"></textarea>
+            </div>
+            <div class="operate-btns">
+                <div class="cancel-btn" @click="closeDialog('AddDialog')">取消</div>
+                <div class="confirm-btn" @click="closeDialog('AddDialog')">确定</div>
+            </div>
+        </Dialog>
+
+        <Dialog :visible="showModifyDialog" @close="closeDialog('ModifyDialog')" class="modify-dialog">
+            <div class="dialog-title">修改设备</div>
+            <div class="add-form">
+                <label>设备名称：</label>
+                <input type="text" v-model="modifyForm.equipmentName" placeholder="请输入设备名称"><br>
+                <label>设备类型：</label>
+                <select name="equipmentType" v-model="modifyForm.equipmentType">
+                    <option value="1">电脑</option>
+                    <option value="2">显示屏</option>
+                    <option value="3">键盘</option>
+                    <option value="4">鼠标</option>
+                </select><br>
+                <label>设备型号：</label>
+                <input type="text" v-model="modifyForm.equipmentModel" placeholder="请输入设备型号"><br>
+                <label>注意事项：</label>
+                <textarea cols="25" rows="5" maxlength="100" v-model="modifyForm.note" placeholder="请输入设备的使用注意事项"></textarea>
+            </div>
+            <div class="operate-btns">
+                <div class="cancel-btn" @click="closeDialog('ModifyDialog')">取消</div>
+                <div class="confirm-btn" @click="closeDialog('ModifyDialog')">确定</div>
+            </div>
+        </Dialog>
+
+        <Dialog :visible="showDetailDialog" @close="closeDialog('DetailDialog')" class="detail-dialog">
+            <div class="dialog-title">使用情况</div>
+            <div class="detail-info">
+                <div class="equipment-name">
+                    <span>设备名称:</span>
+                    <span class="vaule">联想电脑</span>
                 </div>
-                <div class="equipment-address">
-                    <span>设备型号</span>
-                    <span class="value">{{selectedItem.equipmentModel}}</span>
+                <div class="use-count">
+                    <span>被使用次数:</span>
+                    <span class="vaule">99</span>
                 </div>
-                <div class="available-time">
-                    <span>可预约时间</span>
-                    <div class="time-list">
-                        <span v-for="(period, index) in selectedItem.periodList" :key="index">{{period.startDate}} - {{period.endDate}}</span>
-                    </div> 
-                </div>
-                <div class="equipment-note">
-                    <span>注意事项</span>
-                    <span class="value">{{selectedItem.note}}</span>
-                </div>
-                <div class="reservation-note">请选择预约时间：</div>
-                <div class="start-date">
-                    <label for="start-date">开始时间</label>
-                    <input v-model="startDate" type="date" name="start-date">
-                </div>
-                <div class="end-date">
-                    <label for="end-date">结束时间</label>
-                    <input v-model="endDate" type="date" name="end-date">
+                <div>使用记录：</div>
+                <div class="record-list">
+                    <div class="record-item" v-for="(item, index) in recordList" :key="index">
+                        <span class="record-icon"></span>
+                        <div class="record-text">
+                            <span>用户</span>
+                            <span class="user-text">{{item.userName}}</span>
+                            <span>在</span>
+                            <span v-for="(period, pIndex) in item.periods" :key="pIndex">
+                                <span class="period-text">{{period.startTime}}</span>
+                                <span>至</span>
+                                <span class="period-text">{{period.endTime}}</span>    
+                                <span v-if="pIndex != (item.periods.length - 1)">、</span>
+                            </span>
+                            <span>期间预约使用了该设备</span>
+                            <span>{{'(' + item.time + ')'}}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="operate-btns">
-                <div class="cancel-btn" @click="closeDialog">取消</div>
-                <div class="confirm-btn">确定</div>
+                <div class="cancel-btn" @click="closeDialog('DetailDialog')">关闭</div>
             </div>
         </Dialog>
-        <div class="add-btn"></div>
+
+        <div class="add-btn" @click="openDialog('AddDialog')"></div>
     </div>
 </template>
 
@@ -81,10 +127,10 @@ export default {
     data() {
         return {
             equipmentType: 'all',
-            underlineClass: 'type-1',
-            showDialog: false,
-            startDate: '',
-            endDate: '',
+            showDeleteDialog: false,
+            showAddDialog: false,
+            showModifyDialog: false,
+            showDetailDialog: false,
             equipmentList: [
                 {
                     equipmentName:'联想电脑',
@@ -255,7 +301,74 @@ export default {
                     status: 3
                 }
             ],
-            selectedItem: {}
+            addForm: {
+                equipmentName: '',
+                equipmentType: '',
+                equipmentModel: '',
+                note: ''
+            },
+            modifyForm: {
+                equipmentName: '',
+                equipmentType: '',
+                equipmentModel: '',
+                note: ''
+            },
+            recordList: [
+                {
+                    userName: '沈承胜',
+                    periods: [
+                        {
+                            startTime: '2019.5.2 18:00',
+                            endTime: '2019.5.3 18:00'
+                        },
+                        {
+                            startTime: '2019.5.2 18:00',
+                            endTime: '2019.5.3 18:00'
+                        },
+                        {
+                            startTime: '2019.5.2 18:00',
+                            endTime: '2019.5.3 18:00'
+                        }
+                    ],
+                    time: '2019.5.2 13:00'
+                },
+                {
+                    userName: '沈承胜',
+                    periods: [
+                        {
+                            startTime: '2019.5.2 18:00',
+                            endTime: '2019.5.3 18:00'
+                        },
+                        {
+                            startTime: '2019.5.2 18:00',
+                            endTime: '2019.5.3 18:00'
+                        },
+                        {
+                            startTime: '2019.5.2 18:00',
+                            endTime: '2019.5.3 18:00'
+                        }
+                    ],
+                    time: '2019.5.2 13:00'
+                },
+                {
+                    userName: '沈承胜',
+                    periods: [
+                        {
+                            startTime: '2019.5.2 18:00',
+                            endTime: '2019.5.3 18:00'
+                        },
+                        {
+                            startTime: '2019.5.2 18:00',
+                            endTime: '2019.5.3 18:00'
+                        },
+                        {
+                            startTime: '2019.5.2 18:00',
+                            endTime: '2019.5.3 18:00'
+                        }
+                    ],
+                    time: '2019.5.2 13:00'
+                }
+            ]
         };
     },
     computed: {
@@ -298,70 +411,38 @@ export default {
                         return '电脑'
                 }
             }
-        },
-        showItem() {
-            return status => {
-                if (this.equipmentType === 'all') {
-                    return true;
-                } else if (this.equipmentType == 'reserving' && status == 1) {
-                    return true;
-                } else if(this.equipmentType == 'using' && status == 2) {
-                    return true;
-                } else if(this.equipmentType == 'idle' && status == 3) {
-                    return true;
-                }
-            }
         }
     },
     methods: {
+        closeDialog(dialogName) {
+            if (dialogName == 'DeleteDialog') {
+                this.showDeleteDialog = false;
+            } else if (dialogName == 'AddDialog') {
+                this.showAddDialog = false;
+            } else if (dialogName == 'ModifyDialog') {
+                this.showModifyDialog = false;
+            } else if (dialogName == 'DetailDialog') {
+                this.showDetailDialog = false;
+            }
+        },
+        openDialog(dialogName, model = {}) {
+            if (dialogName == 'DeleteDialog') {
+                this.showDeleteDialog = true;
+            } else if (dialogName == 'AddDialog') {
+                this.showAddDialog = true;
+            } else if (dialogName == 'ModifyDialog') {
+                this.showModifyDialog = true;
+                this.modifyForm = model;
+            } else if (dialogName == 'DetailDialog') {
+                this.showDetailDialog = true;
+            }
+        },
         modifyEquipment(item) {
             
         },
         deleteEquipment(item) {
 
         },
-        closeDialog() {
-            this.showDialog = false;
-        },
-        async test() {
-            const result = await Service.queryTemplate(
-                {
-                    test: 'test001'
-                },
-                {
-                    onSuccess: res => {
-                        console.log('res....', res);
-                    },
-                    onFail: err => {
-                        console.log('err....', err);
-                    }
-                }
-            );
-        },
-        checkType(type) {
-            switch(type) {
-                case 'all':
-                    this.equipmentType = 'all';
-                    this.underlineClass = 'type-1';
-                    break;
-                case 'reserving':
-                    this.equipmentType = 'reserving';
-                    this.underlineClass = 'type-2';
-                    break;
-                case 'using':
-                    this.equipmentType = 'using';
-                    this.underlineClass = 'type-3';
-                    break;
-                case 'idle':
-                    this.equipmentType = 'idle';
-                    this.underlineClass = 'type-4';
-                    break;
-                default:
-                    this.equipmentType = 'all';
-                    this.underlineClass = 'type-1';
-                
-            }
-        }
     }
 }
 </script>
@@ -446,23 +527,29 @@ export default {
                         margin-left: 10px;
                     }
                 }
-            }
-            .check-btn, .modify-btn, .delete-btn {
-                background-color: #2196F3;
-                color: #FFF;
-                padding: 5px;
-                font-size: 12px;
-                border-radius: 3px;
-                cursor: pointer;
-                margin-bottom: 10px;
-            }
-            .delete-btn {
-                background-color: #f83600;
-                margin-bottom: 0;
+                .operate-btns {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding-left: 50px;
+                    margin-top: 10px;
+                    .check-btn, .modify-btn, .delete-btn {
+                        background-color: #2196F3;
+                        color: #FFF;
+                        padding: 5px;
+                        font-size: 12px;
+                        border-radius: 3px;
+                        cursor: pointer;
+                    }
+                    .delete-btn {
+                        background-color: #f83600;
+                       
+                    }
+                }
             }
         }
     }
-    .reservation-dialog {
+    .delete-dialog, .add-dialog, .modify-dialog, .detail-dialog {
         .dialog-title {
             height: 50px;
             line-height: 50px;
@@ -472,78 +559,11 @@ export default {
             background-color: #2196F3;
             color: #FFF;
         }
-        .equipment-info {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 0 20px;
-            .equipment-icon {
-                height: 50px;
-                width: 50px;
-                background-image: url('../images/computer.png');
-                background-size: 100% 100%;
-                background-repeat: no-repeat;
-            }
-            .display {
-                background-image: url('../images/display.png');
-            }
-            .keyboard {
-                background-image: url('../images/keyboard.png');
-            }
-            .mouse {
-                background-image: url('../images/mouse.png');
-            }
-            .equipment-name {
-                font-weight: bold;
-                font-size: 15px;
-            }
-            .line {
-                width: 100%;
-                height: 2px;
-                background-color: #2196F3;
-                margin: 10px 0 20px 0;
-            }
-            .equipment-type, .equipment-address, .available-time, .equipment-note {
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-                font-size: 13px;
-                color: #AAA;
-                margin-bottom: 20px;
-                span {
-                    flex-basis: 90px;
-                }
-                .value {
-                    color: #000;
-                    flex-grow: 1;
-                }
-                .time-list {
-                    flex-grow: 1;
-                    span {
-                        color: #000;
-                        margin-bottom: 5px;
-                        display: block;
-                    }
-                }
-                
-            }
-            .reservation-note {
-                width: 100%;
-                text-align: left;
-                font-size: 11px;
-                color: #2196F3;
-            }
-           .start-date, .end-date {
-               display: flex;
-               align-items: center;
-               width: 100%;
-               margin: 10px 0;
-               label {
-                   font-size: 13px;
-                   margin-right: 20px;
-               }
-           }
+        .remind-text {
+            font-size: 12px;
+            height: 70px;
+            line-height: 70px;
+            padding-left: 30px;
         }
         .operate-btns {
             display: flex;
@@ -558,7 +578,65 @@ export default {
                 background-color: #2196F3;
                 color: #FFF;
                 border-radius: 3px;
-                margin: 20px 10px;
+                margin: 0 10px 20px 10px;
+            }
+        }
+        .add-form {
+            font-size: 12px;
+            padding: 20px;
+            label {
+                vertical-align: top;
+            }
+            input, select {
+                margin-bottom: 10px;
+            }
+            textarea {
+                vertical-align: middle;
+            }
+        }
+        .detail-info {
+            padding: 15px;
+            font-size: 12px;
+            color: #BBB;
+            .equipment-name {
+                .vaule {
+                    color: #222;
+                    margin-left: 10px;
+                    font-weight: bold;
+                }
+            }
+            .use-count {
+                margin: 15px 0;
+                .vaule {
+                    color: #f83600;
+                    margin-left: 10px;
+                }
+            }
+            .record-list {
+                margin-top: 10px;
+                max-height: 220px;
+                overflow-y: auto;
+                .record-item {
+                    margin-bottom: 10px;
+                    display: flex;
+                    align-items: flex-start;
+                    .record-icon {
+                        display: inline-block;
+                        flex-basis: 15px;
+                        flex-shrink: 0;
+                        height: 15px;
+                        background-image: url('../images/record.png');
+                        background-size: 100% 100%;
+                        background-repeat: no-repeat;
+                    }
+                    .record-text {
+                        line-height: 15px;
+                        color: #222;
+                        .period-text, .user-text {
+                            color: #2196F3;
+                        }
+                    }
+                }
             }
         }
     }
@@ -571,8 +649,7 @@ export default {
         background-image: url('../images/add.png');
         background-size: 100% 100%;
         background-repeat: no-repeat;
-        z-index: 3;
+        z-index: 10;
     }
-
 }
 </style>

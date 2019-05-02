@@ -2,7 +2,7 @@
 	<div class="schedule">
         <div class="search-box">
             <input id="search-input" type="text" placeholder="搜索设备">
-            <span class="search-icon"></span>
+            <span class="search-icon" @click="searchEquipment"></span>
         </div>
         <!-- <div class="type-header">
             <div @click="checkType('all')">所有设备</div>
@@ -18,16 +18,14 @@
                     <div :class="['equipment-icon', icon(item)]"></div>
                     <div class="equipment-info">
                         <div class="equipment-name">{{item.equipmentName}}</div>
-                        <div class="count">设备型号
-                            <span>{{item.equipmentModel}}</span>
-                        </div>
-                        <div class="available-time">
+                        <div class="available-time" style="margin: 5px 0">
                             <span>可预约时间</span> 
                         </div>
-                        <div class="time-list">
+                        <div class="time-list" v-if="item.periodList.length > 0">
                             <span v-for="(period, index2) in item.periodList.slice(0, 2)" :key="index2">{{period.startTime}} - {{period.endTime}}</span>
                             <span v-if="item.periodList && item.periodList.length > 3" style="font-size: 10px">......</span>
                         </div>  
+                        <div v-else style="text-align: center; font-size: 12px">尚未安排可预约时间,请点击安排</div>
                     </div>
                     <!-- <div class="arrange-btn" v-if="item.status == 3" @click="goReserve(item)">安排预约</div> -->
                     <div class="arrange-btn" @click="goReserve(item)">安排预约</div>
@@ -81,7 +79,7 @@
 
 <script>
 import Dialog from './Dialog'
-import Service from '../service/base_service'
+import { getBaseUrl } from '../common/env'
 
 export default {
     components: {
@@ -389,6 +387,9 @@ export default {
         },
         deletePeriod(index) {
             this.selectedItem.periodList.splice(index, 1);
+        },
+        searchEquipment() {
+            
         }
     }
 }

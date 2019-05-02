@@ -2,8 +2,6 @@
 	<div class="app-head">
         <div class="back-btn" v-if="navName == '预约审批'" @click="goBack"></div>
         <div class="nav-name">{{navName}}</div>
-        <div class="add-btn" v-if="navName == '设备管理'" @click="goAddPage"></div>
-        
     </div>
 </template>
 
@@ -64,7 +62,7 @@ export default {
     width: 100%;
     text-align: center;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, .15);
-    z-index: 99;
+    z-index: 9;
     .add-btn, .home-btn {
         position: absolute;
         height: 25px;

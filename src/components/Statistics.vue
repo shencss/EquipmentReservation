@@ -37,26 +37,33 @@
         <div class="rank">
             <div class="title">排行榜</div>
             <div class="rank-type">
-                <div class="equipment-ranke">设备预约排行</div>
-                <div class="user-ranke">用户预约排行</div>
+                <div class="equipment-ranke" @click="switchRankType('equipment')">设备预约排行</div>
+                <div class="user-ranke" @click="switchRankType('user')">用户预约排行</div>
             </div>
-            <div class="type-underline"></div>
-            <div class="rank-header">
+            <div class="type-underline" :class="rankType == 'equipment' ? 'left' : 'right'"></div>
+            <div class="rank-header" v-if="rankType == 'equipment'">
                 <div class="num">排名</div>
                 <div class="name">设备名称</div>
                 <div class="count">被预约次数</div>
             </div>
-        </div>
-        <div class="rank-list">
-            <div class="rank-item">
-                <div class="num">1</div>
-                <div class="name">联想电脑</div>
-                <div class="count">99次</div>
+            <div class="rank-header" v-else>
+                <div class="num">排名</div>
+                <div class="name">用户名称</div>
+                <div class="count">预约次数</div>
             </div>
-            <div class="rank-item">
-                <div class="num">2</div>
-                <div class="name">戴尔电脑</div>
-                <div class="count">98次</div>
+        </div>
+        <div class="rank-list" v-if="rankType == 'equipment'">
+            <div class="rank-item" v-for="(item, index) in equipmentRankList" :key="index">
+                <div class="num">{{index + 1}}</div>
+                <div class="name">{{item.name}}</div>
+                <div class="count">{{item.count}}</div>
+            </div>
+        </div>
+        <div class="rank-list" v-else>
+            <div class="rank-item" v-for="(item, index) in userRankList" :key="index">
+                <div class="num">{{index + 1}}</div>
+                <div class="name">{{item.name}}</div>
+                <div class="count">{{item.count}}</div>
             </div>
         </div>
     </div>
@@ -67,6 +74,7 @@
 export default {
     data() {
         return {
+            rankType: 'equipment',
             caseList: [
                 {
                     type: 'reserve',
@@ -106,10 +114,34 @@ export default {
                     equipmentName: '惠普电脑',
                     time: '2019.4.28 18:00'
                 },
+            ],
+            equipmentRankList: [
+                {
+                    name: '联想电脑',
+                    count: 99
+                },
+                {
+                    name: 'AOC显示屏',
+                    count: 88
+                },
+            ],
+            userRankList: [
+                {
+                    name: '沈承胜',
+                    count: 99
+                },
+                {
+                    name: '张三',
+                    count: 88
+                },
             ]
         }
     },
-    
+    methods: {
+        switchRankType(name) {
+            this.rankType = name;
+        }
+    }
 }
 </script>
 
@@ -136,7 +168,7 @@ export default {
     .case-list {
         background-color: #FFF;
         border-top: 1px solid #EEE;
-        height: 300px;
+        max-height: 300px;
         overflow-y: auto;
         .case-item {
             display: flex;
@@ -147,6 +179,7 @@ export default {
             height: 30px;
             color: #222;
             border-bottom: 1px solid #EEE;
+            box-sizing: border-box;
             .message-icon {
                 height: 20px;
                 width: 20px;
@@ -200,6 +233,13 @@ export default {
             top: 56px;
             left: 25%;
             transform: translateX(-50%);
+            transition: all .5s linear;
+        }
+        .left {
+            left: 25%;
+        }
+        .right {
+            left: 75%;
         }
         .rank-header {
             margin-top: 10px;
