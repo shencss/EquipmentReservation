@@ -15,24 +15,75 @@
                         <div :class="['status', statusClass(item.status)]">当前状态
                             <span>{{statusText(item.status)}}</span>
                         </div>
-                        <div class="available-time">预约时间
-                            <span>{{item.reserveStart}} - {{item.reserveEnd}}</span>
-                        </div>
                     </div>
-                    <div v-if="item.status == 1" class="cancel-btn" @click="cancelReserve">取消预约</div>
-                    <div v-if="item.status == 3" class="end-btn" @click="endReserve">结束预约</div>
+                    <div class="check-btn" @click="openDialog('DetailDialog')">查看</div>
+                    <div v-if="item.status == 1" class="cancel-btn" @click="openDialog('CancelDialog')">取消预约</div>
+                    <div v-if="item.status == 3" class="end-btn" @click="openDialog('EndDialog')">结束使用</div>
                     <div class="reserve-time">2019.04.01 18:00</div>
                 </div>
             </div>
         </div>
-        <Dialog :visible="showDialog" @close="closeDialog" class="cancel-dialog">
-            <div class="dialog-title">取消预约该设备</div>
+
+        <Dialog :visible="showCancelDialog" @close="closeDialog" class="cancel-dialog">
+            <div class="dialog-title">取消预约</div>
             <div class="remind-text">
                 确定取消预约该设备吗？
             </div>
             <div class="operate-btns">
-                <div class="cancel-btn" @click="closeDialog">取消</div>
-                <div class="confirm-btn">确定</div>
+                <div class="cancel-btn" @click="closeDialog('CancelDialog')">取消</div>
+                <div class="confirm-btn" @click="cancelReserve">确定</div>
+            </div>
+        </Dialog>
+
+        <Dialog :visible="showEndDialog" @close="closeDialog('EndDialog')" class="end-dialog">
+            <div class="dialog-title">结束预约</div>
+            <div class="remind-text">
+                确定结束使用该设备吗？
+            </div>
+            <div class="operate-btns">
+                <div class="cancel-btn" @click="closeDialog('EndDialog')">取消</div>
+                <div class="confirm-btn" @click="endUse">确定</div>
+            </div>
+        </Dialog>
+
+        <Dialog :visible="showDetailDialog" @close="closeDialog('DetailDialog')" class="detail-dialog">
+            <div class="dialog-title">预约详情</div>
+            <div class="equipment-info">
+                <div class="equipment-name">
+                    <span>设备名称</span>
+                    <span class="value">{{equipmentType(selectedItem)}}</span>
+                </div>
+                <div class="equipment-type">
+                    <span>设备类型</span>
+                    <span class="value">{{equipmentType(selectedItem)}}</span>
+                </div>
+                <div class="equipment-address">
+                    <span>设备型号</span>
+                    <span class="value">{{selectedItem.equipmentModel}}</span>
+                </div>
+                <div class="available-time" style="margin-bottom: 10px">
+                    <span>可预约时间</span>
+                </div>
+                <div class="time-list">
+                    <span v-for="(period, index) in selectedItem.periodList" :key="index">{{period.startTime}} - {{period.endTime}}</span>
+                </div>
+                <div class="equipment-note">
+                    <span>注意事项</span>
+                    <span class="value">{{selectedItem.note}}</span>
+                </div>
+                <div class="available-time" style="margin-bottom: 10px">
+                    <span>预约时间</span>
+                </div>
+                <div class="time-list">
+                    <span v-for="(period, index) in selectedItem.reservePeriodList" :key="index">{{period.startTime}} - {{period.endTime}}</span>
+                </div>
+                 <div class="reserve-note" style="margin-top: 10px">
+                    <span>备注信息</span>
+                    <span class="value">{{selectedItem.reserveNote}}</span>
+                </div>
+            </div>
+            <div class="operate-btns" style="margin-top: 10px">
+                <div class="confirm-btn" @click="closeDialog('DetailDialog')">确定</div>
             </div>
         </Dialog>
     </div>
@@ -45,7 +96,9 @@ export default {
     data() {
         return {
             type: 'all',
-            showDialog: false,
+            showCancelDialog: false,
+            showEndDialog: false,
+            showDetailDialog: false,
             underlineClass: 'left',
             reservationList: [
                 {
@@ -76,7 +129,42 @@ export default {
                     reserveStart: '2019.04.01',
                     reserveEnd: '2019.04.15'
                 }
-            ]
+            ],
+            selectedItem: {
+                equipmentName:'联想电脑',
+                equipmentModel: 'GT009',
+                equipmentType: 1,
+                periodList: [
+                    {
+                        startTime: '2019.04.01 18:00',
+                        endTime: '2019.05.01 18:00'
+                    },
+                    {
+                        startTime: '2019.04.01 18:00',
+                        endTime: '2019.05.01 18:00'
+                    },
+                    {
+                        startTime: '2019.04.01 18:00',
+                        endTime: '2019.05.01 18:00'
+                    },
+                    {
+                        startTime: '2019.04.01 18:00',
+                        endTime: '2019.05.01 18:00'
+                    },
+                ],
+                note: '该设备属于贵重物品请注意保护，小心使用！',
+                reservePeriodList: [
+                    {
+                        startTime: '2019.04.01 18:00',
+                        endTime: '2019.05.01 18:00'
+                    },
+                    {
+                        startTime: '2019.04.01 18:00',
+                        endTime: '2019.05.01 18:00'
+                    },
+                ],
+                reserveNote: '用于毕业设计开发'
+            },
         };
     },
     components: {
@@ -95,14 +183,29 @@ export default {
                 this.underlineClass = 'right';
             }
         },
-        closeDialog() {
-            this.showDialog = false;
+        closeDialog(dialogName) {
+            if(dialogName == 'CancelDialog') {
+                this.showCancelDialog = false;
+            } else if(dialogName == 'EndDialog') {
+                this.showEndDialog = false;
+            } else if(dialogName == 'DetailDialog') {
+                this.showDetailDialog = false;
+            }
+        },
+        openDialog(dialogName) {
+            if(dialogName == 'CancelDialog') {
+                this.showCancelDialog = true;
+            } else if(dialogName == 'EndDialog') {
+                this.showEndDialog = true;
+            } else if(dialogName == 'DetailDialog') {
+                this.showDetailDialog = true;
+            }
         },
         cancelReserve() {
-            this.showDialog = true;
+            this.showCancelDialog = false;
         },
-        endReserve() {
-            this.showDialog = true;
+        endUse() {
+            this.showEndDialog = false;
         }
     },
     computed:{
@@ -130,7 +233,7 @@ export default {
             return status => {
                 switch(status) {
                     case 1:
-                        return '等待批准中...';
+                        return '等待批准中';
                         break;
                     case 2:
                         return '未批准';
@@ -176,6 +279,26 @@ export default {
                     return true;
                 } else {
                     return false;
+                }
+            }
+        },
+        equipmentType() {
+            return item => {
+                switch(item.equipmentType) {
+                    case 1:
+                        return '电脑';
+                        break;
+                    case 2:
+                        return '显示屏';
+                        break;
+                    case 3:
+                        return '键盘';
+                        break;
+                    case 4:
+                        return '鼠标';
+                        break;
+                    default:
+                        return '电脑'
                 }
             }
         }
@@ -302,13 +425,17 @@ export default {
                     }
                 }
             }
-            .cancel-btn, .end-btn {
+            .cancel-btn, .end-btn, .check-btn {
                 background-color: #f83600;
                 color: #FFF;
                 padding: 5px;
                 font-size: 12px;
                 border-radius: 3px;
                 cursor: pointer;
+            }
+            .check-btn {
+                background-color: #2196F3;
+                margin-right: 5px;
             }
             .reserve-time {
                 position: absolute;
@@ -319,7 +446,7 @@ export default {
             }
         }
     }
-    .cancel-dialog {
+    .cancel-dialog, .end-dialog {
         .dialog-title {
             height: 50px;
             line-height: 50px;
@@ -330,12 +457,10 @@ export default {
             color: #FFF;
         }
         .remind-text {
-            text-align: center;
-            color: #2196F3;
-            font-weight: 15px;
-            font-weight: bold;
-            margin-top: 50px;
-            margin-bottom: 30px;
+            font-size: 12px;
+            height: 70px;
+            line-height: 70px;
+            padding-left: 30px;
         }
         .operate-btns {
             display: flex;
@@ -350,7 +475,128 @@ export default {
                 background-color: #2196F3;
                 color: #FFF;
                 border-radius: 3px;
-                margin: 20px 10px;
+                margin: 0 10px 20px 10px;
+            }
+        }
+    }
+    .detail-dialog {
+        .dialog-title {
+            height: 50px;
+            line-height: 50px;
+            font-size: 15px;
+            text-align: center;
+            border-bottom: 1px solid #2196F3;
+            background-color: #2196F3;
+            color: #FFF;
+        }
+        .equipment-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 10px 20px 0 20px;
+            .equipment-name, .equipment-type, .equipment-address, .available-time, .equipment-note, .reserve-note {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                font-size: 13px;
+                color: #AAA;
+                margin-bottom: 15px;
+                span {
+                    flex-basis: 70px;
+                }
+                .value {
+                    color: #000;
+                    flex-grow: 1;
+                }
+            }
+            .time-list {
+                flex-grow: 1;
+                font-size: 12px;
+                margin-bottom: 10px;
+                span {
+                    color: #000;
+                    margin-bottom: 5px;
+                    display: block;
+                }
+            }
+            .reservation-note {
+                width: 100%;
+                text-align: left;
+                font-size: 11px;
+                color: #2196F3;
+            }
+            .selected-time-list {
+                flex-grow: 1;
+                font-size: 12px;
+                .period {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    color: #000;
+                    margin-bottom: 8px;
+                    display: block;
+                    .delete-period-btn {
+                        display: inline-block;
+                        width: 10px;
+                        height: 10px;
+                        background-color: #f83600;
+                        color: #FFF;
+                        text-align: center;
+                        line-height: 10px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                    }
+                }
+            }
+           .add-period-btn {
+                color: #2196F3;
+                text-decoration: underline;
+                font-size: 12px;
+                cursor: pointer;
+                margin: 10px 0;
+            }
+            .period-form {
+                font-size: 12px;
+                color: #222;
+                .yes-btn {
+                    width: 25px;
+                    height: 25px;
+                    line-height: 25px;
+                    text-align: center;
+                    background-image: url('../images/yes.png');
+                    background-size: 100% 100%;
+                    background-repeat: no-repeat;
+                    border-radius: 50%;
+                    margin-right: 15px;
+                }
+                .no-btn {
+                    box-sizing: border-box;
+                    width: 25px;
+                    height: 25px;
+                    line-height: 25px;
+                    text-align: center;
+                    background-image: url('../images/no.png');
+                    background-size: 100% 100%;
+                    background-repeat: no-repeat;
+                    border-radius: 50%;
+                }
+            }
+        }
+        .operate-btns {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .cancel-btn, .confirm-btn {
+                padding: 0 20px;
+                height: 30px;
+                line-height: 30px;
+                text-align: center;
+                font-size: 12px;
+                background-color: #2196F3;
+                color: #FFF;
+                border-radius: 3px;
+                margin: 0 10px 20px 10px;
             }
         }
     }

@@ -14,21 +14,22 @@
                     </div>
                     <div class="available-time">
                         <span>可预约时间</span> 
-                        <div class="time-list">
-                            <span v-for="(period, index2) in item.periodList.slice(0, 2)" :key="index2">{{period.startDate}} - {{period.endDate}}</span>
-                            <span v-if="item.periodList && item.periodList.length > 3" style="font-size: 10px">......</span>
-                        </div>   
-                        
                     </div>
+                    <div class="time-list">
+                        <span v-for="(period, index2) in item.periodList.slice(0, 2)" :key="index2">{{period.startTime}} - {{period.endTime}}</span>
+                        <span v-if="item.periodList && item.periodList.length > 3" style="font-size: 10px">......</span>
+                    </div> 
                 </div>
-                <div class="reservation-btn" @click="goReserve(item)">预约</div>
+                <div class="reservation-btn" @click="openDialog(item)">预约</div>
             </div>
         </div>
-        <Dialog :visible="showDialog" @close="closeDialog" class="reservation-dialog">
+        <Dialog :visible="showReserveDialog" @close="closeDialog" class="reservation-dialog">
             <div class="dialog-title">预约该设备</div>
             <div class="equipment-info">
-                <div :class="['equipment-icon', icon(selectedItem)]"></div>
-                <div class="equipment-name">{{selectedItem.equipmentName}}</div>
+                <div class="equipment-head">
+                    <div :class="['equipment-icon', icon(selectedItem)]"></div>
+                    <div class="equipment-name">{{selectedItem.equipmentName}}</div>
+                </div>
                 <div class="line"></div>
                 <div class="equipment-type">
                     <span>设备类型</span>
@@ -38,24 +39,41 @@
                     <span>设备型号</span>
                     <span class="value">{{selectedItem.equipmentModel}}</span>
                 </div>
-                <div class="available-time">
+                <div class="available-time" style="margin-bottom: 10px">
                     <span>可预约时间</span>
-                    <div class="time-list">
-                        <span v-for="(period, index) in selectedItem.periodList" :key="index">{{period.startDate}} - {{period.endDate}}</span>
-                    </div> 
+                </div>
+                <div class="time-list">
+                    <span v-for="(period, index) in selectedItem.periodList" :key="index">{{period.startTime}} - {{period.endTime}}</span>
                 </div>
                 <div class="equipment-note">
                     <span>注意事项</span>
                     <span class="value">{{selectedItem.note}}</span>
                 </div>
-                <div class="reservation-note">请选择预约时间：</div>
-                <div class="start-date">
-                    <label for="start-date">开始时间</label>
-                    <input v-model="startDate" type="date" name="start-date">
+                <div class="available-time" style="margin-bottom: 5px">
+                    <span>预约时间</span>
                 </div>
-                <div class="end-date">
-                    <label for="end-date">结束时间</label>
-                    <input v-model="endDate" type="date" name="end-date">
+                <div class="selected-time-list" v-if="reserveForm.selectedPeriodList.length > 0">
+                    <div class="period" v-for="(period, index) in reserveForm.selectedPeriodList" :key="index">
+                        <span class="period-text">{{period.startDate + ' ' + period.startTime}} - {{period.endDate + ' ' +period.endTime}}</span>
+                        <div class="delete-period-btn" @click="deletePeriod(index)">-</div>
+                    </div>
+                </div> 
+                <div class="add-period-btn" v-if="!showPeriodForm" @click="openPeriodForm">+添加预约时间</div>
+                <div class="period-form" v-else>
+                    <label>起始时间：</label>
+                    <input type="date" v-model="periodForm.startDate">
+                    <input type="time" v-model="periodForm.startTime"><br>
+                    <label>结束时间：</label>
+                    <input type="date" v-model="periodForm.endDate" style="margin: 10px 0">
+                    <input type="time" v-model="periodForm.endTime"><br>
+                    <div class="operate-btns">
+                        <div class="yes-btn" @click="addPeriod"></div>
+                        <div class="no-btn" @click="cancelAddPeriod"></div>
+                    </div>
+                </div>
+                 <div class="reserve-note" style="margin-top: 10px">
+                    <span>备注信息</span>
+                    <textarea v-model="reserveForm.note" cols="30" rows="5" maxlength="100" placeholder="请输入备注信息"></textarea>
                 </div>
             </div>
             <div class="operate-btns">
@@ -76,9 +94,20 @@ export default {
     },
     data() {
         return {
-            showDialog: false,
+            showReserveDialog: false,
             startDate: '',
             endDate: '',
+            showPeriodForm: false,
+            periodForm: {
+                startDate: '',
+                endDate: '',
+                startTime: '',
+                endTime: ''
+            },
+            reserveForm: {
+                selectedPeriodList: [],
+                note: ''
+            },
             equipmentList: [
                 {
                     equipmentName:'联想电脑',
@@ -86,20 +115,20 @@ export default {
                     equipmentType: 1,
                     periodList: [
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                     ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
@@ -110,20 +139,20 @@ export default {
                     equipmentType: 2,
                     periodList: [
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                     ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
@@ -134,16 +163,16 @@ export default {
                     equipmentType: 3,
                     periodList: [
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         }
                     ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
@@ -154,8 +183,8 @@ export default {
                     equipmentType: 4,
                      periodList: [
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         }
                     ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
@@ -166,16 +195,16 @@ export default {
                     equipmentType: 4,
                     periodList: [
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         }
                     ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
@@ -186,16 +215,16 @@ export default {
                     equipmentType: 4,
                     periodList: [
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         }
                     ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
@@ -206,16 +235,16 @@ export default {
                     equipmentType: 4,
                     periodList: [
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         }
                     ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
@@ -226,16 +255,16 @@ export default {
                     equipmentType: 4,
                     periodList: [
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         },
                         {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
+                            startTime: '2019.04.01 18:00',
+                            endTime: '2019.05.01 18:00'
                         }
                     ],
                     note: '该设备属于贵重物品请注意保护，小心使用！'
@@ -287,12 +316,12 @@ export default {
         }
     },
     methods: {
-        goReserve(item) {
+        openDialog(item) {
             this.selectedItem = item;
-            this.showDialog = true;
+            this.showReserveDialog = true;
         },
         closeDialog() {
-            this.showDialog = false;
+            this.showReserveDialog = false;
         },
         async test() {
             const result = await Service.queryTemplate(
@@ -308,6 +337,28 @@ export default {
                     }
                 }
             );
+        },
+        openPeriodForm() {
+            this.showPeriodForm = true;
+        },
+        cancelAddPeriod() {
+            this.showPeriodForm = false;
+        },
+        addPeriod() {
+            this.showPeriodForm = false;
+            console.log(this.periodForm)
+            this.reserveForm.selectedPeriodList.push({
+                startDate: this.periodForm.startDate,
+                startTime: this.periodForm.startTime,
+                endDate: this.periodForm.endDate,
+                endTime: this.periodForm.endTime,
+            });
+        },
+        deletePeriod(index) {
+            this.reserveForm.selectedPeriodList.splice(index, 1);
+        },
+        reserve() {
+            this.showReserveDialog = false;
         }
     }
 }
@@ -397,14 +448,15 @@ export default {
                     justify-content: flex-start;
                     font-size: 12px;
                     color: #BBB; 
-                    .time-list {
-                        flex-shrink: 1;
-                        color: #2196F3;
-                        margin-left: 10px;
-                        span {
-                            text-align: center;
-                            display: block;
-                        }
+                }
+                .time-list {
+                    margin-top: 5px;
+                    flex-shrink: 1;
+                    color: #2196F3;
+                    font-size: 12px;
+                    span {
+                        display: block;
+                        margin-top: 5px;
                     }
                 }
             }
@@ -434,12 +486,19 @@ export default {
             align-items: center;
             flex-direction: column;
             padding: 0 20px;
+            .equipment-head {
+                 display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 5px 0;
+            }
             .equipment-icon {
                 height: 50px;
                 width: 50px;
                 background-image: url('../images/computer.png');
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
+                margin-right: 5px;
             }
             .display {
                 background-image: url('../images/display.png');
@@ -458,31 +517,32 @@ export default {
                 width: 100%;
                 height: 2px;
                 background-color: #2196F3;
-                margin: 10px 0 20px 0;
+                margin-bottom: 10px;
             }
-            .equipment-type, .equipment-address, .available-time, .equipment-note {
+            .equipment-type, .equipment-address, .available-time, .equipment-note, .reserve-note {
                 width: 100%;
                 display: flex;
                 justify-content: space-between;
                 font-size: 13px;
                 color: #AAA;
-                margin-bottom: 20px;
+                margin-bottom: 15px;
                 span {
-                    flex-basis: 90px;
+                    flex-basis: 70px;
                 }
                 .value {
                     color: #000;
                     flex-grow: 1;
                 }
-                .time-list {
-                    flex-grow: 1;
-                    span {
-                        color: #000;
-                        margin-bottom: 5px;
-                        display: block;
-                    }
+            }
+            .time-list {
+                flex-grow: 1;
+                font-size: 12px;
+                margin-bottom: 10px;
+                span {
+                    color: #000;
+                    margin-bottom: 5px;
+                    display: block;
                 }
-                
             }
             .reservation-note {
                 width: 100%;
@@ -490,16 +550,62 @@ export default {
                 font-size: 11px;
                 color: #2196F3;
             }
-           .start-date, .end-date {
-               display: flex;
-               align-items: center;
-               width: 100%;
-               margin: 10px 0;
-               label {
-                   font-size: 13px;
-                   margin-right: 20px;
-               }
-           }
+            .selected-time-list {
+                flex-grow: 1;
+                font-size: 12px;
+                .period {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    color: #000;
+                    margin-bottom: 8px;
+                    display: block;
+                    .delete-period-btn {
+                        display: inline-block;
+                        width: 10px;
+                        height: 10px;
+                        background-color: #f83600;
+                        color: #FFF;
+                        text-align: center;
+                        line-height: 10px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                    }
+                }
+            }
+           .add-period-btn {
+                color: #2196F3;
+                text-decoration: underline;
+                font-size: 12px;
+                cursor: pointer;
+                margin: 10px 0;
+            }
+            .period-form {
+                font-size: 12px;
+                color: #222;
+                .yes-btn {
+                    width: 25px;
+                    height: 25px;
+                    line-height: 25px;
+                    text-align: center;
+                    background-image: url('../images/yes.png');
+                    background-size: 100% 100%;
+                    background-repeat: no-repeat;
+                    border-radius: 50%;
+                    margin-right: 15px;
+                }
+                .no-btn {
+                    box-sizing: border-box;
+                    width: 25px;
+                    height: 25px;
+                    line-height: 25px;
+                    text-align: center;
+                    background-image: url('../images/no.png');
+                    background-size: 100% 100%;
+                    background-repeat: no-repeat;
+                    border-radius: 50%;
+                }
+            }
         }
         .operate-btns {
             display: flex;
