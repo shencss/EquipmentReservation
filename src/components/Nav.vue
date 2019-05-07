@@ -88,7 +88,7 @@ export default {
     }
     .active-item {
         .nav-name {
-            color: #2196F3;
+            color: #409EFF;
         }
         .nav-icon-home {
             background-image: url('../images/home_active.png');

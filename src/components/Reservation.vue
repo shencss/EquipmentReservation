@@ -315,7 +315,7 @@ export default {
         justify-content: center;
         align-items: center;
         background-color: #FFF;
-        color: #2196F3;
+        color: #409EFF;
         font-size: 12px;
         div {
             position: relative;
@@ -329,7 +329,7 @@ export default {
             display: inline-block;
             width: 30px;
             height: 2px;
-            background-color: #2196F3;
+            background-color: #409EFF;
             position: absolute;
             bottom: 6px;
             left: 50%;
@@ -339,7 +339,7 @@ export default {
     .type-underline {
         height: 2px;
         width: 30px;
-        background-color: #2196F3;
+        background-color: #409EFF;
         position: absolute;
         top: 30px;
         left: 16.66%;
@@ -389,7 +389,7 @@ export default {
                 }
                 .status {
                     font-size: 12px;
-                    color: #BBB;
+                    color: #909399;
                     margin: 5px 0;
                     span {
                         margin-left: 10px;
@@ -398,17 +398,17 @@ export default {
                 }
                 .refuse {
                     span {
-                        color: #f83600;
+                        color: #F56C6C;
                     }
                 }
                 .await {
                     span {
-                        color: #f9d423;
+                        color: #E6A23C;
                     }
                 }
                 .using {
                     span {
-                        color: #2af598;
+                        color: #67C23A;
                     }
                 }
                 .end {
@@ -418,15 +418,15 @@ export default {
                 }
                 .available-time {
                     font-size: 12px;
-                    color: #BBB; 
+                    color: #909399; 
                     span {
-                        color: #2196F3;
+                        color: #409EFF;
                         margin-left: 10px;
                     }
                 }
             }
             .cancel-btn, .end-btn, .check-btn {
-                background-color: #f83600;
+                background-color: #F56C6C;
                 color: #FFF;
                 padding: 5px;
                 font-size: 12px;
@@ -434,7 +434,7 @@ export default {
                 cursor: pointer;
             }
             .check-btn {
-                background-color: #2196F3;
+                background-color: #409EFF;
                 margin-right: 5px;
             }
             .reserve-time {
@@ -442,7 +442,7 @@ export default {
                 bottom: 3px;
                 right: 3px;
                 font-size: 12px;
-                color: #BBB;
+                color: #909399;
             }
         }
     }
@@ -452,8 +452,8 @@ export default {
             line-height: 50px;
             font-size: 15px;
             text-align: center;
-            border-bottom: 1px solid #2196F3;
-            background-color: #2196F3;
+            border-bottom: 1px solid #409EFF;
+            background-color: #409EFF;
             color: #FFF;
         }
         .remind-text {
@@ -472,7 +472,7 @@ export default {
                 line-height: 30px;
                 text-align: center;
                 font-size: 12px;
-                background-color: #2196F3;
+                background-color: #409EFF;
                 color: #FFF;
                 border-radius: 3px;
                 margin: 0 10px 20px 10px;
@@ -485,8 +485,8 @@ export default {
             line-height: 50px;
             font-size: 15px;
             text-align: center;
-            border-bottom: 1px solid #2196F3;
-            background-color: #2196F3;
+            border-bottom: 1px solid #409EFF;
+            background-color: #409EFF;
             color: #FFF;
         }
         .equipment-info {
@@ -506,7 +506,7 @@ export default {
                     flex-basis: 70px;
                 }
                 .value {
-                    color: #000;
+                    color:#303133;;
                     flex-grow: 1;
                 }
             }
@@ -515,7 +515,7 @@ export default {
                 font-size: 12px;
                 margin-bottom: 10px;
                 span {
-                    color: #000;
+                    color: #303133;;
                     margin-bottom: 5px;
                     display: block;
                 }
@@ -524,7 +524,7 @@ export default {
                 width: 100%;
                 text-align: left;
                 font-size: 11px;
-                color: #2196F3;
+                color: #409EFF;
             }
             .selected-time-list {
                 flex-grow: 1;
@@ -533,14 +533,14 @@ export default {
                     display: flex;
                     justify-content: flex-start;
                     align-items: center;
-                    color: #000;
+                    color: #303133;
                     margin-bottom: 8px;
                     display: block;
                     .delete-period-btn {
                         display: inline-block;
                         width: 10px;
                         height: 10px;
-                        background-color: #f83600;
+                        background-color: #F56C6C;
                         color: #FFF;
                         text-align: center;
                         line-height: 10px;
@@ -550,7 +550,7 @@ export default {
                 }
             }
            .add-period-btn {
-                color: #2196F3;
+                color: #409EFF;
                 text-decoration: underline;
                 font-size: 12px;
                 cursor: pointer;
@@ -558,7 +558,7 @@ export default {
             }
             .period-form {
                 font-size: 12px;
-                color: #222;
+                color: #303133;
                 .yes-btn {
                     width: 25px;
                     height: 25px;
@@ -593,7 +593,7 @@ export default {
                 line-height: 30px;
                 text-align: center;
                 font-size: 12px;
-                background-color: #2196F3;
+                background-color: #409EFF;
                 color: #FFF;
                 border-radius: 3px;
                 margin: 0 10px 20px 10px;

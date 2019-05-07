@@ -433,13 +433,14 @@ export default {
                 .equipment-name {
                     font-size: 14px;
                     font-weight: bold;
+                    color: #303133;
                 }
                 .count {
                     font-size: 12px;
-                    color: #BBB;
+                    color: #909399;
                     margin: 5px 0;
                     span {
-                        color: #f83600;
+                        color: #F56C6C;
                         margin-left: 10px;
                     }
                 }
@@ -447,12 +448,12 @@ export default {
                     display: flex;
                     justify-content: flex-start;
                     font-size: 12px;
-                    color: #BBB; 
+                    color: #909399; 
                 }
                 .time-list {
                     margin-top: 5px;
                     flex-shrink: 1;
-                    color: #2196F3;
+                    color: #409EFF;
                     font-size: 12px;
                     span {
                         display: block;
@@ -461,7 +462,7 @@ export default {
                 }
             }
             .reservation-btn {
-                background-color: #2196F3;
+                background-color: #409EFF;
                 color: #FFF;
                 padding: 5px;
                 font-size: 12px;
@@ -476,8 +477,8 @@ export default {
             line-height: 50px;
             font-size: 15px;
             text-align: center;
-            border-bottom: 1px solid #2196F3;
-            background-color: #2196F3;
+            border-bottom: 1px solid #409EFF;
+            background-color: #409EFF;
             color: #FFF;
         }
         .equipment-info {
@@ -516,7 +517,7 @@ export default {
             .line {
                 width: 100%;
                 height: 2px;
-                background-color: #2196F3;
+                background-color: #409EFF;
                 margin-bottom: 10px;
             }
             .equipment-type, .equipment-address, .available-time, .equipment-note, .reserve-note {
@@ -530,7 +531,7 @@ export default {
                     flex-basis: 70px;
                 }
                 .value {
-                    color: #000;
+                    color: #303133;
                     flex-grow: 1;
                 }
             }
@@ -539,7 +540,7 @@ export default {
                 font-size: 12px;
                 margin-bottom: 10px;
                 span {
-                    color: #000;
+                    color: #303133;
                     margin-bottom: 5px;
                     display: block;
                 }
@@ -548,7 +549,7 @@ export default {
                 width: 100%;
                 text-align: left;
                 font-size: 11px;
-                color: #2196F3;
+                color: #409EFF;
             }
             .selected-time-list {
                 flex-grow: 1;
@@ -557,14 +558,14 @@ export default {
                     display: flex;
                     justify-content: flex-start;
                     align-items: center;
-                    color: #000;
+                    color: #303133;
                     margin-bottom: 8px;
                     display: block;
                     .delete-period-btn {
                         display: inline-block;
                         width: 10px;
                         height: 10px;
-                        background-color: #f83600;
+                        background-color: #F56C6C;
                         color: #FFF;
                         text-align: center;
                         line-height: 10px;
@@ -574,7 +575,7 @@ export default {
                 }
             }
            .add-period-btn {
-                color: #2196F3;
+                color: #409EFF;
                 text-decoration: underline;
                 font-size: 12px;
                 cursor: pointer;
@@ -582,7 +583,7 @@ export default {
             }
             .period-form {
                 font-size: 12px;
-                color: #222;
+                color: #303133;
                 .yes-btn {
                     width: 25px;
                     height: 25px;
@@ -617,7 +618,7 @@ export default {
                 line-height: 30px;
                 text-align: center;
                 font-size: 12px;
-                background-color: #2196F3;
+                background-color: #409EFF;
                 color: #FFF;
                 border-radius: 3px;
                 margin: 20px 10px;
