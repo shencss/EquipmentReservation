@@ -55,7 +55,7 @@ export default {
     left: 0;
     height: 40px;
     line-height: 40px;
-    background-color: #2196F3;
+    background-color: #409EFF;
     // color: #A1C4FD;
     color: #FFF;
     font-size: 16px;

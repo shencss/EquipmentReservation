@@ -78,7 +78,7 @@ export default {
         .nav-name {
             margin-top: 3px;
             font-size: 10px;
-            color: #AAA;
+            color: #909399;
         }
         .nav-icon-schedule {
             background-image: url('../images/reservation.png');
@@ -95,7 +95,7 @@ export default {
     }
     .active-item {
         .nav-name {
-            color: #2196F3;
+            color: #409EFF;
         }
         .nav-icon-schedule {
             background-image: url('../images/reservation_active.png');

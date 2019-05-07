@@ -523,7 +523,7 @@ export default {
                     color: #BBB;
                     margin: 5px 0;
                     span {
-                        color: #f83600;
+                        color: #F56C6C;
                         margin-left: 10px;
                     }
                 }
@@ -534,7 +534,7 @@ export default {
                     padding-left: 50px;
                     margin-top: 10px;
                     .check-btn, .modify-btn, .delete-btn {
-                        background-color: #2196F3;
+                        background-color: #409EFF;
                         color: #FFF;
                         padding: 5px;
                         font-size: 12px;
@@ -542,7 +542,7 @@ export default {
                         cursor: pointer;
                     }
                     .delete-btn {
-                        background-color: #f83600;
+                        background-color: #F56C6C;
                        
                     }
                 }
@@ -555,8 +555,8 @@ export default {
             line-height: 50px;
             font-size: 15px;
             text-align: center;
-            border-bottom: 1px solid #2196F3;
-            background-color: #2196F3;
+            border-bottom: 1px solid #409EFF;
+            background-color: #409EFF;
             color: #FFF;
         }
         .remind-text {
@@ -575,7 +575,7 @@ export default {
                 line-height: 30px;
                 text-align: center;
                 font-size: 12px;
-                background-color: #2196F3;
+                background-color: #409EFF;
                 color: #FFF;
                 border-radius: 3px;
                 margin: 0 10px 20px 10px;
@@ -597,7 +597,7 @@ export default {
         .detail-info {
             padding: 15px;
             font-size: 12px;
-            color: #BBB;
+            color: #909399;
             .equipment-name {
                 .vaule {
                     color: #222;
@@ -608,7 +608,7 @@ export default {
             .use-count {
                 margin: 15px 0;
                 .vaule {
-                    color: #f83600;
+                    color: #F56C6C;
                     margin-left: 10px;
                 }
             }
@@ -633,7 +633,7 @@ export default {
                         line-height: 15px;
                         color: #222;
                         .period-text, .user-text {
-                            color: #2196F3;
+                            color: #409EFF;
                         }
                     }
                 }

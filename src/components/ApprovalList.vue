@@ -79,13 +79,13 @@ export default {
             margin: 0 10px;
             font-size: 12px;
             height: 45px;
-            color: #BBB;
+            color: #909399;
             div {
                 height: 15px;
                 line-height: 15px;
             }
             .value {
-                color: #222;
+                color: #303133;
                 margin-left: 20px;
             }
         }
@@ -93,7 +93,7 @@ export default {
             position: absolute;
             top: 18.5px;
             right: 30px;
-            background-color: #f83600;
+            background-color: #F56C6C;
             color: #FFF;
             padding: 5px;
             font-size: 12px;

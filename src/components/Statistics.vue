@@ -149,7 +149,7 @@ export default {
 .statistics {
     .case {
         background-color: #FFF;
-        color: #2196F3;
+        color: #409EFF;
         padding: 10px 20px;
         .title {
             height: 25px;
@@ -161,7 +161,7 @@ export default {
             }
             .value {
                 margin-left: 15px;
-                color: #f83600;
+                color: #F56C6C;
             }
         }
     }
@@ -177,7 +177,7 @@ export default {
             font-size: 12px;
             padding: 0 10px;
             height: 30px;
-            color: #222;
+            color: #303133;
             border-bottom: 1px solid #EEE;
             box-sizing: border-box;
             .message-icon {
@@ -191,16 +191,16 @@ export default {
                 flex-grow: 1;
                 margin: 0 10px;
                 .operate {
-                    color: #2196F3;
+                    color: #409EFF;
                 }
                 .case-time {
                     float: right;
                 }
                 .pass {
-                    color: #1afa29;
+                    color: #67C23A;
                 }
                 .reject {
-                    color: #f83600;
+                    color: #F56C6C;
                 }
             }
         }
@@ -210,7 +210,7 @@ export default {
         margin-top: 20px;
         background-color: #FFF;
         padding-top: 10px;
-        color: #2196F3;
+        color: #409EFF;
         .title {
             height: 25px;
             margin: 0 20px;
@@ -228,7 +228,7 @@ export default {
         .type-underline {
             height: 2px;
             width: 50px;
-            background-color: #2196F3;
+            background-color: #409EFF;
             position: absolute;
             top: 56px;
             left: 25%;
@@ -248,7 +248,7 @@ export default {
             align-items: center;
             justify-content: space-between;
             font-size: 12px;
-            color: #222;
+            color: #909399;
             text-align: center;
             .num {
                 flex: 1;
@@ -265,7 +265,7 @@ export default {
     .rank-list {
         background-color: #FFF;
         font-size: 12px;
-        color: #BBB;
+        color: #303133;
         .rank-item {
             display: flex;
             justify-content: space-between;
@@ -281,7 +281,7 @@ export default {
             }
             .count {
                 flex: 2;
-                color: #f83600;
+                color: #F56C6C;
             }
         }
     }

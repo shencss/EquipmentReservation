@@ -64,8 +64,8 @@
                     <input type="date" v-model="periodForm.endDate" style="margin: 10px 0">
                     <input type="time" v-model="periodForm.endTime"><br>
                     <div class="operate-btns">
-                        <div class="yes-btn" @click="addPeriod">√</div>
-                        <div class="no-btn" @click="cancelAddPeriod">X</div>
+                        <div class="yes-btn" @click="addPeriod"></div>
+                        <div class="no-btn" @click="cancelAddPeriod"></div>
                     </div>
                 </div>
             </div>
@@ -436,7 +436,7 @@ export default {
         justify-content: center;
         align-items: center;
         background-color: #FFF;
-        color: #2196F3;
+        color: #409EFF;
         font-size: 12px;
         div {
             position: relative;
@@ -448,7 +448,7 @@ export default {
         .type-underline {
             height: 2px;
             width: 30px;
-            background-color: #2196F3;
+            background-color: #409EFF;
             position: absolute;
             top: 30px;
             left: 12.5%;
@@ -504,26 +504,18 @@ export default {
                 .equipment-name {
                     font-size: 14px;
                     font-weight: bold;
-                }
-                .count {
-                    font-size: 12px;
-                    color: #BBB;
-                    margin: 5px 0;
-                    span {
-                        color: #f83600;
-                        margin-left: 10px;
-                    }
+                    color: #303133;
                 }
                 .available-time {
                     display: flex;
                     justify-content: flex-start;
                     font-size: 12px;
-                    color: #BBB; 
+                    color: #909399; 
                 }
                 .time-list {
                     margin-top: 5px;
                     flex-shrink: 1;
-                    color: #2196F3;
+                    color: #409EFF;
                     font-size: 12px;
                     span {
                         display: block;
@@ -532,7 +524,7 @@ export default {
                 }
             }
             .reservation-btn, .arrange-btn {
-                background-color: #2196F3;
+                background-color: #409EFF;
                 color: #FFF;
                 padding: 5px;
                 font-size: 12px;
@@ -541,7 +533,7 @@ export default {
                 flex-shrink: 0;
             }
             .arrange-btn {
-                background-color: #1afa29;
+                background-color: #67C23A;
             }
         }
     }
@@ -551,8 +543,8 @@ export default {
             line-height: 50px;
             font-size: 15px;
             text-align: center;
-            border-bottom: 1px solid #2196F3;
-            background-color: #2196F3;
+            border-bottom: 1px solid #409EFF;
+            background-color: #409EFF;
             color: #FFF;
         }
         .equipment-info {
@@ -584,7 +576,7 @@ export default {
             .line {
                 width: 100%;
                 height: 2px;
-                background-color: #2196F3;
+                background-color: #409EFF;
                 margin: 10px 0 20px 0;
             }
             .equipment-type, .equipment-address, .available-time, .equipment-note {
@@ -592,7 +584,7 @@ export default {
                 display: flex;
                 justify-content: space-between;
                 font-size: 13px;
-                color: #AAA;
+                color: #909399;
                 margin-bottom: 20px;
                 span {
                     flex-basis: 90px;
@@ -616,7 +608,7 @@ export default {
                         display: inline-block;
                         width: 10px;
                         height: 10px;
-                        background-color: #f83600;
+                        background-color: #F56C6C;
                         color: #FFF;
                         text-align: center;
                         line-height: 10px;
@@ -626,40 +618,36 @@ export default {
                 }
             }
             .add-period-btn {
-                color: #2196F3;
+                color: #409EFF;
                 text-decoration: underline;
                 font-size: 12px;
                 cursor: pointer;
             }
             .period-form {
                 font-size: 12px;
-                color: #222;
+                color: #303133;
                 .yes-btn {
                     width: 25px;
                     height: 25px;
-                    line-height: 25px;
-                    text-align: center;
-                    background-color: #2196F3;
-                    color: #FFF;
-                    border-radius: 50%;
                     margin-right: 15px;
+                    background-image: url('../images/yes.png');
+                    background-size: 100% 100%;
+                    background-repeat: no-repeat;
                 }
                 .no-btn {
                     box-sizing: border-box;
                     width: 25px;
                     height: 25px;
-                    line-height: 25px;
-                    text-align: center;
-                    border: 1px solid #2196F3;
-                    color: #2196F3;
-                    border-radius: 50%;
+                    background-image: url('../images/no.png');
+                    background-size: 100% 100%;
+                    background-repeat: no-repeat;
                 }
             }
             .reservation-note {
                 width: 100%;
                 text-align: left;
                 font-size: 11px;
-                color: #2196F3;
+                color: #409EFF;
             }
            .start-date, .end-date {
                display: flex;
@@ -682,7 +670,7 @@ export default {
                 line-height: 30px;
                 text-align: center;
                 font-size: 12px;
-                background-color: #2196F3;
+                background-color: #409EFF;
                 color: #FFF;
                 border-radius: 3px;
                 margin: 20px 10px;

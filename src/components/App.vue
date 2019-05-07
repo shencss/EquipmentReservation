@@ -46,5 +46,6 @@ export default {
 	height: 100vh;
 	background-color: rgb(245, 245, 245);
 	padding: 40px 0 0 0;
+	color: #303133;
 }
 </style>

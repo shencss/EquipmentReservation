@@ -99,7 +99,7 @@ export default {
         text-align: center;
         font-size: 12px;
         span {
-            color: #2196F3;
+            color: #409EFF;
         }
     }
     .reservation-box {
@@ -112,10 +112,10 @@ export default {
             justify-content: space-between;
             align-items: center;
             margin-top: 20px;
-            color: #AAA;
+            color: #909399;
             font-size: 12px;
             .value {
-                color: #222;
+                color: #303133;
                 max-width: 150px;
             }
         }
@@ -124,7 +124,7 @@ export default {
             justify-content: center;
             align-items: center;
             font-size: 12px;
-            color: #222;
+            color: #303133;
             margin-top: 10px;
         }
         .note {
@@ -141,12 +141,12 @@ export default {
         line-height: 35px;
         font-size: 13px;
         color: #FFF;
-        background-color: #2196F3;
+        background-color: #409EFF;
         border-radius: 17.5px;
         margin: 20px auto;
     }
     .refuse-btn {
-        background-color: #f83600;
+        background-color: #F56C6C;
         margin-bottom: 0;
     }
 }
