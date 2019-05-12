@@ -1,8 +1,8 @@
 <template>
 	<div class="home">
         <div class="search-box">
-            <input id="search-input" type="text" placeholder="搜索设备">
-            <span class="search-icon"></span>
+            <input id="search-input" v-model="searchForm.equipmentName" type="text" placeholder="搜索设备">
+            <span class="search-icon" @click="searchEquipment"></span>
         </div>
         <div class="equipment-list">
             <div class="equipment-item" v-for="(item, index) in equipmentList" :key=index>
@@ -16,8 +16,8 @@
                         <span>可预约时间</span> 
                     </div>
                     <div class="time-list">
-                        <span v-for="(period, index2) in item.periodList.slice(0, 2)" :key="index2">{{period.startTime}} - {{period.endTime}}</span>
-                        <span v-if="item.periodList && item.periodList.length > 3" style="font-size: 10px">......</span>
+                        <span v-for="(period, index2) in item.periods" :key="index2">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
+                        <span v-if="item.periods && item.periods.length > 3" style="font-size: 10px">......</span>
                     </div> 
                 </div>
                 <div class="reservation-btn" @click="openDialog(item)">预约</div>
@@ -43,7 +43,7 @@
                     <span>可预约时间</span>
                 </div>
                 <div class="time-list">
-                    <span v-for="(period, index) in selectedItem.periodList" :key="index">{{period.startTime}} - {{period.endTime}}</span>
+                    <span v-for="(period, index) in selectedItem.periods" :key="index">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
                 </div>
                 <div class="equipment-note">
                     <span>注意事项</span>
@@ -78,15 +78,16 @@
             </div>
             <div class="operate-btns">
                 <div class="cancel-btn" @click="closeDialog">取消</div>
-                <div class="confirm-btn">确定</div>
+                <div class="confirm-btn" @click="reserve">确定</div>
             </div>
         </Dialog>
     </div>
 </template>
 
 <script>
-import Dialog from './Dialog'
-import Service from '../service/base_service'
+import Dialog from './Dialog';
+import { getBaseUrl } from '../common/env';
+
 
 export default {
     components: {
@@ -108,212 +109,65 @@ export default {
                 selectedPeriodList: [],
                 note: ''
             },
-            equipmentList: [
-                {
-                    equipmentName:'联想电脑',
-                    equipmentModel: 'GT009',
-                    equipmentType: 1,
-                    periodList: [
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
-                },
-                {
-                    equipmentName:'戴尔显示屏',
-                    equipmentModel: 'SGK004',
-                    equipmentType: 2,
-                    periodList: [
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
-                },
-                {
-                    equipmentName:'CHERRY键盘',
-                    equipmentModel: 'T-405H',
-                    equipmentType: 3,
-                    periodList: [
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
-                },
-                {
-                    equipmentName:'罗技鼠标',
-                    equipmentModel: 'P8TY-P',
-                    equipmentType: 4,
-                     periodList: [
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
-                },
-                {
-                    equipmentName:'罗技鼠标',
-                    equipmentModel: 'P8TY-P',
-                    equipmentType: 4,
-                    periodList: [
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
-                },
-                {
-                    equipmentName:'罗技鼠标',
-                    equipmentModel: 'P8TY-P',
-                    equipmentType: 4,
-                    periodList: [
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
-                },
-                {
-                    equipmentName:'罗技鼠标',
-                    equipmentModel: 'P8TY-P',
-                    equipmentType: 4,
-                    periodList: [
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
-                },
-                {
-                    equipmentName:'罗技鼠标',
-                    equipmentModel: 'P8TY-P',
-                    equipmentType: 4,
-                    periodList: [
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        },
-                        {
-                            startTime: '2019.04.01 18:00',
-                            endTime: '2019.05.01 18:00'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！'
-                }
-            ],
-            selectedItem: {}
+            equipmentList: [],
+            selectedItem: {},
+            searchForm: {
+                equipmentName: ''
+            }
         };
     },
     computed: {
         icon() {
             return item => {
-                switch(item.equipmentType) {
-                    case 1:
-                        return 'computer';
-                        break;
-                    case 2:
-                        return 'display';
-                        break;
-                    case 3:
-                        return 'keyboard';
-                        break;
-                    case 4:
-                        return 'mouse';
-                        break;
-                    default:
-                        return 'computer'
+                if(item) {
+                    switch(item.equipmentType) {
+                        case 1:
+                            return 'computer';
+                            break;
+                        case 2:
+                            return 'display';
+                            break;
+                        case 3:
+                            return 'keyboard';
+                            break;
+                        case 4:
+                            return 'mouse';
+                            break;
+                        default:
+                            return 'computer'
+                    }
                 }
             }
         },
         type() {
             return item => {
-                switch(item.equipmentType) {
-                    case 1:
-                        return '电脑';
-                        break;
-                    case 2:
-                        return '显示屏';
-                        break;
-                    case 3:
-                        return '键盘';
-                        break;
-                    case 4:
-                        return '鼠标';
-                        break;
-                    default:
-                        return '电脑'
+                if(item) {
+                    switch(item.equipmentType) {
+                        case 1:
+                            return '电脑';
+                            break;
+                        case 2:
+                            return '显示屏';
+                            break;
+                        case 3:
+                            return '键盘';
+                            break;
+                        case 4:
+                            return '鼠标';
+                            break;
+                        default:
+                            return '电脑'
+                    }
                 }
             }
         }
+    },
+    mounted() {
+        this.$axios.get(getBaseUrl() + '&action=getAvailableEquipments').then(res => {
+            this.equipmentList = res.data.result;
+        }).catch(err => {
+            console.log(err);
+        });
     },
     methods: {
         openDialog(item) {
@@ -322,21 +176,6 @@ export default {
         },
         closeDialog() {
             this.showReserveDialog = false;
-        },
-        async test() {
-            const result = await Service.queryTemplate(
-                {
-                    test: 'test001'
-                },
-                {
-                    onSuccess: res => {
-                        console.log('res....', res);
-                    },
-                    onFail: err => {
-                        console.log('err....', err);
-                    }
-                }
-            );
         },
         openPeriodForm() {
             this.showPeriodForm = true;
@@ -358,7 +197,37 @@ export default {
             this.reserveForm.selectedPeriodList.splice(index, 1);
         },
         reserve() {
+            let periods = [];
+            for(let i = 0, len = this.reserveForm.selectedPeriodList.length; i < len; i++) {
+                periods.push({
+                    startTime: new Date(this.reserveForm.selectedPeriodList[i].startDate + ' ' + this.reserveForm.selectedPeriodList[i].startTime + ':00').getTime(),
+                    endTime: new Date(this.reserveForm.selectedPeriodList[i].endDate + ' '  + this.reserveForm.selectedPeriodList[i].endTime + ':00').getTime()
+                })
+            }
+            periods = encodeURIComponent(JSON.stringify(periods));
+            let url = getBaseUrl() + '&action=reserve&userId=1&equipmentId=' + this.selectedItem.equipmentId + '&note=' + this.reserveForm.note + '&periods=' + periods;
+            this.$axios.get(url).then(res => {
+                
+            }).catch(err => {
+                console.log(err);
+            });
             this.showReserveDialog = false;
+        },
+        timeText(millisecond) {
+            let date = new Date(millisecond);
+            let year = date.getFullYear();
+            let month = date.getMonth() + 0;
+            let day = date.getDate();
+            let hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
+            let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
+            return year + '-' + month + '-' + day + '  ' + hour + ':' + min;
+        },
+        searchEquipment() {
+            this.$axios.get(getBaseUrl() + '&action=getAvailableEquipments&pageNum=1&pageSize=20&equipmentName=' + this.searchForm.equipmentName).then(res => {
+                this.equipmentList = res.data.result;
+            }).catch(err => {
+                console.log(err);
+            });
         }
     }
 }
@@ -534,6 +403,9 @@ export default {
                     color: #303133;
                     flex-grow: 1;
                 }
+            }
+            .reserve-note {
+                justify-content: flex-start;
             }
             .time-list {
                 flex-grow: 1;

@@ -9,17 +9,17 @@
         <div class="equipment-list">
             <div class="item-wrap" v-for="(item, index) in reservationList" :key=index>
                 <div class="equipment-item" v-if="showItem(item.status)">
-                    <div :class="['equipment-icon', icon(item)]"></div>
+                    <div :class="['equipment-icon', icon(item.equipment)]"></div>
                     <div class="equipment-info">
-                        <div class="equipment-name">{{item.equipmentName}}</div>
+                        <div class="equipment-name">{{item.equipment.equipmentName}}</div>
                         <div :class="['status', statusClass(item.status)]">当前状态
                             <span>{{statusText(item.status)}}</span>
                         </div>
                     </div>
-                    <div class="check-btn" @click="openDialog('DetailDialog')">查看</div>
-                    <div v-if="item.status == 1" class="cancel-btn" @click="openDialog('CancelDialog')">取消预约</div>
-                    <div v-if="item.status == 3" class="end-btn" @click="openDialog('EndDialog')">结束使用</div>
-                    <div class="reserve-time">2019.04.01 18:00</div>
+                    <div class="check-btn" @click="openDialog('DetailDialog', item)">查看</div>
+                    <div v-if="item.status == 1" class="cancel-btn" @click="openDialog('CancelDialog', item)">取消预约</div>
+                    <div v-if="item.status == 3" class="end-btn" @click="openDialog('EndDialog', item)">结束使用</div>
+                    <div class="reserve-time">{{timeText(item.reserveTime)}}</div>
                 </div>
             </div>
         </div>
@@ -51,7 +51,7 @@
             <div class="equipment-info">
                 <div class="equipment-name">
                     <span>设备名称</span>
-                    <span class="value">{{equipmentType(selectedItem)}}</span>
+                    <span class="value">{{selectedItem.equipment.equipmentName}}</span>
                 </div>
                 <div class="equipment-type">
                     <span>设备类型</span>
@@ -59,27 +59,27 @@
                 </div>
                 <div class="equipment-address">
                     <span>设备型号</span>
-                    <span class="value">{{selectedItem.equipmentModel}}</span>
+                    <span class="value">{{selectedItem.equipment.equipmentModel}}</span>
                 </div>
                 <div class="available-time" style="margin-bottom: 10px">
                     <span>可预约时间</span>
                 </div>
                 <div class="time-list">
-                    <span v-for="(period, index) in selectedItem.periodList" :key="index">{{period.startTime}} - {{period.endTime}}</span>
+                    <span v-for="(period, index) in selectedItem.equipment.periods" :key="index">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
                 </div>
                 <div class="equipment-note">
                     <span>注意事项</span>
-                    <span class="value">{{selectedItem.note}}</span>
+                    <span class="value">{{selectedItem.equipment.note}}</span>
                 </div>
                 <div class="available-time" style="margin-bottom: 10px">
                     <span>预约时间</span>
                 </div>
                 <div class="time-list">
-                    <span v-for="(period, index) in selectedItem.reservePeriodList" :key="index">{{period.startTime}} - {{period.endTime}}</span>
+                    <span v-for="(period, index) in selectedItem.periods" :key="index">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
                 </div>
                  <div class="reserve-note" style="margin-top: 10px">
                     <span>备注信息</span>
-                    <span class="value">{{selectedItem.reserveNote}}</span>
+                    <span class="value">{{selectedItem.note}}</span>
                 </div>
             </div>
             <div class="operate-btns" style="margin-top: 10px">
@@ -91,6 +91,7 @@
 
 <script>
 import Dialog from './Dialog.vue';
+import { getBaseUrl } from '../common/env';
 
 export default {
     data() {
@@ -100,77 +101,33 @@ export default {
             showEndDialog: false,
             showDetailDialog: false,
             underlineClass: 'left',
-            reservationList: [
-                {
-                    equipmentName: '联系电脑',
-                    equipmentType: 1,
-                    status: 1,
-                    reserveStart: '2019.04.01',
-                    reserveEnd: '2019.04.15'
-                },
-                {
-                    equipmentName: '戴尔显示屏',
-                    equipmentType: 2,
-                    status: 2,
-                    reserveStart: '2019.04.01',
-                    reserveEnd: '2019.04.15'
-                },
-                {
-                    equipmentName: 'CHERRY键盘',
-                    equipmentType: 3,
-                    status: 3,
-                    reserveStart: '2019.04.01',
-                    reserveEnd: '2019.04.15'
-                },
-                {
-                    equipmentName: '罗技鼠标',
-                    equipmentType: 4,
-                    status: 4,
-                    reserveStart: '2019.04.01',
-                    reserveEnd: '2019.04.15'
-                }
-            ],
+            reservationList: [],
             selectedItem: {
-                equipmentName:'联想电脑',
-                equipmentModel: 'GT009',
-                equipmentType: 1,
-                periodList: [
-                    {
-                        startTime: '2019.04.01 18:00',
-                        endTime: '2019.05.01 18:00'
-                    },
-                    {
-                        startTime: '2019.04.01 18:00',
-                        endTime: '2019.05.01 18:00'
-                    },
-                    {
-                        startTime: '2019.04.01 18:00',
-                        endTime: '2019.05.01 18:00'
-                    },
-                    {
-                        startTime: '2019.04.01 18:00',
-                        endTime: '2019.05.01 18:00'
-                    },
-                ],
-                note: '该设备属于贵重物品请注意保护，小心使用！',
-                reservePeriodList: [
-                    {
-                        startTime: '2019.04.01 18:00',
-                        endTime: '2019.05.01 18:00'
-                    },
-                    {
-                        startTime: '2019.04.01 18:00',
-                        endTime: '2019.05.01 18:00'
-                    },
-                ],
-                reserveNote: '用于毕业设计开发'
+                equipment: {}
             },
         };
     },
     components: {
         Dialog
     },
+    mounted() {
+        this.$axios.get(getBaseUrl() + '&action=getUserReserveRecords&userId=1').then(res => {
+            this.reservationList = res.data.result;
+            this.selectedItem = this.reservationList[0];
+        }).catch(err => {
+            console.log(err);
+        });
+    },
     methods: {
+        timeText(millisecond) {
+            let date = new Date(millisecond);
+            let year = date.getFullYear();
+            let month = date.getMonth() + 0;
+            let day = date.getDate();
+            let hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
+            let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
+            return year + '-' + month + '-' + day + '  ' + hour + ':' + min;
+        },
         checkType(type) {
             if(type == 'all') {
                 this.type = 'all';
@@ -192,76 +149,99 @@ export default {
                 this.showDetailDialog = false;
             }
         },
-        openDialog(dialogName) {
+        openDialog(dialogName, item) {
             if(dialogName == 'CancelDialog') {
+                console.log('pppppppppp')
+                this.selectedItem = item;
                 this.showCancelDialog = true;
             } else if(dialogName == 'EndDialog') {
+                this.selectedItem = item;
                 this.showEndDialog = true;
             } else if(dialogName == 'DetailDialog') {
+                this.selectedItem = item;
                 this.showDetailDialog = true;
             }
         },
         cancelReserve() {
+            this.$axios.get(getBaseUrl() + '&action=cancelReserve&recordId=' + this.selectedItem.recordId).then(res => {
+                return this.$axios.get(getBaseUrl() + '&action=getUserReserveRecords&userId=1');
+            }).then(res => {
+                this.reservationList = res.data.result;
+            }).catch(err => {
+                console.log(err);
+            });
             this.showCancelDialog = false;
         },
         endUse() {
+            this.$axios.get(getBaseUrl() + '&action=endReserve&recordId=' + this.selectedItem.recordId).then(res => {
+                return this.$axios.get(getBaseUrl() + '&action=getUserReserveRecords&userId=1');
+            }).then(res => {
+                this.reservationList = res.data.result;
+            }).catch(err => {
+                console.log(err);
+            });
             this.showEndDialog = false;
         }
     },
     computed:{
         icon() {
             return item => {
-                switch(item.equipmentType) {
-                    case 1:
-                        return 'computer';
-                        break;
-                    case 2:
-                        return 'display';
-                        break;
-                    case 3:
-                        return 'keyboard';
-                        break;
-                    case 4:
-                        return 'mouse';
-                        break;
-                    default:
-                        return 'computer'
+                if(item) {
+                    switch(item.equipmentType) {
+                        case '1':
+                            return 'computer';
+                            break;
+                        case '2':
+                            return 'display';
+                            break;
+                        case '3':
+                            return 'keyboard';
+                            break;
+                        case '4':
+                            return 'mouse';
+                            break;
+                        default:
+                            return 'computer'
+                    }
                 }
             }
         },
         statusText() {
             return status => {
                 switch(status) {
-                    case 1:
-                        return '等待批准中';
+                    case '1':
+                        return '等待审批中';
                         break;
-                    case 2:
+                    case '2':
                         return '未批准';
                         break;
-                    case 3:
+                    case '3':
                         return '使用中';
                         break;
-                    case 4:
+                    case '4':
                         return '已结束';
                         break;
+                    case '5':
+                        return '已取消';
+                        break;
                     default:
-                        return '等待批准中...'
+                        return '等待审批中'
                 }
             }
         },
         statusClass() {
             return status => {
                 switch(status) {
-                    case 1:
+                    case '1':
                         return 'await';
                         break;
-                    case 2:
+                    case '2':
                         return 'refuse';
                         break;
-                    case 3:
+                    case '3':
                         return 'using';
                         break;
-                    case 4:
+                    case '4':
                         return 'end';
                         break;
                     default:
@@ -284,21 +264,23 @@ export default {
         },
         equipmentType() {
             return item => {
-                switch(item.equipmentType) {
-                    case 1:
-                        return '电脑';
-                        break;
-                    case 2:
-                        return '显示屏';
-                        break;
-                    case 3:
-                        return '键盘';
-                        break;
-                    case 4:
-                        return '鼠标';
-                        break;
-                    default:
-                        return '电脑'
+                if(item) {
+                    switch(item.equipmentType) {
+                        case 1:
+                            return '电脑';
+                            break;
+                        case 2:
+                            return '显示屏';
+                            break;
+                        case 3:
+                            return '键盘';
+                            break;
+                        case 4:
+                            return '鼠标';
+                            break;
+                        default:
+                            return '电脑'
+                    }
                 }
             }
         }
