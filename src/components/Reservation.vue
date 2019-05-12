@@ -151,7 +151,6 @@ export default {
         },
         openDialog(dialogName, item) {
             if(dialogName == 'CancelDialog') {
-                console.log('pppppppppp')
                 this.selectedItem = item;
                 this.showCancelDialog = true;
             } else if(dialogName == 'EndDialog') {

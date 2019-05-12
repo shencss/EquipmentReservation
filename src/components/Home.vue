@@ -185,7 +185,6 @@ export default {
         },
         addPeriod() {
             this.showPeriodForm = false;
-            console.log(this.periodForm)
             this.reserveForm.selectedPeriodList.push({
                 startDate: this.periodForm.startDate,
                 startTime: this.periodForm.startTime,
