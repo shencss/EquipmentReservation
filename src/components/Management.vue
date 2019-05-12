@@ -11,7 +11,7 @@
                     <div class="equipment-info">
                         <div class="equipment-name">{{item.equipmentName}}</div>
                         <div class="count">当前状态
-                            <span>空闲中</span>
+                            <span :style="statusStyle(item)">{{status(item)}}</span>
                         </div>
                         <div class="operate-btns">
                             <div class="check-btn" @click="openDialog('DetailDialog')">使用情况</div>
@@ -50,7 +50,7 @@
             </div>
             <div class="operate-btns">
                 <div class="cancel-btn" @click="closeDialog('AddDialog')">取消</div>
-                <div class="confirm-btn" @click="closeDialog('AddDialog')">确定</div>
+                <div class="confirm-btn" @click="addEquipment">确定</div>
             </div>
         </Dialog>
 
@@ -119,6 +119,7 @@
 
 <script>
 import Dialog from './Dialog'
+import { getBaseUrl } from '../common/env'
 
 export default {
     components: {
@@ -131,176 +132,7 @@ export default {
             showAddDialog: false,
             showModifyDialog: false,
             showDetailDialog: false,
-            equipmentList: [
-                {
-                    equipmentName:'联想电脑',
-                    equipmentModel: 'GT009',
-                    equipmentType: 1,
-                    periodList: [
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！',
-                    status: 1
-                },
-                {
-                    equipmentName:'戴尔显示屏',
-                    equipmentModel: 'SGK004',
-                    equipmentType: 2,
-                    periodList: [
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！',
-                    status: 1
-                },
-                {
-                    equipmentName:'CHERRY键盘',
-                    equipmentModel: 'T-405H',
-                    equipmentType: 3,
-                    periodList: [
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！',
-                    status: 3
-                },
-                {
-                    equipmentName:'罗技鼠标',
-                    equipmentModel: 'P8TY-P',
-                    equipmentType: 4,
-                     periodList: [
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！',
-                    status: 2
-                },
-                {
-                    equipmentName:'罗技鼠标',
-                    equipmentModel: 'P8TY-P',
-                    equipmentType: 4,
-                    periodList: [
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！',
-                    status: 2
-                },
-                {
-                    equipmentName:'罗技鼠标',
-                    equipmentModel: 'P8TY-P',
-                    equipmentType: 4,
-                    periodList: [
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！',
-                    status: 1
-                },
-                {
-                    equipmentName:'罗技鼠标',
-                    equipmentModel: 'P8TY-P',
-                    equipmentType: 4,
-                    periodList: [
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！',
-                    status: 2
-                },
-                {
-                    equipmentName:'罗技鼠标',
-                    equipmentModel: 'P8TY-P',
-                    equipmentType: 4,
-                    periodList: [
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        },
-                        {
-                            startDate: '2019.04.01',
-                            endDate: '2019.05.01'
-                        }
-                    ],
-                    note: '该设备属于贵重物品请注意保护，小心使用！',
-                    status: 3
-                }
-            ],
+            equipmentList: [],
             addForm: {
                 equipmentName: '',
                 equipmentType: '',
@@ -375,16 +207,16 @@ export default {
         icon() {
             return item => {
                 switch(item.equipmentType) {
-                    case 1:
+                    case '1':
                         return 'computer';
                         break;
-                    case 2:
+                    case '2':
                         return 'display';
                         break;
-                    case 3:
+                    case '3':
                         return 'keyboard';
                         break;
-                    case 4:
+                    case '4':
                         return 'mouse';
                         break;
                     default:
@@ -395,23 +227,64 @@ export default {
         type() {
             return item => {
                 switch(item.equipmentType) {
-                    case 1:
+                    case '1':
                         return '电脑';
                         break;
-                    case 2:
+                    case '2':
                         return '显示屏';
                         break;
-                    case 3:
+                    case '3':
                         return '键盘';
                         break;
-                    case 4:
+                    case '4':
                         return '鼠标';
                         break;
                     default:
                         return '电脑'
                 }
             }
+        },
+        status() {
+            return item => {
+                switch(item.status) {
+                    case '1':
+                        return '等待预约';
+                        break;
+                    case '2':
+                        return '被使用中';
+                        break;
+                    case '3':
+                        return '未安排时间';
+                        break;
+                    default:
+                        return '等待预约'
+                }
+            }
+        },
+        statusStyle() {
+            return item => {
+                switch(item.status) {
+                    case '1':
+                        return {color: '#67C23A'};
+                        break;
+                    case '2':
+                        return {color: '#409EFF'};
+                        break;
+                    case '3':
+                        return {color: '#F56C6C'};
+                        break;
+                    default:
+                        return {color: '#67C23A'}
+                }
+            }
         }
+    },
+    mounted() {
+        this.$axios.get(getBaseUrl() + '&action=getAllEquipments').then(res => {
+            this.equipmentList = res.data.result;
+        }).catch(err => {
+            console.log(err);
+        });
     },
     methods: {
         closeDialog(dialogName) {
@@ -443,6 +316,9 @@ export default {
         deleteEquipment(item) {
 
         },
+        addEquipment() {
+            
+        }
     }
 }
 </script>

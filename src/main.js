@@ -7,6 +7,7 @@ import {getRunToolParam,getClientType,getConfigs} from 'common/env';
 import {Config} from 'common/constants';
 import routes from 'router/router';
 import Vuex from 'vuex';
+import axios from 'axios';
 
 // 处理app旋转事件
 // (function(doc, win) {
@@ -31,6 +32,7 @@ if ('addEventListener' in document) {
 // 注册SPA的Vue路由
 Vue.use(VueRouter);
 Vue.use(Vuex);
+Vue.prototype.$axios = axios;
 
 /* 根据平台选择类型 */
 
