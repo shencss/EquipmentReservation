@@ -50,19 +50,39 @@
                 <textarea v-model="note" name="note" id="note" cols="30" rows="3" maxlength="100"></textarea>
             </div>
         </div>
-        <div class="pass-btn" @click="passReserve">同意该预约</div>
+        <div class="pass-btn" @click="passReserve">批准该预约</div>
         <div class="refuse-btn" @click="rejectReserve">拒绝该预约</div>
+ 
+        <!-- <Dialog :visible="showPassDialog" @close="closeDialog('PassDialog')" class="pass-dialog">
+            <div class="dialog-title">批准预约</div>
+            <div class="remind-text">确认批准该预约？</div>
+            <div class="operate-btns">
+                <div class="cancel-btn" @click="closeDialog('PassDialog')">取消</div>
+                <div class="confirm-btn" @click="passReserve">确定</div>
+            </div>
+        </Dialog>
+        <Dialog :visible="showRejectDialog" @close="closeDialog('RejectDialog')" class="reject-dialog">
+            <div class="dialog-title">拒绝预约</div>
+            <div class="remind-text">确认拒绝该预约？</div>
+            <div class="operate-btns">
+                <div class="cancel-btn" @click="closeDialog('RejectDialog')">取消</div>
+                <div class="confirm-btn" @click="rejectReserve">确定</div>
+            </div>
+        </Dialog> -->
     </div>
 </template>
 
 <script>
+import Dialog from './Dialog'
 import { getBaseUrl } from '../common/env';
 
 export default {
     data() {
         return {
             selectedPeriods: [],
-            note: ''
+            note: '',
+            showPassDialog: false,
+            showRejectDialog: false
         };
     },
     computed: {
@@ -126,7 +146,23 @@ export default {
             }).catch(err => {
                 console.log(err);
             });
-        }
+        },
+        closeDialog(dialogName) {
+            if (dialogName == 'PassDialog') {
+                this.showPassDialog = false;
+            } else if (dialogName == 'RejectDialog') {
+                this.showRejectDialog = false;
+            }
+        },
+        openDialog(dialogName) {
+            if (dialogName == 'PassDialog') {
+                this.showPassDialog = true;
+                console.log('pppppppppp')
+
+            } else if (dialogName == 'RejectDialog') {
+                this.showRejectDialog = true;
+            }
+        },
     }
 }
 </script>
@@ -139,7 +175,7 @@ export default {
     overflow: hidden;
     overflow-y: auto;
     background-color: rgb(245, 245, 245);
-    padding: 0 40px 40px 40px;
+    padding: 0 30px 40px 30px;
     .reserve-count {
         height: 40px;
         line-height: 40px;
@@ -195,6 +231,97 @@ export default {
     .refuse-btn {
         background-color: #F56C6C;
         margin-bottom: 0;
+    }
+    .pass-dialog, .reject-dialog {
+        .dialog-title {
+            height: 50px;
+            line-height: 50px;
+            font-size: 15px;
+            text-align: center;
+            border-bottom: 1px solid #409EFF;
+            background-color: #409EFF;
+            color: #FFF;
+        }
+        .remind-text {
+            font-size: 12px;
+            height: 70px;
+            line-height: 70px;
+            padding-left: 30px;
+        }
+        .operate-btns {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .cancel-btn, .confirm-btn {
+                padding: 0 20px;
+                height: 30px;
+                line-height: 30px;
+                text-align: center;
+                font-size: 12px;
+                background-color: #409EFF;
+                color: #FFF;
+                border-radius: 3px;
+                margin: 0 10px 20px 10px;
+            }
+        }
+        .add-form {
+            font-size: 12px;
+            padding: 20px;
+            label {
+                vertical-align: top;
+            }
+            input, select {
+                margin-bottom: 10px;
+            }
+            textarea {
+                vertical-align: middle;
+            }
+        }
+        .detail-info {
+            padding: 15px;
+            font-size: 12px;
+            color: #909399;
+            .equipment-name {
+                .vaule {
+                    color: #222;
+                    margin-left: 10px;
+                    font-weight: bold;
+                }
+            }
+            .use-count {
+                margin: 15px 0;
+                .vaule {
+                    color: #F56C6C;
+                    margin-left: 10px;
+                }
+            }
+            .record-list {
+                margin-top: 10px;
+                max-height: 220px;
+                overflow-y: auto;
+                .record-item {
+                    margin-bottom: 10px;
+                    display: flex;
+                    align-items: flex-start;
+                    .record-icon {
+                        display: inline-block;
+                        flex-basis: 15px;
+                        flex-shrink: 0;
+                        height: 15px;
+                        background-image: url('../images/record.png');
+                        background-size: 100% 100%;
+                        background-repeat: no-repeat;
+                    }
+                    .record-text {
+                        line-height: 15px;
+                        color: #222;
+                        .period-text, .user-text {
+                            color: #409EFF;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 </style>

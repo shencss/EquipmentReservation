@@ -1,8 +1,8 @@
 <template>
 	<div class="management">
         <div class="search-box">
-            <input id="search-input" type="text" placeholder="搜索设备">
-            <span class="search-icon"></span>
+            <input id="search-input" v-model="searchForm.equipmentName" type="text" placeholder="搜索设备">
+            <span class="search-icon" @click="searchEquipment"></span>
         </div>
         <div class="equipment-list">
             <div class="item-warp" v-for="(item, index) in equipmentList" :key=index>
@@ -14,9 +14,9 @@
                             <span :style="statusStyle(item)">{{status(item)}}</span>
                         </div>
                         <div class="operate-btns">
-                            <div class="check-btn" @click="openDialog('DetailDialog')">使用情况</div>
+                            <div class="check-btn" @click="openDialog('DetailDialog', item)">使用情况</div>
                             <div class="modify-btn" @click="openDialog('ModifyDialog', item)">修改信息</div>
-                            <div class="delete-btn" @click="openDialog('DeleteDialog')">删除设备</div>
+                            <div class="delete-btn" @click="openDialog('DeleteDialog', item)">删除设备</div>
                         </div>
                     </div>
                 </div>
@@ -27,7 +27,7 @@
             <div class="remind-text">确认删除该设备？</div>
             <div class="operate-btns">
                 <div class="cancel-btn" @click="closeDialog('DeleteDialog')">取消</div>
-                <div class="confirm-btn" @click="closeDialog('DeleteDialog')">确定</div>
+                <div class="confirm-btn" @click="deleteEquipment">确定</div>
             </div>
         </Dialog>
 
@@ -42,6 +42,7 @@
                     <option value="2">笔记本</option>
                     <option value="3">键盘</option>
                     <option value="4">鼠标</option>
+                    <option value="5">其他</option>
                 </select><br>
                 <label>设备型号：</label>
                 <input type="text" placeholder="请输入设备型号" v-model="addForm.equipmentModel"><br>
@@ -65,6 +66,7 @@
                     <option value="2">显示屏</option>
                     <option value="3">键盘</option>
                     <option value="4">鼠标</option>
+                    <option value="5">其他</option>
                 </select><br>
                 <label>设备型号：</label>
                 <input type="text" v-model="modifyForm.equipmentModel" placeholder="请输入设备型号"><br>
@@ -73,7 +75,7 @@
             </div>
             <div class="operate-btns">
                 <div class="cancel-btn" @click="closeDialog('ModifyDialog')">取消</div>
-                <div class="confirm-btn" @click="closeDialog('ModifyDialog')">确定</div>
+                <div class="confirm-btn" @click="updateEquipment">确定</div>
             </div>
         </Dialog>
 
@@ -82,28 +84,27 @@
             <div class="detail-info">
                 <div class="equipment-name">
                     <span>设备名称:</span>
-                    <span class="vaule">联想电脑</span>
+                    <span class="vaule">{{selectedItem.equipmentName}}</span>
                 </div>
                 <div class="use-count">
                     <span>被使用次数:</span>
-                    <span class="vaule">99</span>
+                    <span class="vaule">{{selectedItem.records && selectedItem.records.length}}</span>
                 </div>
                 <div>使用记录：</div>
                 <div class="record-list">
-                    <div class="record-item" v-for="(item, index) in recordList" :key="index">
+                    <div class="record-item" v-for="(record, index) in selectedItem.records" :key="index">
                         <span class="record-icon"></span>
                         <div class="record-text">
                             <span>用户</span>
-                            <span class="user-text">{{item.userName}}</span>
+                            <span class="user-text">{{record.userName}}</span>
                             <span>在</span>
-                            <span v-for="(period, pIndex) in item.periods" :key="pIndex">
-                                <span class="period-text">{{period.startTime}}</span>
+                            <span v-for="(period, pIndex) in record.periods" :key="pIndex">
+                                <span class="period-text">{{timeText(period.startTime)}}</span>
                                 <span>至</span>
-                                <span class="period-text">{{period.endTime}}</span>    
-                                <span v-if="pIndex != (item.periods.length - 1)">、</span>
+                                <span class="period-text">{{timeText(period.endTime)}}</span>    
+                                <span v-if="pIndex != (record.periods.length - 1)">、</span>
                             </span>
                             <span>期间预约使用了该设备</span>
-                            <span>{{'(' + item.time + ')'}}</span>
                         </div>
                     </div>
                 </div>
@@ -200,7 +201,11 @@ export default {
                     ],
                     time: '2019.5.2 13:00'
                 }
-            ]
+            ],
+            selectedItem: {},
+            searchForm: {
+                equipmentName: ''
+            }
         };
     },
     computed: {
@@ -218,6 +223,9 @@ export default {
                         break;
                     case '4':
                         return 'mouse';
+                        break;
+                    case '5':
+                        return 'else';
                         break;
                     default:
                         return 'computer'
@@ -238,6 +246,9 @@ export default {
                         break;
                     case '4':
                         return '鼠标';
+                        break;
+                    case '5':
+                        return '其他';
                         break;
                     default:
                         return '电脑'
@@ -287,6 +298,15 @@ export default {
         });
     },
     methods: {
+        timeText(millisecond) {
+            let date = new Date(millisecond);
+            let year = date.getFullYear();
+            let month = (date.getMonth() + 1) > 9 ? (date.getMonth() + 1) : '0' + (date.getMonth() + 1);
+            let day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
+            let hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
+            let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
+            return year + '-' + month + '-' + day + '  ' + hour + ':' + min;
+        },
         closeDialog(dialogName) {
             if (dialogName == 'DeleteDialog') {
                 this.showDeleteDialog = false;
@@ -298,26 +318,62 @@ export default {
                 this.showDetailDialog = false;
             }
         },
-        openDialog(dialogName, model = {}) {
+        openDialog(dialogName, item = {}) {
             if (dialogName == 'DeleteDialog') {
                 this.showDeleteDialog = true;
+                this.selectedItem = item;
             } else if (dialogName == 'AddDialog') {
                 this.showAddDialog = true;
+                this.selectedItem = item;
             } else if (dialogName == 'ModifyDialog') {
                 this.showModifyDialog = true;
-                this.modifyForm = model;
+                this.modifyForm = {...item};
             } else if (dialogName == 'DetailDialog') {
-                this.showDetailDialog = true;
+               
+                this.$axios.get(getBaseUrl() + '&action=getEquipmentUsage&equipmentId=' + item.equipmentId).then(res => {
+                    this.selectedItem = {...item, records: res.data.result};
+                    this.showDetailDialog = true;
+                }).catch(err => {
+                    console.log(err);
+                });
             }
         },
-        modifyEquipment(item) {
-            
+        updateEquipment() {
+            this.$axios.get(getBaseUrl() + '&action=updateEquipment&equipmentId=' + this.modifyForm.equipmentId + '&equipmentName=' +  this.modifyForm.equipmentName + '&equipmentType=' + this.modifyForm.equipmentType + '&equipmentModel=' + this.addForm.equipmentModel + '&note=' + this.addForm.note).then(res => {
+                this.showModifyDialog = false;
+                return this.$axios.get(getBaseUrl() + '&action=getAllEquipments');
+            }).then(res => {
+                this.equipmentList = res.data.result;
+            }).catch(err => {
+                console.log(err);
+            });
         },
         deleteEquipment(item) {
-
+            this.$axios.get(getBaseUrl() + '&action=deleteEquipment&equipmentId=' + this.selectedItem.equipmentId).then(res => {
+                this.showDeleteDialog = false;
+                return this.$axios.get(getBaseUrl() + '&action=getAllEquipments');
+            }).then(res => {
+                this.equipmentList = res.data.result;
+            }).catch(err => {
+                console.log(err);
+            });
         },
         addEquipment() {
-            
+            this.$axios.get(getBaseUrl() + '&action=addEquipment&equipmentName=' +  this.addForm.equipmentName + '&equipmentType=' + this.addForm.equipmentType + '&equipmentModel=' + this.addForm.equipmentModel + '&note=' + this.addForm.note).then(res => {
+                return this.$axios.get(getBaseUrl() + '&action=getAllEquipments');
+                this.showAddDialog = false;
+            }).then(res => {
+                this.equipmentList = res.data.result;
+            }).catch(err => {
+                console.log(err);
+            });
+        },
+        searchEquipment() {
+            this.$axios.get(getBaseUrl() + '&action=getAllEquipments&equipmentName=' + this.searchForm.equipmentName).then(res => {
+                this.equipmentList = res.data.result;
+            }).catch(err => {
+                console.log(err);
+            });
         }
     }
 }
@@ -386,6 +442,9 @@ export default {
             }
             .mouse {
                 background-image: url('../images/mouse.png');
+            }
+            .else {
+                background-image: url('../images/else.png');
             }
             .equipment-info {
                 flex-grow: 1;

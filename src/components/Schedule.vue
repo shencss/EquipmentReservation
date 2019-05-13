@@ -112,17 +112,20 @@ export default {
         icon() {
             return item => {
                 switch(item.equipmentType) {
-                    case 1:
+                    case '1':
                         return 'computer';
                         break;
-                    case 2:
+                    case '2':
                         return 'display';
                         break;
-                    case 3:
+                    case '3':
                         return 'keyboard';
                         break;
-                    case 4:
+                    case '4':
                         return 'mouse';
+                        break;
+                    case '5':
+                        return 'else';
                         break;
                     default:
                         return 'computer'
@@ -132,17 +135,20 @@ export default {
         type() {
             return item => {
                 switch(item.equipmentType) {
-                    case 1:
+                    case '1':
                         return '电脑';
                         break;
-                    case 2:
+                    case '2':
                         return '显示屏';
                         break;
-                    case 3:
+                    case '3':
                         return '键盘';
                         break;
-                    case 4:
+                    case '4':
                         return '鼠标';
+                        break;
+                    case '5':
+                        return '其他';
                         break;
                     default:
                         return '电脑'
@@ -357,6 +363,9 @@ export default {
             .mouse {
                 background-image: url('../images/mouse.png');
             }
+            .else {
+                background-image: url('../images/else.png');
+            }
             .equipment-info {
                 flex-grow: 1;
                 padding: 0 10px;
@@ -428,6 +437,9 @@ export default {
             .mouse {
                 background-image: url('../images/mouse.png');
             }
+            .else {
+                background-image: url('../images/else.png');
+            }
             .equipment-name {
                 font-weight: bold;
                 font-size: 15px;
@@ -481,6 +493,7 @@ export default {
                 text-decoration: underline;
                 font-size: 12px;
                 cursor: pointer;
+                line-height: 40px;
             }
             .period-form {
                 font-size: 12px;

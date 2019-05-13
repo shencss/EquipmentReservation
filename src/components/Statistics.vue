@@ -4,22 +4,22 @@
             <div class="title">事件统计</div>
             <div class="reserve-count">
                 <span>共计发起预约次数</span>
-                <span class="value">99</span>
+                <span class="value">{{eventInfo.reserveCount}}</span>
             </div>
             <div class="approve-count">
                 <span>共计审批预约次数</span>
-                <span class="value">88</span>
+                <span class="value">{{eventInfo.approveCount}}</span>
             </div>
         </div>
         <div class="case-list">
-            <div class="item-wrap" v-for="(item, index) in caseList" :key="index">
-                <div class="case-item" v-if="item.type === 'reserve'">
+            <div class="item-wrap" v-for="(item, index) in eventList" :key="index">
+                <div class="case-item" v-if="item.reserveTime">
                     <div class="message-icon"></div>
                     <div class="case-info">
                         <span class="user-name">{{item.userName}} </span>
                         <span class="operate">预约设备</span>
                         <span class="equipemnt-name">{{item.equipmentName}}</span>
-                        <span class="case-time">{{item.time}}</span>
+                        <span class="case-time">{{timeText(item.reserveTime)}}</span>
                     </div>
                 </div>
                 <div class="case-item" v-else>
@@ -28,7 +28,7 @@
                         <span class="approver-name">{{item.approverName}} </span>
                         <span :class="item.approve ? 'pass' : 'reject'">{{item.approve ? '批准了' : '拒绝了'}}</span>
                         <span class="user-name">{{item.userName}}的预约</span>
-                        <span class="case-time">{{item.time}}</span>
+                        <span class="case-time">{{timeText(item.approveTime)}}</span>
                     </div>
                 </div>
             </div>
@@ -53,16 +53,16 @@
             </div>
         </div>
         <div class="rank-list" v-if="rankType == 'equipment'">
-            <div class="rank-item" v-for="(item, index) in equipmentRankList" :key="index">
+            <div class="rank-item" v-for="(item, index) in rankInfo.equipments" :key="index">
                 <div class="num">{{index + 1}}</div>
-                <div class="name">{{item.name}}</div>
+                <div class="name">{{item.equipmentName}}</div>
                 <div class="count">{{item.count}}</div>
             </div>
         </div>
         <div class="rank-list" v-else>
-            <div class="rank-item" v-for="(item, index) in userRankList" :key="index">
+            <div class="rank-item" v-for="(item, index) in rankInfo.users" :key="index">
                 <div class="num">{{index + 1}}</div>
-                <div class="name">{{item.name}}</div>
+                <div class="name">{{item.userName}}</div>
                 <div class="count">{{item.count}}</div>
             </div>
         </div>
@@ -70,74 +70,54 @@
 </template>
 
 <script>
+import { getBaseUrl } from '../common/env'
 
 export default {
     data() {
         return {
             rankType: 'equipment',
-            caseList: [
-                {
-                    type: 'reserve',
-                    userName: '沈承胜',
-                    equipmentName: '联想电脑',
-                    time: '2019.4.28 18:00'
-                },
-                {
-                    type: 'reserve',
-                    userName: '沈承胜',
-                    equipmentName: '戴尔笔记本',
-                    time: '2019.4.28 18:00'
-                },
-                {
-                    type: 'approval',
-                    approverName: '张三',
-                    userName: '沈承胜',
-                    time: '2019.4.28 18:00',
-                    approve: true
-                },
-                {
-                    type: 'reserve',
-                    userName: '沈承胜',
-                    equipmentName: 'AOC显示屏',
-                    time: '2019.4.28 18:00'
-                },
-                {
-                    type: 'approve',
-                    approverName: '李四',
-                    userName: '沈承胜',
-                    time: '2019.4.28 18:00',
-                    approve: false
-                },
-                {
-                    type: 'reserve',
-                    userName: '沈承胜',
-                    equipmentName: '惠普电脑',
-                    time: '2019.4.28 18:00'
-                },
-            ],
-            equipmentRankList: [
-                {
-                    name: '联想电脑',
-                    count: 99
-                },
-                {
-                    name: 'AOC显示屏',
-                    count: 88
-                },
-            ],
-            userRankList: [
-                {
-                    name: '沈承胜',
-                    count: 99
-                },
-                {
-                    name: '张三',
-                    count: 88
-                },
-            ]
+            eventInfo: {},
+            rankInfo: {},
+            eventList: [],
         }
     },
+    mounted() {
+        this.$axios.get(getBaseUrl() + '&action=getRank').then(res => {
+            this.rankInfo = res.data.result;
+        }).catch(err => {
+            console.log(err);
+        });
+        this.$axios.get(getBaseUrl() + '&action=getEvents').then(res => {
+            this.eventInfo.approveCount = res.data.result.approveCount;
+            this.eventInfo.reserveCount = res.data.result.reserveCount;
+            // 排序
+            let list = res.data.result.approve.concat(res.data.result.reserve);
+            list.sort((b, a) => {
+                if(a.reserveTime && b.reserveTime) {
+                    return a.reserveTime - b.reserveTime
+                } else if(a.approveTime && b.approveTime) {
+                    return a.approveTime - b.approveTime
+                } else if(a.approveTime && b.reserveTime) {
+                    return a.approveTime - b.reserveTime
+                } else if(a.reserveTime && b.approveTime) {
+                    return a.reserveTime - b.approveTime
+                }
+            });
+            this.eventList = list;
+        }).catch(err => {
+            console.log(err);
+        });
+    },
     methods: {
+        timeText(millisecond) {
+            let date = new Date(millisecond);
+            let year = date.getFullYear();
+            let month = (date.getMonth() + 1) > 9 ? (date.getMonth() + 1) : '0' + (date.getMonth() + 1);
+            let day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
+            let hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
+            let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
+            return year + '-' + month + '-' + day + '  ' + hour + ':' + min;
+        },
         switchRankType(name) {
             this.rankType = name;
         }
@@ -168,7 +148,7 @@ export default {
     .case-list {
         background-color: #FFF;
         border-top: 1px solid #EEE;
-        max-height: 300px;
+        height: 180px;
         overflow-y: auto;
         .case-item {
             display: flex;
@@ -211,9 +191,11 @@ export default {
         background-color: #FFF;
         padding-top: 10px;
         color: #409EFF;
+        width: 100%;
+        overflow-x: hidden;
         .title {
             height: 25px;
-            margin: 0 20px;
+            padding-left: 20px;
         }
         .rank-type {
             display: flex;
@@ -266,6 +248,8 @@ export default {
         background-color: #FFF;
         font-size: 12px;
         color: #303133;
+        max-height: calc(100vh - 457px);
+        overflow-y: auto;
         .rank-item {
             display: flex;
             justify-content: space-between;

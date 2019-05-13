@@ -47,5 +47,9 @@ export default {
 	background-color: rgb(245, 245, 245);
 	padding: 40px 0 0 0;
 	color: #303133;
+	.app-content {
+		height: calc(100vh - 85px);
+		overflow: hidden;
+	}
 }
 </style>
