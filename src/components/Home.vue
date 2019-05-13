@@ -121,17 +121,20 @@ export default {
             return item => {
                 if(item) {
                     switch(item.equipmentType) {
-                        case 1:
+                        case '1':
                             return 'computer';
                             break;
-                        case 2:
+                        case '2':
                             return 'display';
                             break;
-                        case 3:
+                        case '3':
                             return 'keyboard';
                             break;
-                        case 4:
+                        case '4':
                             return 'mouse';
+                            break;
+                        case '5':
+                            return 'else';
                             break;
                         default:
                             return 'computer'
@@ -143,17 +146,20 @@ export default {
             return item => {
                 if(item) {
                     switch(item.equipmentType) {
-                        case 1:
+                        case '1':
                             return '电脑';
                             break;
-                        case 2:
+                        case '2':
                             return '显示屏';
                             break;
-                        case 3:
+                        case '3':
                             return '键盘';
                             break;
-                        case 4:
+                        case '4':
                             return '鼠标';
+                            break;
+                        case '5':
+                            return '其他';
                             break;
                         default:
                             return '电脑'
@@ -215,8 +221,8 @@ export default {
         timeText(millisecond) {
             let date = new Date(millisecond);
             let year = date.getFullYear();
-            let month = date.getMonth() + 0;
-            let day = date.getDate();
+            let month = (date.getMonth() + 1) > 9 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1);
+            let day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
             let hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
             let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
             return year + '-' + month + '-' + day + '  ' + hour + ':' + min;
@@ -294,6 +300,9 @@ export default {
             }
             .mouse {
                 background-image: url('../images/mouse.png');
+            }
+            .else {
+                background-image: url('../images/else.png');
             }
             .equipment-info {
                 flex-grow: 1;
@@ -377,6 +386,9 @@ export default {
             }
             .mouse {
                 background-image: url('../images/mouse.png');
+            }
+            .else {
+                background-image: url('../images/else.png');
             }
             .equipment-name {
                 font-weight: bold;

@@ -77,6 +77,12 @@
                 <div class="time-list">
                     <span v-for="(period, index) in selectedItem.periods" :key="index">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
                 </div>
+                <div class="available-time" style="margin-bottom: 10px" v-if="selectedItem.status == '3' || selectedItem.status == '4'">
+                    <span>已批准时间</span>
+                </div>
+                <div class="time-list" v-if="selectedItem.status == '3' || selectedItem.status == '4'">
+                    <span v-for="(period, index) in selectedItem.approvePeriods" :key="index">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
+                </div>
                  <div class="reserve-note" style="margin-top: 10px">
                     <span>备注信息</span>
                     <span class="value">{{selectedItem.note}}</span>
@@ -122,8 +128,8 @@ export default {
         timeText(millisecond) {
             let date = new Date(millisecond);
             let year = date.getFullYear();
-            let month = date.getMonth() + 0;
-            let day = date.getDate();
+            let month = (date.getMonth() + 1) > 9 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1);
+            let day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
             let hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
             let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
             return year + '-' + month + '-' + day + '  ' + hour + ':' + min;
@@ -198,6 +204,9 @@ export default {
                             break;
                         case '4':
                             return 'mouse';
+                            break;
+                        case '5':
+                            return 'else';
                             break;
                         default:
                             return 'computer'
@@ -360,6 +369,9 @@ export default {
             }
             .mouse {
                 background-image: url('../images/mouse.png');
+            }
+            .else {
+                background-image: url('../images/else.png');
             }
             .equipment-info {
                 flex-grow: 1;
