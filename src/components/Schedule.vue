@@ -1,7 +1,7 @@
 <template>
 	<div class="schedule">
         <div class="search-box">
-            <input id="search-input" v-model="searchForm.equipmentName" type="text" placeholder="搜索设备">
+            <input id="search-input" v-model="searchForm.equipmentName" type="text" placeholder="输入设备名称搜索">
             <span class="search-icon" @click="searchEquipment"></span>
         </div>
         <!-- <div class="type-header">
@@ -28,7 +28,7 @@
                         <div v-else style="text-align: center; font-size: 12px">尚未安排可预约时间,请点击安排</div>
                     </div>
                     <!-- <div class="arrange-btn" v-if="item.status == 3" @click="goReserve(item)">安排预约</div> -->
-                    <div class="arrange-btn" @click="openDialog('ScheduleDialog',item)">安排时间</div>
+                    <div class="arrange-btn" @click="goTest">安排时间</div>
                 </div>
             </div>
         </div>
@@ -255,6 +255,9 @@ export default {
                 console.log(err);
             });
             this.showDialog = false;
+        },
+        goTest() {
+          this.$router.push('/test')  
         }
     }
 }

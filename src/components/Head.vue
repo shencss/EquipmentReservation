@@ -17,8 +17,8 @@ export default {
     },
     computed: {
         navName() {
-            if(this.$route.name == 'schedule') {
-                return '设备列表';
+            if(this.$route.name == 'schedule' || this.$route.name == 'test') {
+                return '排约管理';
             } else if(this.$route.name == 'list') {
                 return '待审批预约';
             } else if(this.$route.name == 'detail') {

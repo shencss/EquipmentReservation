@@ -6,6 +6,7 @@ import Approval from '../components/Approval'
 import Management from '../components/Management'
 import ApprovalList from '../components/ApprovalList'
 import ApprovalDetail from '../components/ApprovalDetail'
+import Test from '../components/Test'
 
 export default [{
     path: '/',
@@ -47,6 +48,11 @@ export default [{
             name: 'management',
             path: '/management',
             component: Management
+        },
+        {
+            name: 'test',
+            path: '/test',
+            component: Test
         },
     ]
 }];

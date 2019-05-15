@@ -1,7 +1,7 @@
 <template>
 	<div class="management">
         <div class="search-box">
-            <input id="search-input" v-model="searchForm.equipmentName" type="text" placeholder="搜索设备">
+            <input id="search-input" v-model="searchForm.equipmentName" type="text" placeholder="输入设备名称搜索">
             <span class="search-icon" @click="searchEquipment"></span>
         </div>
         <div class="equipment-list">
@@ -37,17 +37,24 @@
                 <label>设备名称：</label>
                 <input type="text" v-model="addForm.equipmentName" placeholder="请输入设备名称"><br>
                 <label>设备类型：</label>
-                <select name="equipmentType" v-model="addForm.equipmentType">
+                <select name="equipmentType" v-if="addForm.equipmentType != '5'" v-model="addForm.equipmentType" style="height: 26px;width: 100px">
                     <option value="1">电脑</option>
                     <option value="2">笔记本</option>
                     <option value="3">键盘</option>
                     <option value="4">鼠标</option>
                     <option value="5">其他</option>
-                </select><br>
+                </select>
+                <input v-if="addForm.equipmentType == '5'" style="width: 100px"  type="text" placeholder="请输入设备型号" v-model="addForm.equipmentType"><br>
                 <label>设备型号：</label>
-                <input type="text" placeholder="请输入设备型号" v-model="addForm.equipmentModel"><br>
-                <label>注意事项：</label>
-                <textarea cols="25" rows="5" maxlength="100" placeholder="请输入设备的使用注意事项" v-model="addForm.note"></textarea>
+                <input type="text" placeholder="请输入设备型号" style="width: 100px" v-model="addForm.equipmentModel"><br>
+                <label>联系电话：</label>
+                <input type="text" placeholder="请输入联系电话"  v-model="addForm.phone"><br>
+                <label>设备地点：</label>
+                <input type="text" placeholder="请输入设备地点"  v-model="addForm.address"><br>
+                <label>收费信息：</label>
+                <input type="text" placeholder="请输入收费信息"  v-model="addForm.cost"><br>
+                <label>使用注意：</label>
+                <textarea cols="25" rows="5" maxlength="1000" placeholder="请输入设备的使用注意事项" style="margin-left: 70px; position: relative; top: -12px" v-model="addForm.note"></textarea>
             </div>
             <div class="operate-btns">
                 <div class="cancel-btn" @click="closeDialog('AddDialog')">取消</div>
@@ -454,7 +461,7 @@ export default {
                     font-weight: bold;
                 }
                 .count {
-                    font-size: 12px;
+                    font-size: 14px;
                     color: #BBB;
                     margin: 5px 0;
                     span {
@@ -472,7 +479,7 @@ export default {
                         background-color: #409EFF;
                         color: #FFF;
                         padding: 5px;
-                        font-size: 12px;
+                        font-size: 14px;
                         border-radius: 3px;
                         cursor: pointer;
                     }
@@ -495,7 +502,7 @@ export default {
             color: #FFF;
         }
         .remind-text {
-            font-size: 12px;
+            font-size: 14px;
             height: 70px;
             line-height: 70px;
             padding-left: 30px;
@@ -509,7 +516,7 @@ export default {
                 height: 30px;
                 line-height: 30px;
                 text-align: center;
-                font-size: 12px;
+                font-size: 14px;
                 background-color: #409EFF;
                 color: #FFF;
                 border-radius: 3px;
@@ -517,7 +524,7 @@ export default {
             }
         }
         .add-form {
-            font-size: 12px;
+            font-size: 14px;
             padding: 20px;
             label {
                 vertical-align: top;
@@ -531,7 +538,7 @@ export default {
         }
         .detail-info {
             padding: 15px;
-            font-size: 12px;
+            font-size: 14px;
             color: #909399;
             .equipment-name {
                 .vaule {

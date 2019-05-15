@@ -51,5 +51,11 @@ export default {
 		height: calc(100vh - 85px);
 		overflow: hidden;
 	}
+	input, select, textarea {
+		border: 1px solid #AAA;
+	}
+	input, select {
+		height: 22px;
+	}
 }
 </style>
