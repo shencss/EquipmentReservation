@@ -8,18 +8,18 @@
         <div class="type-underline" :class="underlineClass"></div>
         <div class="equipment-list">
             <div class="item-wrap" v-for="(item, index) in reservationList" :key=index>
-                <div class="equipment-item" v-if="showItem(item.status)">
+                <div class="equipment-item" v-if="showItem(item.status)"  @click="openDialog('DetailDialog', item)">
                     <div :class="['equipment-icon', icon(item.equipment)]"></div>
                     <div class="equipment-info">
                         <div class="equipment-name">{{item.equipment.equipmentName}}</div>
-                        <div :class="['status', statusClass(item.status)]">当前状态
+                        <div :class="['status', statusClass(item.status)]">预约状态：
                             <span>{{statusText(item.status)}}</span>
+                            <span class="time">{{timeText(item.reserveTime)}}</span>
                         </div>
+                        <div class="reserve-time"></div>
                     </div>
-                    <div class="check-btn" @click="openDialog('DetailDialog', item)">查看</div>
-                    <div v-if="item.status == 1" class="cancel-btn" @click="openDialog('CancelDialog', item)">取消预约</div>
-                    <div v-if="item.status == 3" class="end-btn" @click="openDialog('EndDialog', item)">结束使用</div>
-                    <div class="reserve-time">{{timeText(item.reserveTime)}}</div>
+                    
+                    
                 </div>
             </div>
         </div>
@@ -89,6 +89,9 @@
                 </div>
             </div>
             <div class="operate-btns" style="margin-top: 10px">
+                <div class="redo-btn">重新预约</div>
+                <div v-if="selectedItem.status == 3" class="end-btn" @click="openDialog('EndDialog')">结束使用</div>
+                <div v-if="selectedItem.status == 1" class="cancel-btn" @click="openDialog('CancelDialog')">取消预约</div>
                 <div class="confirm-btn" @click="closeDialog('DetailDialog')">确定</div>
             </div>
         </Dialog>
@@ -150,6 +153,7 @@ export default {
             if(dialogName == 'CancelDialog') {
                 this.showCancelDialog = false;
             } else if(dialogName == 'EndDialog') {
+                this.showDetailDialog = false;
                 this.showEndDialog = false;
             } else if(dialogName == 'DetailDialog') {
                 this.showDetailDialog = false;
@@ -157,10 +161,10 @@ export default {
         },
         openDialog(dialogName, item) {
             if(dialogName == 'CancelDialog') {
-                this.selectedItem = item;
+                this.showDetailDialog = false;
                 this.showCancelDialog = true;
             } else if(dialogName == 'EndDialog') {
-                this.selectedItem = item;
+                this.showDetailDialog = false;
                 this.showEndDialog = true;
             } else if(dialogName == 'DetailDialog') {
                 this.selectedItem = item;
@@ -300,7 +304,7 @@ export default {
 .reservation {
     position: relative;
     .type-header {
-        height: 35px;
+        height: 40px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -325,6 +329,7 @@ export default {
             left: 50%;
             transform: translateX(-50%);
         }
+        border-bottom: 2px solid #EEE;
     }
     .type-underline {
         height: 2px;
@@ -345,15 +350,14 @@ export default {
     .equipment-list {
         .equipment-item {
             position: relative;
-            height: 80px;
+            height: 65px;
             width: 100%;
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            border-bottom: 1px solid #EEE;
+            border-bottom: 2px solid #EEE;
             box-sizing: border-box;
-            padding: 10px;
-            padding-bottom: 15px;
+            padding: 0 10px;
             .equipment-icon {
                 height: 50px;
                 width: 50px;
@@ -388,6 +392,11 @@ export default {
                         margin-left: 10px;
                         font-weight: bold;
                     }
+                    .time {
+                        float: right;
+                        color: #909399;
+                        font-weight: normal;
+                    }
                 }
                 .refuse {
                     span {
@@ -418,14 +427,7 @@ export default {
                     }
                 }
             }
-            .cancel-btn, .end-btn, .check-btn {
-                background-color: #F56C6C;
-                color: #FFF;
-                padding: 5px;
-                font-size: 12px;
-                border-radius: 3px;
-                cursor: pointer;
-            }
+           
             .check-btn {
                 background-color: #409EFF;
                 margin-right: 5px;
@@ -580,7 +582,7 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
-            .cancel-btn, .confirm-btn {
+            .cancel-btn, .confirm-btn, .end-btn, .check-btn, .redo-btn {
                 padding: 0 20px;
                 height: 30px;
                 line-height: 30px;
@@ -591,6 +593,13 @@ export default {
                 border-radius: 3px;
                 margin: 0 10px 20px 10px;
             }
+            .end-btn, .cancel-btn {
+                background-color: #F56C6C;
+            }
+            .redo-btn {
+                background-color: #67C23A;
+            }
+             
         }
     }
 
