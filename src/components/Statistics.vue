@@ -18,7 +18,7 @@
                     <div class="case-info">
                         <span class="user-name">{{item.userName}} </span>
                         <span class="operate">预约设备</span>
-                        <span class="equipemnt-name">{{item.equipmentName}}</span>
+                        <span class="equipemnt-name">{{item.equipment.equipmentName}}</span>
                         <span class="case-time">{{timeText(item.reserveTime)}}</span>
                     </div>
                 </div>

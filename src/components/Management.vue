@@ -380,10 +380,12 @@ export default {
         },
         addEquipment() {
             this.$axios.get(getBaseUrl() + '&action=addEquipment&equipmentName=' +  this.addForm.equipmentName + '&equipmentType=' + this.addForm.equipmentType + '&equipmentModel=' + this.addForm.equipmentModel + '&note=' + this.addForm.note).then(res => {
-                return this.$axios.get(getBaseUrl() + '&action=getAllEquipments');
                 this.showAddDialog = false;
+                return this.$axios.get(getBaseUrl() + '&action=getAllEquipments');
+                
             }).then(res => {
                 this.equipmentList = res.data.result;
+
             }).catch(err => {
                 console.log(err);
             });
