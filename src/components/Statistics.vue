@@ -1,6 +1,6 @@
 <template>
 	<div class="statistics">
-        <div class="case">
+        <!-- <div class="case">
             <div class="title">事件统计</div>
             <div class="reserve-count">
                 <span>共计发起预约次数</span>
@@ -32,8 +32,7 @@
                     </div>
                 </div>
             </div>
-            
-        </div>
+        </div> -->
         <div class="rank">
             <div class="title">排行榜</div>
             <div class="rank-type">
@@ -87,26 +86,26 @@ export default {
         }).catch(err => {
             console.log(err);
         });
-        this.$axios.get(getBaseUrl() + '&action=getEvents').then(res => {
-            this.eventInfo.approveCount = res.data.result.approveCount;
-            this.eventInfo.reserveCount = res.data.result.reserveCount;
-            // 排序
-            let list = res.data.result.approve.concat(res.data.result.reserve);
-            list.sort((b, a) => {
-                if(a.reserveTime && b.reserveTime) {
-                    return a.reserveTime - b.reserveTime
-                } else if(a.approveTime && b.approveTime) {
-                    return a.approveTime - b.approveTime
-                } else if(a.approveTime && b.reserveTime) {
-                    return a.approveTime - b.reserveTime
-                } else if(a.reserveTime && b.approveTime) {
-                    return a.reserveTime - b.approveTime
-                }
-            });
-            this.eventList = list;
-        }).catch(err => {
-            console.log(err);
-        });
+        // this.$axios.get(getBaseUrl() + '&action=getEvents').then(res => {
+        //     this.eventInfo.approveCount = res.data.result.approveCount;
+        //     this.eventInfo.reserveCount = res.data.result.reserveCount;
+        //     // 排序
+        //     let list = res.data.result.approve.concat(res.data.result.reserve);
+        //     list.sort((b, a) => {
+        //         if(a.reserveTime && b.reserveTime) {
+        //             return a.reserveTime - b.reserveTime
+        //         } else if(a.approveTime && b.approveTime) {
+        //             return a.approveTime - b.approveTime
+        //         } else if(a.approveTime && b.reserveTime) {
+        //             return a.approveTime - b.reserveTime
+        //         } else if(a.reserveTime && b.approveTime) {
+        //             return a.reserveTime - b.approveTime
+        //         }
+        //     });
+        //     this.eventList = list;
+        // }).catch(err => {
+        //     console.log(err);
+        // });
     },
     methods: {
         timeText(millisecond) {
@@ -187,7 +186,6 @@ export default {
     }
     .rank {
         position: relative;
-        margin-top: 20px;
         background-color: #FFF;
         padding-top: 10px;
         color: #409EFF;
@@ -248,7 +246,7 @@ export default {
         background-color: #FFF;
         font-size: 12px;
         color: #303133;
-        max-height: calc(100vh - 457px);
+        max-height: calc(100vh - 180px);
         overflow-y: auto;
         .rank-item {
             display: flex;

@@ -38,11 +38,11 @@
                 <input type="text" v-model="addForm.equipmentName" placeholder="请输入设备名称"><br>
                 <label>设备类型：</label>
                 <select name="equipmentType" v-if="addForm.equipmentType != '5'" v-model="addForm.equipmentType" style="height: 26px;width: 100px">
-                    <option value="1">电脑</option>
-                    <option value="2">笔记本</option>
-                    <option value="3">键盘</option>
-                    <option value="4">鼠标</option>
-                    <option value="5">其他</option>
+                    <option value="电脑">电脑</option>
+                    <option value="笔记本">笔记本</option>
+                    <option value="键盘">键盘</option>
+                    <option value="鼠标">鼠标</option>
+                    <option value="其他">其他</option>
                 </select>
                 <input v-if="addForm.equipmentType == '5'" style="width: 100px"  type="text" placeholder="请输入设备型号" v-model="addForm.equipmentType"><br>
                 <label>设备型号：</label>
@@ -68,20 +68,27 @@
                 <label>设备名称：</label>
                 <input type="text" v-model="modifyForm.equipmentName" placeholder="请输入设备名称"><br>
                 <label>设备类型：</label>
-                <select name="equipmentType" v-model="modifyForm.equipmentType">
-                    <option value="1">电脑</option>
-                    <option value="2">显示屏</option>
-                    <option value="3">键盘</option>
-                    <option value="4">鼠标</option>
-                    <option value="5">其他</option>
-                </select><br>
+                <select name="equipmentType" v-if="modifyForm.equipmentType != '5'" v-model="modifyForm.equipmentType" style="height: 26px;width: 100px">
+                    <option value="电脑">电脑</option>
+                    <option value="笔记本">笔记本</option>
+                    <option value="键盘">键盘</option>
+                    <option value="鼠标">鼠标</option>
+                    <option value="其他">其他</option>
+                </select>
+                <input v-if="modifyForm.equipmentType == '5'" style="width: 100px"  type="text" placeholder="请输入设备型号" v-model="modifyForm.equipmentType"><br>
                 <label>设备型号：</label>
-                <input type="text" v-model="modifyForm.equipmentModel" placeholder="请输入设备型号"><br>
-                <label>注意事项：</label>
-                <textarea cols="25" rows="5" maxlength="100" v-model="modifyForm.note" placeholder="请输入设备的使用注意事项"></textarea>
+                <input type="text" placeholder="请输入设备型号" style="width: 100px" v-model="modifyForm.equipmentModel"><br>
+                <label>联系电话：</label>
+                <input type="text" placeholder="请输入联系电话"  v-model="modifyForm.phone"><br>
+                <label>设备地点：</label>
+                <input type="text" placeholder="请输入设备地点"  v-model="modifyForm.address"><br>
+                <label>收费信息：</label>
+                <input type="text" placeholder="请输入收费信息"  v-model="modifyForm.cost"><br>
+                <label>使用注意：</label>
+                <textarea cols="25" rows="5" maxlength="1000" placeholder="请输入设备的使用注意事项" style="margin-left: 70px; position: relative; top: -12px" v-model="modifyForm.note"></textarea>
             </div>
             <div class="operate-btns">
-                <div class="cancel-btn" @click="closeDialog('ModifyDialog')">取消</div>
+                <div class="cancel-btn" @click="closeDialog('AddDialog')">取消</div>
                 <div class="confirm-btn" @click="updateEquipment">确定</div>
             </div>
         </Dialog>
@@ -145,12 +152,18 @@ export default {
                 equipmentName: '',
                 equipmentType: '',
                 equipmentModel: '',
+                phone: '',
+                address: '',
+                cost: '',
                 note: ''
             },
             modifyForm: {
                 equipmentName: '',
                 equipmentType: '',
                 equipmentModel: '',
+                phone: '',
+                address: '',
+                cost: '',
                 note: ''
             },
             recordList: [
