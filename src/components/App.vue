@@ -57,5 +57,8 @@ export default {
 	input, select {
 		height: 22px;
 	}
+	::-webkit-scrollbar {
+		width: 0;
+	}
 }
 </style>

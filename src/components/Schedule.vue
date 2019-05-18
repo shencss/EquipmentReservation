@@ -257,7 +257,7 @@ export default {
             this.showDialog = false;
         },
         goTest() {
-          this.$router.push('/test')  
+          this.$router.push('/arrangement')  
         }
     }
 }

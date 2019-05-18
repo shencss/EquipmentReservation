@@ -17,7 +17,7 @@ export default {
     },
     computed: {
         navName() {
-            if(this.$route.name == 'schedule' || this.$route.name == 'test') {
+            if(this.$route.name == 'schedule' || this.$route.name == 'arrangement') {
                 return '排约管理';
             } else if(this.$route.name == 'list') {
                 return '待审批预约';

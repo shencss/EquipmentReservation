@@ -2,9 +2,9 @@
 	<div class="test">
         <div class="equipment-name">联想笔记本电脑</div>
         <div class="date">
-            <div class="pre-day-btn"></div>
-            <div class="today">2019-05-15（星期三）</div>
-            <div class="next-day-btn"></div>
+            <div class="pre-day-btn" @click="preDay"></div>
+            <div class="today">{{dayText + '（' + weekText + '）'}}</div>
+            <div class="next-day-btn" @click="nextDay"></div>
         </div>
         <div class="time-list">
             <div :class="['time-block', time.status]" v-for="(time, index) in timeList" :key="index">{{time.startTime}} - {{time.endTime}}</div>
@@ -26,10 +26,10 @@
                 <span class="block"></span>
                 <span>待批</span>
             </div>
-            <div class="passed">
+            <!-- <div class="passed">
                 <span class="block"></span>
                 <span>过去</span>
-            </div>
+            </div> -->
         </div>
         <Dialog :visible="showAddDialog" @close="closeDialog('AddDialog')" class="add-dialog">
             <div class="dialog-title">添加待约时间</div>
@@ -89,7 +89,7 @@ export default {
                     startTime: '08:00',
                     endTime: '09:00',
                     repeat: 'once',
-                    status: 'passed'
+                    status: 'available'
                 },
                 {
                     startTime: '09:00',
@@ -134,19 +134,90 @@ export default {
                     status: 'available'
                 }
             ],
+            day: '',
+            dayText: '',
+            weekText: '',
             showAddDialog: false,
             addForm: {
                 startTime: '',
                 endTime: '',
                 repeat: 'once'
             },
-            showErrorText: false
+            showErrorText: false,
+            schedule: [
+                {
+                    startTime: '14:00',
+                    endTime: '15:00',
+                    date: 1558177542134,
+                    repeat: 'month'
+                },
+                {
+                    startTime: '11:00',
+                    endTime: '12:00',
+                    date: 1558177542136,
+                    repeat: 'once'
+                },
+                {
+                    startTime: '13:00',
+                    endTime: '14:00',
+                    date: 1558177542133,
+                    repeat: 'week'
+                },
+                {
+                    startTime: '12:00',
+                    endTime: '13:00',
+                    date: 1558177542138,
+                    repeat: 'day'
+                }
+            ],
+            approveList: [
+                {
+                    startTime: '11:00',
+                    endTime: '12:00',
+                    date: 1558177542136
+                }
+            ],
+            reserveList: [
+                {
+                    startTime: '14:00',
+                    endTime: '15:00',
+                    date: 1558177542136
+                }
+            ]
         };
     },
     computed: {
     },
     mounted() {
-        
+        // 设置时间
+        this.day= new Date();
+        let year = this.day.getFullYear();
+        let month = this.day.getMonth() + 1;
+        month = month > 9 ? month : '0' + month;
+        let day = this.day.getDate();
+        day = day > 9 ? day : '0' + day;
+        this.dayText = year + '-' + month + '-' + day;
+        this.weekText = this.getWeekText(this.day.getDay());
+        // schedule排序
+        this.schedule = this.schedule.sort((a, b) => {
+            return this.isLater(b.startTime, a.startTime) ? 1 : -1;
+        });
+        // 设置时间块
+        for(let i = 0, len = this.schedule.length; i < len; i++) {
+            switch(this.schedule[i].repeat) {
+                case 'once':
+                    if((this.day.getTime() - this.schedule[i].time) <  24 * 60 * 60 * 1000) {
+                        for(let k = 0, len3 = this.timeList.length; k < len3; k++) {
+                            if(this.isLater(this.schedule.endTime, this.timeList[k].startTime) && this.isLater(this.timeList[k].endTime, this.schedule[i].endTime)) {
+                                this.timeList.splice(i, 1, {
+                                    startTime: this.schedule[i].startTime,
+                                    endTime: this.timeList[k].endTime
+                                })
+                            }
+                        }
+                    }
+            }
+        }
     },
     methods: {
         openDialog(dialogName) {
@@ -157,33 +228,110 @@ export default {
                 this.showAddDialog = false;
             }
         },
+        getTimeList() {
+            for(let i = 0, len = this.schedule.length; i < len; i++) {
+
+            }
+        },
+        isLater(time1, time2) {
+            let date= new Date();
+            time1 = date.setHours(time1.split(':')[0], time1.split(':')[1]);
+            time2 = date.setHours(time2.split(':')[0], time2.split(':')[1]);
+            return time1 > time2;
+        },
+        preDay() {
+            this.day = new Date(this.day.getTime() - 24 * 60 * 60 * 1000);
+            let year = this.day.getFullYear();
+            let month = this.day.getMonth() + 1;
+            month = month > 9 ? month : '0' + month;
+            let day = this.day.getDate();
+            day = day > 9 ? day : '0' + day;
+            this.dayText = year + '-' + month + '-' + day;
+            this.weekText = this.getWeekText(this.day.getDay());
+        },
+        nextDay() {
+            this.day = new Date(this.day.getTime() + 24 * 60 * 60 * 1000);
+            let year = this.day.getFullYear();
+            let month = this.day.getMonth() + 1;
+            month = month > 9 ? month : '0' + month;
+            let day = this.day.getDate();
+            day = day > 9 ? day : '0' + day;
+            this.dayText = year + '-' + month + '-' + day;
+            this.weekText = this.getWeekText(this.day.getDay());
+        },
         addTimeBlock() {
-            let canAdd = true;
+            let canAdd = false;
             let date= new Date();
             for(let i = 0, len = this.timeList.length; i < len; i++) {
-                let startTime1 = date.setHours(this.addForm.startTime.split(':')[0], this.addForm.startTime.split(':')[1]);
-                let endTime1 = date.setHours(this.addForm.endTime.split(':')[0], this.addForm.endTime.split(':')[1]);
-                let startTime2 = date.setHours(this.timeList[i].startTime.split(':')[0], this.timeList[i].startTime.split(':')[1]);
-                let endTime2 = date.setHours(this.timeList[i].endTime.split(':')[0], this.timeList[i].endTime.split(':')[1]);
-                console.log(startTime1 , endTime1)
-                console.log( startTime2, endTime2)
-                 if(!(startTime1 >= endTime2 || endTime1 <= startTime2)) {
-                    canAdd = false;
-                    break;
-                 }
+                if(i == 0) {
+                    if(this.isLater(this.timeList[0].startTime, this.addForm.endTime)) {
+                        this.timeList = [{
+                            startTime: this.addForm.startTime,
+                            endTime: this.addForm.endTime,
+                            repeat: this.addForm.repeat,
+                            status: 'available'
+                        }].concat(this.timeList);
+                        canAdd = true;
+                        break;
+                    }
+                } else if(i == len - 1) {
+                    if(this.isLater(this.addForm.startTime, this.timeList[i].endTime)) {
+                        this.timeList.push({
+                            startTime: this.addForm.startTime,
+                            endTime: this.addForm.endTime,
+                            repeat: this.addForm.repeat,
+                            status: 'available'
+                        });
+                        canAdd = true;
+                        break;
+                    }
+                } else {
+                    if(this.isLater(this.addForm.startTime, this.timeList[i - 0].endTime) && this.isLater(this.timeList[i].startTime, this.addForm.endTime)) {
+                        this.timeList.splice(i, 0, {
+                            startTime: this.addForm.startTime,
+                            endTime: this.addForm.endTime,
+                            repeat: this.addForm.repeat,
+                            status: 'available'
+                        });
+                        canAdd = true;
+                        break;
+                    }
+                }
             }
-            if(canAdd) {
-                this.timeList.push({
-                    startTime: this.addForm.startTime,
-                    endTime: this.addForm.endTime,
-                    repeat: this.addForm.repeat,
-                    status: 'available'
-                });
-                this.showAddDialog = false;
-            } else {
+            if(!canAdd) {
                 this.showErrorText = true;
+            } else {
+                this.showAddDialog = false;
+                this.showErrorText = false;
             }
             
+        },
+        getWeekText(day) {
+            switch(day) {
+                case 1:
+                    return '星期一';
+                    break;
+                case 2:
+                    return '星期二';
+                    break;
+                case 3: 
+                    return '星期三';
+                    break;
+                case 4: 
+                    return '星期四';
+                    break;
+                case 5: 
+                    return '星期五';
+                    break;
+                case 6: 
+                    return '星期六';
+                    break;
+                case 0: 
+                    return '星期日';
+                    break;   
+                default:
+                    return '星期一';
+            }
         }
     }
 }
@@ -312,7 +460,7 @@ export default {
             }
         }
     }
-    .add-dialog, {
+    .add-dialog {
         .dialog-title {
             height: 50px;
             line-height: 50px;
