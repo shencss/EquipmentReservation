@@ -50,5 +50,9 @@ export default {
 	height: 100vh;
 	background-color: #FFF;
 	padding: 40px 0 45px 0;
+	
+}
+::-webkit-scrollbar {
+	width: 0;
 }
 </style>

@@ -2,7 +2,7 @@
 import App from '../components/App';
 import Home from '../components/Home'
 import Reservation from '../components/Reservation'
-import Mine from '../components/Mine'
+import Reserve from '../components/Reserve'
 
 export default [{
     path: '/',
@@ -21,11 +21,11 @@ export default [{
             name: 'reservation',
             path: '/reservation',
             component: Reservation
-        },
+        }, 
         {
-            name: 'mine',
-            path: '/mine',
-            component: Mine
-        },
+            name: 'reserve',
+            path: '/reserve',
+            component: Reserve
+        }
     ]
 }];

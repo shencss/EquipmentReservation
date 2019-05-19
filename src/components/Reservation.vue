@@ -329,7 +329,7 @@ export default {
             left: 50%;
             transform: translateX(-50%);
         }
-        border-bottom: 2px solid #EEE;
+        border-bottom: 1px solid #EEE;
     }
     .type-underline {
         height: 2px;
@@ -355,7 +355,7 @@ export default {
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            border-bottom: 2px solid #EEE;
+            border-bottom: 1px solid #EEE;
             box-sizing: border-box;
             padding: 0 10px;
             .equipment-icon {

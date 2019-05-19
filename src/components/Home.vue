@@ -9,21 +9,21 @@
                 <div :class="['equipment-icon', icon(item)]"></div>
                 <div class="equipment-info">
                     <div class="equipment-name">{{item.equipmentName}}</div>
-                    <div class="count">设备型号
-                        <span>{{item.equipmentModel}}</span>
-                    </div>
-                    <div class="available-time">
+                    <div class="available-time" style="margin-top: 5px;">
                         <span>可预约时间</span> 
                     </div>
-                    <div class="time-list">
-                        <span v-for="(period, index2) in item.periods" :key="index2">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
-                        <span v-if="item.periods && item.periods.length > 3" style="font-size: 10px">......</span>
+                    <div class="time-list" v-if="item.schedules.length > 0">
+                        <span v-for="(schedule, index2) in item.schedules.slice(0, 2)" :key="index2">
+                            {{timeText(schedule)}}: {{schedule.startTime}} - {{schedule.endTime}}
+                            <span v-if="index2 == 0 && item.schedules.length > 1">,</span>
+                        </span>
+                        <div v-if="item.schedules.length > 2" style="font-size: 10px">......</div>
                     </div> 
                 </div>
-                <div class="reservation-btn" @click="openDialog(item)">预约</div>
+                <div class="reservation-btn" @click="goReserve(item)">预约</div>
             </div>
         </div>
-        <Dialog :visible="showReserveDialog" @close="closeDialog" class="reservation-dialog">
+        <!-- <Dialog :visible="showReserveDialog" @close="closeDialog" class="reservation-dialog">
             <div class="dialog-title">预约该设备</div>
             <div class="equipment-info">
                 <div class="equipment-head">
@@ -80,7 +80,7 @@
                 <div class="cancel-btn" @click="closeDialog">取消</div>
                 <div class="confirm-btn" @click="reserve">确定</div>
             </div>
-        </Dialog>
+        </Dialog> -->
     </div>
 </template>
 
@@ -95,25 +95,13 @@ export default {
     },
     data() {
         return {
-            showReserveDialog: false,
-            startDate: '',
-            endDate: '',
-            showPeriodForm: false,
-            periodForm: {
-                startDate: '',
-                endDate: '',
-                startTime: '',
-                endTime: ''
-            },
-            reserveForm: {
-                selectedPeriodList: [],
-                note: ''
-            },
             equipmentList: [],
             selectedItem: {},
             searchForm: {
                 equipmentName: ''
-            }
+            },
+            weekText: ['每周日','每周一', '每周二','每周三','每周四','每周五','每周六'],
+            monthText: ['每月1号', '每月2号', '每月3号', '每月4号', '每月5号', '每月6号', '每月7号', '每月8号', '每月9号', '每月10号', '每月11号', '每月12号', '每月13号', '每月14号', '每月15号', '每月16号', '每月17号', '每月18号', '每月19号', '每月20号', '每月21号', '每月22号', '每月23号', '每月24号', '每月25号', '每月26号', '每月27号', '每月28号', '每月29号', '每月30号', '每月31号', ],
         };
     },
     computed: {
@@ -121,48 +109,21 @@ export default {
             return item => {
                 if(item) {
                     switch(item.equipmentType) {
-                        case '1':
+                        case '电脑':
+                        case '笔记本':
                             return 'computer';
                             break;
-                        case '2':
+                        case '显示屏':
                             return 'display';
                             break;
-                        case '3':
+                        case '键盘':
                             return 'keyboard';
                             break;
-                        case '4':
+                        case '鼠标':
                             return 'mouse';
                             break;
-                        case '5':
-                            return 'else';
-                            break;
                         default:
-                            return 'computer'
-                    }
-                }
-            }
-        },
-        type() {
-            return item => {
-                if(item) {
-                    switch(item.equipmentType) {
-                        case '1':
-                            return '电脑';
-                            break;
-                        case '2':
-                            return '显示屏';
-                            break;
-                        case '3':
-                            return '键盘';
-                            break;
-                        case '4':
-                            return '鼠标';
-                            break;
-                        case '5':
-                            return '其他';
-                            break;
-                        default:
-                            return '电脑'
+                            return 'else'
                     }
                 }
             }
@@ -176,62 +137,45 @@ export default {
         });
     },
     methods: {
-        openDialog(item) {
-            this.selectedItem = item;
-            this.showReserveDialog = true;
-        },
-        closeDialog() {
-            this.showReserveDialog = false;
-        },
-        openPeriodForm() {
-            this.showPeriodForm = true;
-        },
-        cancelAddPeriod() {
-            this.showPeriodForm = false;
-        },
-        addPeriod() {
-            this.showPeriodForm = false;
-            this.reserveForm.selectedPeriodList.push({
-                startDate: this.periodForm.startDate,
-                startTime: this.periodForm.startTime,
-                endDate: this.periodForm.endDate,
-                endTime: this.periodForm.endTime,
-            });
-        },
-        deletePeriod(index) {
-            this.reserveForm.selectedPeriodList.splice(index, 1);
-        },
-        reserve() {
-            let periods = [];
-            for(let i = 0, len = this.reserveForm.selectedPeriodList.length; i < len; i++) {
-                periods.push({
-                    startTime: new Date(this.reserveForm.selectedPeriodList[i].startDate + ' ' + this.reserveForm.selectedPeriodList[i].startTime + ':00').getTime(),
-                    endTime: new Date(this.reserveForm.selectedPeriodList[i].endDate + ' '  + this.reserveForm.selectedPeriodList[i].endTime + ':00').getTime()
-                })
+        timeText(schedule) {
+            switch(schedule.repeat) {
+                case 'date':
+                    return this.setDayText(schedule.date);
+                    break;
+                case 'day':
+                    return '每天';
+                    break;
+                case 'week':
+                    return this.weekText[schedule.week];
+                    break;
+                case 'month':
+                    return this.monthText[schedule.month - 1];
+                    break;
+                default:
             }
-            periods = encodeURIComponent(JSON.stringify(periods));
-            let url = getBaseUrl() + '&action=reserve&userId=1&equipmentId=' + this.selectedItem.equipmentId + '&note=' + this.reserveForm.note + '&periods=' + periods;
-            this.$axios.get(url).then(res => {
-                
-            }).catch(err => {
-                console.log(err);
-            });
-            this.showReserveDialog = false;
         },
-        timeText(millisecond) {
-            let date = new Date(millisecond);
-            let year = date.getFullYear();
-            let month = (date.getMonth() + 1) > 9 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1);
-            let day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
-            let hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
-            let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
-            return year + '-' + month + '-' + day + '  ' + hour + ':' + min;
+        setDayText(time) {
+            time = new Date(time);
+            let year = time.getFullYear();
+            let month = time.getMonth() + 1;
+            month = month > 9 ? month : '0' + month;
+            let day = time.getDate();
+            day = day > 9 ? day : '0' + day;
+            return year + '-' + month + '-' + day;
         },
         searchEquipment() {
             this.$axios.get(getBaseUrl() + '&action=getAvailableEquipments&pageNum=1&pageSize=20&equipmentName=' + this.searchForm.equipmentName).then(res => {
                 this.equipmentList = res.data.result;
             }).catch(err => {
                 console.log(err);
+            });
+        },
+        goReserve(item) {
+            this.$router.push({
+                path: '/reserve',
+                query: {
+                    data: JSON.stringify(item)
+                }
             });
         }
     }
@@ -333,7 +277,7 @@ export default {
                     color: #409EFF;
                     font-size: 12px;
                     span {
-                        display: block;
+                       
                         margin-top: 5px;
                     }
                 }
@@ -345,6 +289,7 @@ export default {
                 font-size: 12px;
                 border-radius: 3px;
                 cursor: pointer;
+                flex-shrink: 0;
             }
         }
     }
