@@ -86,7 +86,7 @@ export default {
         }
         .reservation-info {
             margin: 0 10px;
-            font-size: 12px;
+            font-size: 14px;
             height: 45px;
             color: #909399;
             div {
@@ -105,7 +105,7 @@ export default {
             background-color: #F56C6C;
             color: #FFF;
             padding: 5px;
-            font-size: 12px;
+            font-size: 14px;
             border-radius: 3px;
             cursor: pointer;
         }

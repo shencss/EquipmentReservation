@@ -479,7 +479,7 @@ export default {
         .error-text {
             color: #F56C6C;
             line-height: 15px;
-            font-size: 12px;
+            font-size: 14px;
             display: flex;
             align-items: center;
             margin-top: 5px;

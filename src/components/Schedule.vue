@@ -4,80 +4,26 @@
             <input id="search-input" v-model="searchForm.equipmentName" type="text" placeholder="输入设备名称搜索">
             <span class="search-icon" @click="searchEquipment"></span>
         </div>
-        <!-- <div class="type-header">
-            <div @click="checkType('all')">所有设备</div>
-            <div @click="checkType('reserving')">预约中</div>
-            <div @click="checkType('using')">使用中</div>
-            <div @click="checkType('idle')">闲置设备</div>
-            <div class="type-underline" :class="underlineClass"></div>
-        </div> -->
         
         <div class="equipment-list">
             <div class="item-warp" v-for="(item, index) in equipmentList" :key=index>
-                <div class="equipment-item" v-if="showItem(item.status)">
+                <div class="equipment-item">
                     <div :class="['equipment-icon', icon(item)]"></div>
                     <div class="equipment-info">
                         <div class="equipment-name">{{item.equipmentName}}</div>
                         <div class="available-time" style="margin: 5px 0">
                             <span>可预约时间</span> 
                         </div>
-                        <div class="time-list" v-if="item.periods.length > 0">
-                            <span v-for="(period, index2) in item.periods.slice(0, 2)" :key="index2">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
-                            <span v-if="item.periods && item.periods.length > 2" style="font-size: 10px">......</span>
-                        </div>  
-                        <div v-else style="text-align: center; font-size: 12px">尚未安排可预约时间,请点击安排</div>
+                        <div class="time-list" v-if="item.schedules.length > 0">
+                            <span v-for="(schedule, index2) in item.schedules.slice(0, 2)" :key="index2">{{timeText(schedule)}}: {{schedule.startTime}} - {{schedule.endTime}}</span>
+                            <span v-if="item.schedules.length > 2" style="font-size: 10px">......</span>
+                        </div>   
+                        <div v-else style="text-align: center; font-size: 14px">尚未安排可预约时间,请点击安排</div>
                     </div>
-                    <!-- <div class="arrange-btn" v-if="item.status == 3" @click="goReserve(item)">安排预约</div> -->
-                    <div class="arrange-btn" @click="goTest">安排时间</div>
+                    <div class="arrange-btn" @click="goArrangement(item)">安排时间</div>
                 </div>
             </div>
         </div>
-        <Dialog :visible="showDialog" @close="closeDialog" class="reservation-dialog">
-            <div class="dialog-title">设置设备可预约时间</div>
-            <div class="equipment-info">
-                <div :class="['equipment-icon', icon(selectedItem)]"></div>
-                <div class="equipment-name">{{selectedItem.equipmentName}}</div>
-                <div class="line"></div>
-                <div class="equipment-type">
-                    <span>设备类型</span>
-                    <span class="value">{{type(selectedItem)}}</span>
-                </div>
-                <div class="equipment-address">
-                    <span>设备型号</span>
-                    <span class="value">{{selectedItem.equipmentModel}}</span>
-                </div>
-                <div class="equipment-note">
-                    <span>注意事项</span>
-                    <span class="value">{{selectedItem.note}}</span>
-                </div>
-                <div class="available-time" style="margin-bottom: 5px">
-                    <span>可预约时间</span>
-                </div>
-                <div class="time-list">
-                    <div class="period" v-for="(period, index) in selectedItem.periods" :key="index">
-                        <span class="period-text">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
-                        <div class="delete-period-btn" @click="deletePeriod(index)">-</div>
-                    </div>
-                </div> 
-                <div class="add-period-btn" v-if="!showPeriodForm" @click="openPeriodForm">+添加设备可预约时间</div>
-                <div class="period-form" v-else>
-                    <label>起始时间：</label>
-                    <input type="date" v-model="periodForm.startDate">
-                    <input type="time" v-model="periodForm.startTime"><br>
-                    <label>结束时间：</label>
-                    <input type="date" v-model="periodForm.endDate" style="margin: 10px 0">
-                    <input type="time" v-model="periodForm.endTime"><br>
-                    <div class="operate-btns">
-                        <div class="yes-btn" @click="addPeriod"></div>
-                        <div class="no-btn" @click="cancelAddPeriod"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="operate-btns">
-                <div class="cancel-btn" @click="closeDialog">取消</div>
-                <div class="confirm-btn" @click="setEquipmentAvailablePeriods">确定</div>
-            </div>
-        </Dialog>
     </div>
 </template>
 
@@ -91,83 +37,37 @@ export default {
     },
     data() {
         return {
-            equipmentType: 'all',
-            underlineClass: 'type-1',
-            showDialog: false,
             equipmentList: [],
             selectedItem: {},
-            showPeriodForm: false,
-            periodForm: {
-                startDate: '',
-                endDate: '',
-                startTime: '',
-                endTime: ''
-            },
             searchForm: {
                 equipmentName: ''
-            }
+            },
+            weekText: ['每周日','每周一', '每周二','每周三','每周四','每周五','每周六'],
+            monthText: ['每月1号', '每月2号', '每月3号', '每月4号', '每月5号', '每月6号', '每月7号', '每月8号', '每月9号', '每月10号', '每月11号', '每月12号', '每月13号', '每月14号', '每月15号', '每月16号', '每月17号', '每月18号', '每月19号', '每月20号', '每月21号', '每月22号', '每月23号', '每月24号', '每月25号', '每月26号', '每月27号', '每月28号', '每月29号', '每月30号', '每月31号', ],
         };
     },
     computed: {
         icon() {
             return item => {
                 switch(item.equipmentType) {
-                    case '1':
+                    case '笔记本':
+                    case '电脑':
                         return 'computer';
                         break;
-                    case '2':
+                    case '显示屏':
                         return 'display';
                         break;
-                    case '3':
+                    case '键盘':
                         return 'keyboard';
                         break;
-                    case '4':
+                    case '鼠标':
                         return 'mouse';
                         break;
-                    case '5':
-                        return 'else';
-                        break;
                     default:
-                        return 'computer'
+                        return 'else'
                 }
             }
         },
-        type() {
-            return item => {
-                switch(item.equipmentType) {
-                    case '1':
-                        return '电脑';
-                        break;
-                    case '2':
-                        return '显示屏';
-                        break;
-                    case '3':
-                        return '键盘';
-                        break;
-                    case '4':
-                        return '鼠标';
-                        break;
-                    case '5':
-                        return '其他';
-                        break;
-                    default:
-                        return '电脑'
-                }
-            }
-        },
-        showItem() {
-            return status => {
-                if (this.equipmentType === 'all') {
-                    return true;
-                } else if (this.equipmentType == 'reserving' && status == 1) {
-                    return true;
-                } else if(this.equipmentType == 'using' && status == 2) {
-                    return true;
-                } else if(this.equipmentType == 'idle' && status == 3) {
-                    return true;
-                }
-            }
-        }
     },
     mounted() {
         this.$axios.get(getBaseUrl() + '&action=getAllEquipments').then(res => {
@@ -177,65 +77,31 @@ export default {
         });
     },
     methods: {
-        timeText(millisecond) {
-            let date = new Date(millisecond);
-            let year = date.getFullYear();
-            let month = (date.getMonth() + 1) > 9 ? (date.getMonth() + 1) : '0' + (date.getMonth() + 1);
-            let day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
-            let hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
-            let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
-            return year + '-' + month + '-' + day + '  ' + hour + ':' + min;
-        },
-        openDialog(dialogName, item) {
-            if(dialogName == 'ScheduleDialog') {
-                this.selectedItem = item;
-                this.showDialog = true;
-            }
-        },
-        closeDialog() {
-            this.showDialog = false;
-        },
-        checkType(type) {
-            switch(type) {
-                case 'all':
-                    this.equipmentType = 'all';
-                    this.underlineClass = 'type-1';
+        timeText(schedule) {
+            switch(schedule.repeat) {
+                case 'date':
+                    return this.setDayText(schedule.date);
                     break;
-                case 'reserving':
-                    this.equipmentType = 'reserving';
-                    this.underlineClass = 'type-2';
+                case 'day':
+                    return '每天';
                     break;
-                case 'using':
-                    this.equipmentType = 'using';
-                    this.underlineClass = 'type-3';
+                case 'week':
+                    return this.weekText[schedule.week];
                     break;
-                case 'idle':
-                    this.equipmentType = 'idle';
-                    this.underlineClass = 'type-4';
+                case 'month':
+                    return this.monthText[schedule.month - 1];
                     break;
                 default:
-                    this.equipmentType = 'all';
-                    this.underlineClass = 'type-1';
-                
             }
         },
-        openPeriodForm() {
-            this.showPeriodForm = true;
-        },
-        cancelAddPeriod() {
-            this.showPeriodForm = false;
-        },
-        addPeriod() {
-            this.showPeriodForm = false;
-            let startTime = new Date(this.periodForm.startDate + ' ' + this.periodForm.startTime + ':00').getTime();
-            let endTime = new Date(this.periodForm.endDate + ' ' + this.periodForm.endTime + ':00').getTime();            
-            this.selectedItem.periods.push({
-                startTime: startTime,
-                endTime: endTime
-            });
-        },
-        deletePeriod(index) {
-            this.selectedItem.periods.splice(index, 1);
+        setDayText(time) {
+            time = new Date(time);
+            let year = time.getFullYear();
+            let month = time.getMonth() + 1;
+            month = month > 9 ? month : '0' + month;
+            let day = time.getDate();
+            day = day > 9 ? day : '0' + day;
+            return year + '-' + month + '-' + day;
         },
         searchEquipment() {
             this.$axios.get(getBaseUrl() + '&action=getAllEquipments&equipmentName=' + this.searchForm.equipmentName).then(res => {
@@ -244,20 +110,13 @@ export default {
                 console.log(err);
             });
         },
-        setEquipmentAvailablePeriods() {
-            let periods = encodeURIComponent(JSON.stringify(this.selectedItem.periods));
-            
-            this.$axios.get(getBaseUrl() + '&action=setEquipmentAvailablePeriods&equipmentId=' + this.selectedItem.equipmentId + '&periods=' + periods).then(res => {
-                return this.$axios.get(getBaseUrl() + '&action=getAllEquipments');
-            }).then(res => {
-                this.equipmentList = res.data.result;
-            }).catch(err => {
-                console.log(err);
+        goArrangement(item) {
+            this.$router.push({
+                path: '/arrangement',
+                query: {
+                    data: item
+                }
             });
-            this.showDialog = false;
-        },
-        goTest() {
-          this.$router.push('/arrangement')  
         }
     }
 }
@@ -305,35 +164,13 @@ export default {
         align-items: center;
         background-color: #FFF;
         color: #409EFF;
-        font-size: 12px;
+        font-size: 14px;
         div {
             position: relative;
             flex: 1;
             text-align: center;
             height: 35px;
             line-height: 35px;
-        }
-        .type-underline {
-            height: 2px;
-            width: 30px;
-            background-color: #409EFF;
-            position: absolute;
-            top: 30px;
-            left: 12.5%;
-            transform: translateX(-50%);
-            transition: all .5s linear;
-        }
-        .type-1 {
-            left: 12.5%;
-        }
-        .type-2 {
-            left: 37.5%;
-        }
-        .type-3 {
-            left: 62.5%;
-        }
-        .type-4 {
-            left: 87.5%;
         }
     }
     .equipment-list {
@@ -380,7 +217,7 @@ export default {
                 .available-time {
                     display: flex;
                     justify-content: flex-start;
-                    font-size: 12px;
+                    font-size: 14px;
                     color: #909399; 
                 }
                 .time-list {
@@ -398,7 +235,7 @@ export default {
                 background-color: #409EFF;
                 color: #FFF;
                 padding: 5px;
-                font-size: 12px;
+                font-size: 14px;
                 border-radius: 3px;
                 cursor: pointer;
                 flex-shrink: 0;
@@ -408,150 +245,5 @@ export default {
             }
         }
     }
-    .reservation-dialog {
-        .dialog-title {
-            height: 50px;
-            line-height: 50px;
-            font-size: 15px;
-            text-align: center;
-            border-bottom: 1px solid #409EFF;
-            background-color: #409EFF;
-            color: #FFF;
-        }
-        .equipment-info {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 0 20px;
-            .equipment-icon {
-                height: 50px;
-                width: 50px;
-                background-image: url('../images/computer.png');
-                background-size: 100% 100%;
-                background-repeat: no-repeat;
-            }
-            .display {
-                background-image: url('../images/display.png');
-            }
-            .keyboard {
-                background-image: url('../images/keyboard.png');
-            }
-            .mouse {
-                background-image: url('../images/mouse.png');
-            }
-            .else {
-                background-image: url('../images/else.png');
-            }
-            .equipment-name {
-                font-weight: bold;
-                font-size: 15px;
-            }
-            .line {
-                width: 100%;
-                height: 2px;
-                background-color: #409EFF;
-                margin: 10px 0 20px 0;
-            }
-            .equipment-type, .equipment-address, .available-time, .equipment-note {
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-                font-size: 13px;
-                color: #909399;
-                margin-bottom: 20px;
-                span {
-                    flex-basis: 90px;
-                }
-                .value {
-                    color: #000;
-                    flex-grow: 1;
-                }
-            }
-            .time-list {
-                flex-grow: 1;
-                font-size: 12px;
-                .period {
-                    display: flex;
-                    justify-content: flex-start;
-                    align-items: center;
-                    color: #000;
-                    margin-bottom: 8px;
-                    display: block;
-                    .delete-period-btn {
-                        display: inline-block;
-                        width: 10px;
-                        height: 10px;
-                        background-color: #F56C6C;
-                        color: #FFF;
-                        text-align: center;
-                        line-height: 10px;
-                        border-radius: 50%;
-                        cursor: pointer;
-                    }
-                }
-            }
-            .add-period-btn {
-                color: #409EFF;
-                text-decoration: underline;
-                font-size: 12px;
-                cursor: pointer;
-                line-height: 40px;
-            }
-            .period-form {
-                font-size: 12px;
-                color: #303133;
-                .yes-btn {
-                    width: 25px;
-                    height: 25px;
-                    margin-right: 15px;
-                    background-image: url('../images/yes.png');
-                    background-size: 100% 100%;
-                    background-repeat: no-repeat;
-                }
-                .no-btn {
-                    box-sizing: border-box;
-                    width: 25px;
-                    height: 25px;
-                    background-image: url('../images/no.png');
-                    background-size: 100% 100%;
-                    background-repeat: no-repeat;
-                }
-            }
-            .reservation-note {
-                width: 100%;
-                text-align: left;
-                font-size: 11px;
-                color: #409EFF;
-            }
-           .start-date, .end-date {
-               display: flex;
-               align-items: center;
-               width: 100%;
-               margin: 10px 0;
-               label {
-                   font-size: 13px;
-                   margin-right: 20px;
-               }
-           }
-        }
-        .operate-btns {
-            display: flex;
-            justify-content: center;
-            align-items: center;    
-            .cancel-btn, .confirm-btn {
-                padding: 0 20px;
-                height: 30px;
-                line-height: 30px;
-                text-align: center;
-                font-size: 12px;
-                background-color: #409EFF;
-                color: #FFF;
-                border-radius: 3px;
-                margin: 20px 10px;
-            }
-        }
-    }
-
 }
 </style>

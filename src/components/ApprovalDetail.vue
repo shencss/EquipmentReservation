@@ -180,7 +180,7 @@ export default {
         height: 40px;
         line-height: 40px;
         text-align: center;
-        font-size: 12px;
+        font-size: 14px;
         span {
             color: #409EFF;
         }
@@ -196,7 +196,7 @@ export default {
             align-items: center;
             margin-top: 20px;
             color: #909399;
-            font-size: 12px;
+            font-size: 14px;
             .value {
                 color: #303133;
                 max-width: 150px;
@@ -206,7 +206,7 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 12px;
+            font-size: 14px;
             color: #303133;
             margin-top: 10px;
         }
@@ -243,7 +243,7 @@ export default {
             color: #FFF;
         }
         .remind-text {
-            font-size: 12px;
+            font-size: 14px;
             height: 70px;
             line-height: 70px;
             padding-left: 30px;
@@ -257,7 +257,7 @@ export default {
                 height: 30px;
                 line-height: 30px;
                 text-align: center;
-                font-size: 12px;
+                font-size: 14px;
                 background-color: #409EFF;
                 color: #FFF;
                 border-radius: 3px;
@@ -265,7 +265,7 @@ export default {
             }
         }
         .add-form {
-            font-size: 12px;
+            font-size: 14px;
             padding: 20px;
             label {
                 vertical-align: top;
@@ -279,7 +279,7 @@ export default {
         }
         .detail-info {
             padding: 15px;
-            font-size: 12px;
+            font-size: 14px;
             color: #909399;
             .equipment-name {
                 .vaule {

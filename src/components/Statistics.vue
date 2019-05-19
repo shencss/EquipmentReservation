@@ -136,7 +136,7 @@ export default {
         .reserve-count, .approve-count {
             span {
                 color: #BBB;
-                font-size: 12px;
+                font-size: 14px;
             }
             .value {
                 margin-left: 15px;
@@ -153,7 +153,7 @@ export default {
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            font-size: 12px;
+            font-size: 14px;
             padding: 0 10px;
             height: 30px;
             color: #303133;
@@ -198,7 +198,7 @@ export default {
         .rank-type {
             display: flex;
             align-items: center;
-            font-size: 12px;
+            font-size: 14px;
             height: 20px;
             text-align: center;
             div {
@@ -227,7 +227,7 @@ export default {
             height: 30px;
             align-items: center;
             justify-content: space-between;
-            font-size: 12px;
+            font-size: 14px;
             color: #909399;
             text-align: center;
             .num {
@@ -244,7 +244,7 @@ export default {
     }
     .rank-list {
         background-color: #FFF;
-        font-size: 12px;
+        font-size: 14px;
         color: #303133;
         max-height: calc(100vh - 180px);
         overflow-y: auto;

@@ -1,79 +1,112 @@
 <template>
 	<div class="arrangement">
-        <div class="equipment-name">联想笔记本电脑</div>
-        <div class="block-list">
-            <div class="arrangement-block">
-                <div class="block-title">配置当日时间块：</div>
-                <div class="date">
-                    <div class="pre-day-btn" @click="preDay"></div>
-                    <div class="today">{{dayText}}</div>
-                    <div class="next-day-btn" @click="nextDay"></div>
+        <div class="overflow">
+            <div class="equipment-info">
+                <div class="equipment-name">
+                    <span>设备名称：</span>
+                    <span class="value">{{equipment.equipmentName}}</span>
                 </div>
-                <div class="time-list">
-                    <div class="time-block available" v-for="(time, index) in dateList" :key="index">
-                        <span>{{time.startTime}} - {{time.endTime}}</span>
-                        <span class="delete-icon" @click="openDialog('DeleteDialog', 'date', time)"></span>
-                    </div>
-                    <div class="time-block operator" @click="openDialog('AddDialog', 'date')">
-                        <span class="add-icon"></span>
-                        <span>待约</span>
-                    </div> 
-                    <div class="time-block"></div>
+                <div class="equipment-type">
+                    <span>设备类型：</span>
+                    <span class="value">{{equipment.equipmentType}}</span>
                 </div>
-            </div>  
-            <div class="arrangement-block">
-                <div class="block-title">配置每天时间块：</div>
-                <div class="date" style="justify-content: center">
-                    <span>每天</span>
+                <div class="equipment-model">
+                    <span>设备型号：</span>
+                    <span class="value">{{equipment.equipmentModel}}</span>
                 </div>
-                <div class="time-list">
-                    <div class="time-block available" v-for="(time, index) in dayList" :key="index">
-                        <span>{{time.startTime}} - {{time.endTime}}</span>
-                        <span class="delete-icon" @click="openDialog('DeleteDialog', 'day', time)"></span>
-                    </div>
-                    <div class="time-block operator" @click="openDialog('AddDialog', 'day')">
-                        <span class="add-icon"></span>
-                        <span>待约</span>
-                    </div> 
-                    <div class="time-block"></div>
+                <div class="address">
+                    <span>设备地点：</span>
+                    <span class="value">{{equipment.address}}</span>
                 </div>
             </div>
-            <div class="arrangement-block">
-                <div class="block-title">配置每周时间块：</div>
-                <div class="date">
-                    <div class="pre-day-btn" @click="preWeekDay"></div>
-                    <div class="today">{{weekText[weekIndex]}}</div>
-                    <div class="next-day-btn" @click="nextWeekDay"></div>
-                </div>
-                <div class="time-list">
-                    <div class="time-block available" v-for="(time, index) in weekList" :key="index">
-                        <span>{{time.startTime}} - {{time.endTime}}</span>
-                        <span class="delete-icon" @click="openDialog('DeleteDialog', 'week', time)"></span>
+            
+            <div class="block-list">
+                <div class="arrangement-block">
+                    <div class="block-title">配置当日时间块：</div>
+                    <div class="date">
+                        <div class="pre-day-btn" @click="preDay"></div>
+                        <div class="today">{{dayText}}</div>
+                        <div class="next-day-btn" @click="nextDay"></div>
                     </div>
-                    <div class="time-block operator" @click="openDialog('AddDialog', 'week')">
-                        <span class="add-icon"></span>
-                        <span>待约</span>
-                    </div>  
-                    <div class="time-block"></div>
-                </div>
-            </div>
-            <div class="arrangement-block">
-                <div class="block-title">配置每月时间块：</div>
-                <div class="date">
-                    <div class="pre-day-btn" @click="preMonthDay"></div>
-                    <div class="today">{{monthText[monthIndex]}}</div>
-                    <div class="next-day-btn" @click="nextMonthDay"></div>
-                </div>
-                <div class="time-list">
-                    <div class="time-block available" v-for="(time, index) in monthList" :key="index">
-                        <span>{{time.startTime}} - {{time.endTime}}</span>
-                        <span class="delete-icon" @click="openDialog('DeleteDialog', 'month', time)"></span>
+                    <div class="time-list">
+                        <div :class="['time-block', time.forbid ? 'forbid' : 'available']" v-for="(time, index) in dateList" :key="index">
+                            <span>{{time.startTime}} - {{time.endTime}}</span>
+                            <span v-if="time.repeat == 'date'" class="delete-icon" @click="openDialog('DeleteDialog', 'date', time)"></span>
+                            <span v-if="time.repeat !== 'date' && !time.forbid" class="available-icon" @click="openDialog('ForbidDialog', 'date' ,time)"></span>
+                            <span v-if="time.repeat !== 'date' && time.forbid" class="forbid-icon" @click="openDialog('AvailableDialog', 'date', time)"></span>
+                            <span class="repeat-text" v-if="time.repeat !== 'date'">{{time.repeat == 'day' ? '每天' : (time.repeat == 'week' ? weekText[time.week] : monthText[time.month - 1])}}</span>
+                        </div>
+                        <div class="time-block operator" @click="openDialog('AddDialog', 'date')">
+                            <span class="add-icon"></span>
+                            <span>可约</span>
+                        </div> 
+                        <div class="time-block"></div>
                     </div>
-                    <div class="time-block operator" @click="openDialog('AddDialog', 'month')">
-                        <span class="add-icon"></span>
-                        <span>待约</span>
-                    </div>  
-                    <div class="time-block"></div>
+                    <div class="description">
+                        <div class="available">
+                            <span class="block"></span>
+                            <span>可约</span>
+                        </div>
+                        <div class="forbid">
+                            <span class="block"></span>
+                            <span>不可约</span>
+                        </div>
+                    </div>
+                </div>  
+                <div class="arrangement-block">
+                    <div class="block-title">配置每天时间块：</div>
+                    <div class="date" style="justify-content: center">
+                        <span>每天</span>
+                    </div>
+                    <div class="time-list">
+                        <div class="time-block available" v-for="(time, index) in dayList" :key="index">
+                            <span>{{time.startTime}} - {{time.endTime}}</span>
+                            <span class="delete-icon" @click="openDialog('DeleteDialog', 'day', time)"></span>
+                        </div>
+                        <div class="time-block operator" @click="openDialog('AddDialog', 'day')">
+                            <span class="add-icon"></span>
+                            <span>可约</span>
+                        </div> 
+                        <div class="time-block"></div>
+                    </div>
+                </div>
+                <div class="arrangement-block">
+                    <div class="block-title">配置每周时间块：</div>
+                    <div class="date">
+                        <div class="pre-day-btn" @click="preWeekDay"></div>
+                        <div class="today">{{weekText[weekIndex]}}</div>
+                        <div class="next-day-btn" @click="nextWeekDay"></div>
+                    </div>
+                    <div class="time-list">
+                        <div class="time-block available" v-for="(time, index) in weekList" :key="index">
+                            <span>{{time.startTime}} - {{time.endTime}}</span>
+                            <span class="delete-icon" @click="openDialog('DeleteDialog', 'week', time)"></span>
+                        </div>
+                        <div class="time-block operator" @click="openDialog('AddDialog', 'week')">
+                            <span class="add-icon"></span>
+                            <span>可约</span>
+                        </div>  
+                        <div class="time-block"></div>
+                    </div>
+                </div>
+                <div class="arrangement-block">
+                    <div class="block-title">配置每月时间块：</div>
+                    <div class="date">
+                        <div class="pre-day-btn" @click="preMonthDay"></div>
+                        <div class="today">{{monthText[monthIndex]}}</div>
+                        <div class="next-day-btn" @click="nextMonthDay"></div>
+                    </div>
+                    <div class="time-list">
+                        <div class="time-block available" v-for="(time, index) in monthList" :key="index">
+                            <span>{{time.startTime}} - {{time.endTime}}</span>
+                            <span class="delete-icon" @click="openDialog('DeleteDialog', 'month', time)"></span>
+                        </div>
+                        <div class="time-block operator" @click="openDialog('AddDialog', 'month')">
+                            <span class="add-icon"></span>
+                            <span>可约</span>
+                        </div>  
+                        <div class="time-block"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -90,7 +123,7 @@
                 </div>
                 <div class="error-text" v-if="showErrorText">
                     <span class="error-icon"></span>
-                    <span>该时间块和已有时间块重复，请重新选择</span>
+                    <span>{{errorText}}</span>
                 </div>
             </div>
             <div class="operate-btns">
@@ -106,6 +139,22 @@
                 <div class="confirm-btn" @click="deleteTime">确定</div>
             </div>
         </Dialog>
+        <Dialog :visible="showForbidDialog" @close="closeDialog('ForbidDialog')" class="forbid-dialog">
+            <div class="dialog-title">禁用时间块</div>
+            <div class="remind-text">确认禁用该时间块？</div>
+            <div class="operate-btns">
+                <div class="cancel-btn" @click="closeDialog('ForbidDialog')">取消</div>
+                <div class="confirm-btn" @click="forbidTimeBlock">确定</div>
+            </div>
+        </Dialog>
+        <Dialog :visible="showAvailableDialog" @close="closeDialog('AvailableDialog')" class="available-dialog">
+            <div class="dialog-title">启用时间块</div>
+            <div class="remind-text">确认启用该时间块？</div>
+            <div class="operate-btns">
+                <div class="cancel-btn" @click="closeDialog('AvailableDialog')">取消</div>
+                <div class="confirm-btn" @click="availableTimeBlock">确定</div>
+            </div>
+        </Dialog>
     </div>
 </template>
 
@@ -119,6 +168,8 @@ export default {
     },
     data() {
         return {
+            schedule: [],
+            forbid: [],
             day: '',
             dayText: '',
             weekText: ['每周日','每周一', '每周二','每周三','每周四','每周五','每周六'],
@@ -130,7 +181,7 @@ export default {
             weekList: [],
             monthList: [],
             showAddDialog: false,
-            dialogType: 'date',
+            addType: 'date',
             dialogTitle: '添加当日时间块',
             addForm: {
                 startTime: '',
@@ -141,57 +192,33 @@ export default {
                 repeat: 'date'
             },
             showErrorText: false,
-            schedule: [
-                {
-                    id: 1,
-                    startTime: '14:00',
-                    endTime: '15:00',
-                    month: 22,
-                    repeat: 'month'
-                },
-                {
-                    id: 2,
-                    startTime: '17:00',
-                    endTime: '18:00',
-                    month: 24,
-                    repeat: 'month'
-                },
-                {
-                    id: 3,
-                    startTime: '11:00',
-                    endTime: '12:00',
-                    date: 1558177542136,
-                    repeat: 'date'
-                },
-                {
-                    id: 4,
-                    startTime: '13:00',
-                    endTime: '14:00',
-                    week: 2,
-                    repeat: 'week'
-                },
-                {
-                    id: 5,
-                    startTime: '12:00',
-                    endTime: '13:00',
-                    repeat: 'day'
-                }
-            ],
+            errorText: '该时间块和已有时间块重复，请重新选择',
             showDeleteDialog: false,
-            deleteItem: {},
-            deleteType: 'date'
+            selectedItem: {},
+            deleteType: 'date',
+            showForbidDialog: false,
+            showAvailableDialog: false,
         };
     },
     computed: {
+        equipment() {
+            return this.$route.query.data || {};
+        }
     },
-    mounted() {
+    async mounted() {
+        await this.$axios.get(getBaseUrl() + '&action=getSchedules&equipmentId=' + this.equipment.equipmentId).then(res => {
+            this.schedule = res.data.result.schedule;
+            this.forbid = res.data.result.forbid;
+        }).catch(err => {
+            console.log(err);
+        });
         // 设置时间
         this.day= new Date();
         this.weekIndex = this.day.getDay();
         this.monthIndex = this.day.getDate() - 1;
         this.setDayText();
         // schedule排序
-        this.schedule = this.schedule.sort((a, b) => {
+        this.schedule.sort((a, b) => {
             return this.isLater(b.startTime, a.startTime) ? -1 : 1;
         });
         // 设置各个时间块
@@ -203,28 +230,55 @@ export default {
                     }
                     break;
                 case 'day': 
+                    for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                        if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
+                            if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                                this.schedule[i].forbid = true;
+                                this.schedule[i].forbidId = this.forbid[j].forbidId;
+                                break;
+                            }
+                        }
+                    }
                     this.dateList.push(this.schedule[i]);
                     this.dayList.push(this.schedule[i]);
                     break;
                 case 'week':
-                    if(this.day.getDay() === this.schedule[i].week) {
+                    if(this.day.getDay() == this.schedule[i].week) {
+                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                                    this.schedule[i].forbid = true;
+                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
+                                    break;
+                                }
+                            }
+                        }
                         this.dateList.push(this.schedule[i]);
                     }
-                    if(this.weekList.length === 0) {
+                    if(this.weekList.length == 0) {
                         this.weekList.push(this.schedule[i]);
                         this.weekIndex = this.schedule[i].week
-                    } else if(this.schedule[i].week === this.weekIndex) {
+                    } else if(this.schedule[i].week == this.weekIndex) {
                         this.weekList.push(this.schedule[i]);
                     }
                     break;
                 case 'month':
-                    if(this.day.getDate() === this.schedule[i].month) {
+                    if(this.day.getDate() == this.schedule[i].month) {
+                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                                    this.schedule[i].forbid = true;
+                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
+                                    break;
+                                }
+                            }
+                        }
                         this.dateList.push(this.schedule[i]);
                     }
-                    if(this.monthList.length === 0) {
+                    if(this.monthList.length == 0) {
                         this.monthList.push(this.schedule[i]);
                         this.monthIndex = this.schedule[i].month - 1;
-                    } else if(this.schedule[i].month === this.monthIndex) {
+                    } else if(this.schedule[i].month == this.monthIndex) {
                         this.monthList.push(this.schedule[i]);
                     }
                 default:
@@ -233,46 +287,93 @@ export default {
     },
     methods: {
         openDialog(dialogName, type, time) {
-            if(dialogName === 'AddDialog') {
-                this.dialogType = type;
+            if(dialogName == 'AddDialog') {
+                this.addType = type;
                 this.showAddDialog = true;
-                if(type === 'date') {
+                if(type == 'date') {
                     this.dialogTitle = '添加当日时间块';
-                } else if(type === 'day') {
+                } else if(type == 'day') {
                     this.dialogTitle = '添加每天时间块';
-                } else if(type === 'week') {
+                } else if(type == 'week') {
                     this.dialogTitle = '添加每周时间块';
-                } else if(type === 'month') {
+                } else if(type == 'month') {
                     this.dialogTitle = '添加每月时间块';
                 }
-            } else {
+            } else if(dialogName == 'DeleteDialog') {
                 this.showDeleteDialog = true;
-                this.deleteItem = time;
+                this.selectedItem = time;
                 this.deleteType = type;
+            } else if(dialogName == 'ForbidDialog') {
+                this.showForbidDialog = true;
+                this.selectedItem = time; 
+            } else if(dialogName == 'AvailableDialog') {
+                this.showAvailableDialog = true;
+                this.selectedItem = time; 
             }
+
         },
         closeDialog(dialogName) {
-            if(dialogName === 'AddDialog') {
+            if(dialogName == 'AddDialog') {
                 this.showAddDialog = false;
-            } else {
+            } else if(dialogName == 'DeleteDialog') {
                 this.showDeleteDialog = false;
+            } else if(dialogName == 'ForbidDialog') {
+                this.showForbidDialog = false;
+            } else if(dialogName == 'AvailableDialog') {
+                this.showAvailableDialog = false;
             }
         }, 
         getDateList() {
             this.dateList = [];
             for(let i = 0, len = this.schedule.length; i < len; i++) {
-                if(this.schedule[i].repeat === 'date') {
-                    if((this.day.getTime() - this.schedule[i].date) <  24 * 60 * 60 * 1000 && (this.day.getTime() - this.schedule[i].date) >= 0) {
+                if(this.schedule[i].repeat == 'date') {
+                    if(this.isNameDay(this.day.getTime(), this.schedule[i].date)) {
                         this.dateList.push(this.schedule[i]);
                     }
-                } else if(this.schedule[i].repeat === 'day') {
+                } else if(this.schedule[i].repeat == 'day') {
+                    for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                        if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
+                            if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                                this.schedule[i].forbid = true;
+                                this.schedule[i].forbidId = this.forbid[j].forbidId;
+                                break;
+                            } else {
+                                this.schedule[i].forbid = false;
+                                break;
+                            }
+                        }
+                    }
                     this.dateList.push(this.schedule[i]);
-                } else if(this.schedule[i].repeat === 'week') {
-                    if(this.day.getDay() === this.schedule[i].week) {
+                } else if(this.schedule[i].repeat == 'week') {
+                    if(this.day.getDay() == this.schedule[i].week) {
+                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                                    this.schedule[i].forbid = true;
+                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
+                                    break;
+                                } else {
+                                    this.schedule[i].forbid = false;
+                                    break;
+                                }
+                            }
+                        }
                         this.dateList.push(this.schedule[i]);
                     }
-                } else if(this.schedule[i].repeat === 'month') {
-                    if(this.day.getDate() === this.schedule[i].month) {
+                } else if(this.schedule[i].repeat == 'month') {
+                    if(this.day.getDate() == this.schedule[i].month) {
+                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                                    this.schedule[i].forbid = true;
+                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
+                                    break;
+                                } else {
+                                    this.schedule[i].forbid = false;
+                                    break;
+                                }
+                            }
+                        }
                         this.dateList.push(this.schedule[i]);
                     }
                 }
@@ -291,7 +392,7 @@ export default {
         getDayList() {
             this.dayList = [];
             for(let i = 0, len = this.schedule.length; i < len; i++) {
-                if(this.schedule[i].repeat === 'day') {
+                if(this.schedule[i].repeat == 'day') {
                     this.dayList.push(this.schedule[i]);
                 }
             }
@@ -299,8 +400,8 @@ export default {
         getWeekList() {
             this.weekList = [];
             for(let i = 0, len = this.schedule.length; i < len; i++) {
-                if(this.schedule[i].repeat === 'week') {
-                    if(this.schedule[i].week === this.weekIndex) {
+                if(this.schedule[i].repeat == 'week') {
+                    if(this.schedule[i].week == this.weekIndex) {
                         this.weekList.push(this.schedule[i]);
                     }
                 }
@@ -327,8 +428,8 @@ export default {
         getMonthList() {
             this.monthList = [];
             for(let i = 0, len = this.schedule.length; i < len; i++) {
-                if(this.schedule[i].repeat === 'month') {
-                    if(this.schedule[i].month - 1 === this.monthIndex) {
+                if(this.schedule[i].repeat == 'month') {
+                    if(this.schedule[i].month - 1 == this.monthIndex) {
                         this.monthList.push(this.schedule[i]);
                     }
                 }
@@ -358,6 +459,9 @@ export default {
             time2 = date.setHours(time2.split(':')[0], time2.split(':')[1]);
             return time1 >= time2;
         },
+        isNameDay(date1, date2) {
+            return (date1 - date2) <  24 * 60 * 60 * 1000 && (date1 - date2) >= 0
+        },
         setDayText() {
             let year = this.day.getFullYear();
             let month = this.day.getMonth() + 1;
@@ -367,53 +471,44 @@ export default {
             this.dayText = year + '-' + month + '-' + day + '（' + this.getWeekDay(this.day.getDay()) + '）';
         },
         addSchedule() {
-            console.log(this.dialogType)
-            if(this.dialogType === 'date') {
-                this.schedule.push({
-                    startTime: this.addForm.startTime,
-                    endTime: this.addForm.endTime,
-                    date: this.day.getTime(),
-                    repeat: 'date'
+            let url = getBaseUrl() +  '&action=addSchedule&equipmentId=' + this.equipment.equipmentId + '&startTime=' + this.addForm.startTime + '&endTime=' + this.addForm.endTime + '&repeat=' + this.addType + '&date=' + this.day.getTime() +'&week=' + this.weekIndex +'&month=' + this.monthIndex;
+            this.$axios.get(url).then(res => {
+                return this.$axios.get(getBaseUrl() + '&action=getSchedules&equipmentId=' + this.equipment.equipmentId);
+            }).then(res => {
+                this.schedule = res.data.result.schedule;
+                // schedule排序
+                this.schedule.sort((a, b) => {
+                    return this.isLater(b.startTime, a.startTime) ? -1 : 1;
                 });
+                this.forbid = res.data.result.forbid;
                 this.getDateList();
-            } else if(this.dialogType === 'day') {
-                this.schedule.push({
-                    startTime: this.addForm.startTime,
-                    endTime: this.addForm.endTime,
-                    repeat: 'day'
-                });
-                console.log(this.schedule)
-                this.getDateList();
-                this.getDayList();
-            } else if(this.dialogType === 'week') {
-                this.schedule.push({
-                    startTime: this.addForm.startTime,
-                    endTime: this.addForm.endTime,
-                    week: this.weekIndex,
-                    repeat: 'week'
-                });
-                this.getDateList();
-                this.getWeekList();
-            } else if(this.dialogType === 'month') {
-                this.schedule.push({
-                    startTime: this.addForm.startTime,
-                    endTime: this.addForm.endTime,
-                    month: this.monthIndex + 1,
-                    repeat: 'month'
-                });
-                this.getDateList();
-                this.getMonthList();
-            }
+                if(this.addType == 'day') {
+                    this.getDayList();
+                } else if(this.addType == 'week') {
+                    this.getWeekList();
+                } else if(this.addType == 'month') {
+                    this.getMonthList();
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+            
         },
         addTimeBlock() {
             let canAdd = false;
             let date = new Date();
+            
+            if(!this.isLater(this.addForm.endTime, this.addForm.startTime)) {
+                this.showErrorText = true;
+                this.errorText = "开始时间不能晚于结束时间";
+                return;
+            }
             let timeList = [...this.dateList];
-            if(this.dialogType === 'day') {
+            if(this.addType == 'day') {
                 timeList = [...this.dayList];
-            } else if(this.dialogType === 'week') {
+            } else if(this.addType == 'week') {
                 timeList = [...this.weekList];
-            } else if(this.dialogType === 'month') {
+            } else if(this.addType == 'month') {
                 timeList = [...this.monthList];
             }
             for(let i = 0, len = timeList.length; i < len; i++) {
@@ -437,12 +532,13 @@ export default {
                     break;
                 }
             }
-            if(timeList.length === 0) {
+            if(timeList.length == 0) {
                 this.addSchedule();
                 canAdd = true;
             }
             if(!canAdd) {
                 this.showErrorText = true;
+                this.errorText = "该时间块和已有时间块重复，请重新选择";
             } else {
                 this.showAddDialog = false;
                 this.showErrorText = false;
@@ -476,41 +572,62 @@ export default {
             }
         },
         deleteTime() {
-            switch(this.deleteType) {
-                case 'date':
-                        break;
-                case 'day':
-                    for(let i = 0, len = this.schedule.length; i < len; i++) {
-                        if(this.schedule[i].id === this.deleteItem.id) {
-                            this.schedule.splice(i, 1);
-                            break;
-                        }
-                    }
-                    this.getDateList();
+            let url = getBaseUrl() +  '&action=deleteSchedule&scheduleId=' + this.selectedItem.scheduleId + '&equipmentId=' + this.equipment.equipmentId;
+            this.$axios.get(url).then(res => {
+                this.showDeleteDialog = false;
+                return this.$axios.get(getBaseUrl() + '&action=getSchedules&equipmentId=' + this.equipment.equipmentId);
+            }).then(res => {
+                this.schedule = res.data.result.schedule;
+                // schedule排序
+                this.schedule.sort((a, b) => {
+                    return this.isLater(b.startTime, a.startTime) ? -1 : 1;
+                });
+                this.forbid = res.data.result.forbid;
+                this.getDateList();
+                if(this.addType == 'day') {
                     this.getDayList();
-                    break;
-                case 'week':
-                     for(let i = 0, len = this.schedule.length; i < len; i++) {
-                        if(this.schedule[i].id === this.deleteItem.id) {
-                            this.schedule.splice(i, 1);
-                            break;
-                        }
-                    }
-                    this.getDateList();
+                } else if(this.addType == 'week') {
                     this.getWeekList();
-                case 'month':
-                     for(let i = 0, len = this.schedule.length; i < len; i++) {
-                        if(this.schedule[i].id === this.deleteItem.id) {
-                            this.schedule.splice(i, 1);
-                            break;
-                        }
-                    }
-                    this.getDateList();
+                } else if(this.addType == 'month') {
                     this.getMonthList();
-                default:
-
-            }
-            this.showDeleteDialog = false;
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+        },
+        forbidTimeBlock() {
+            let url = getBaseUrl() +  '&action=addForbid&scheduleId=' + this.selectedItem.scheduleId + '&date=' + this.day.getTime() + '&equipmentId=' + this.equipment.equipmentId;
+            this.$axios.get(url).then(res => {
+                this.showForbidDialog = false;
+                return this.$axios.get(getBaseUrl() + '&action=getSchedules&equipmentId=' + this.equipment.equipmentId);
+            }).then(res => {
+                this.forbid = res.data.result.forbid;
+                this.schedule = res.data.result.schedule;
+                // schedule排序
+                this.schedule.sort((a, b) => {
+                    return this.isLater(b.startTime, a.startTime) ? -1 : 1;
+                });
+                this.getDateList();
+            }).catch(err => {
+                console.log(err);
+            });
+        },
+        availableTimeBlock() {
+            let url = getBaseUrl() +  '&action=deleteForbid&forbidId=' + this.selectedItem.forbidId;
+            this.$axios.get(url).then(res => {
+                this.showAvailableDialog = false;
+                return this.$axios.get(getBaseUrl() + '&action=getSchedules&equipmentId=' + this.equipment.equipmentId);
+            }).then(res => {
+                this.forbid = res.data.result.forbid;
+                this.schedule = res.data.result.schedule;
+                // schedule排序
+                this.schedule.sort((a, b) => {
+                    return this.isLater(b.startTime, a.startTime) ? -1 : 1;
+                });
+                this.getDateList();
+            }).catch(err => {
+                console.log(err);
+            });
         }
     }
 }
@@ -518,29 +635,37 @@ export default {
 
 <style lang="scss">
 .arrangement {
-    .equipment-name {
-        background-color: #FFF;
-        text-align: center;
-        color: #409EFF;
-        height: 40px;
-        line-height: 40px;
-        font-size: 16px;
-        font-weight: bold;
-    }
-    .block-list{
-        height: calc(100% - 40px);
+    .overflow {
+        height: 100%;
         overflow-x: hidden;
         overflow-y: auto;
+    }
+    .equipment-info {
+        background-color: #FFF;
+        color: #909399;
+        padding: 20px;
+        div {
+            line-height: 20px;
+        }
+        .value {
+            color: #303133;
+        }
+    }
+    .block-list{
+        box-sizing: border-box;
+        padding-bottom: 20px;
+        padding-top: 15px;
     }
     .arrangement-block:not(:last-of-type) {
         margin-bottom: 30px;
     }
     .arrangement-block {
         .block-title {
-            color: #409EFF;
+            color: #303133;
             height: 30px;
             font-size: 15px;
-            line-height: 30px;  
+            line-height: 30px; 
+            padding-left: 20px; 
         }
         .date {
             background-color: rgba(64, 158, 255, .5);
@@ -582,7 +707,7 @@ export default {
             border: 1px solid #FFF;
             box-sizing: border-box;
             font-size: 14px;
-            .delete-icon {
+            .delete-icon, .forbid-icon, .available-icon {
                 position: absolute;
                 top: 2px;
                 right: 2px;;
@@ -593,10 +718,29 @@ export default {
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
             }
+            .forbid-icon {
+                width: 14px;
+                height: 14px;
+                background-image: url('../images/forbid.png');
+            }
+            .available-icon {
+                background-image: url('../images/available.png');
+            }
+            .repeat-text {
+                position: absolute;
+                bottom: 2px;
+                right: 2px;;
+                font-size: 14px;
+                height: 35px;
+            }
         }
         .available {
             color: #67C23A;
             background-color: rgba(103, 194, 58, .5);
+        }
+        .forbid {
+            color: #909399;
+            background-color: rgba(144, 147, 153, .5);
         }
         .operator {
             display: flex;
@@ -614,7 +758,33 @@ export default {
             }
         }
     }
-    .add-dialog, .delete-dialog {
+    .description {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-left: 30px;
+        margin-top: 10px;
+        .available, .forbid {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            color: #67C23A;
+            margin-right: 20px;
+            .block {
+                width: 17px;
+                height: 17px;
+                background-color: #67C23A;
+                margin-right: 5px
+            }
+        }
+        .forbid {
+            color: #909399;
+            .block {
+                background-color: #909399;
+            }
+        }
+    }
+    .add-dialog, .delete-dialog, .forbid-dialog, .available-dialog {
         .dialog-title {
             height: 50px;
             line-height: 50px;
@@ -633,7 +803,7 @@ export default {
         .error-text {
             color: #F56C6C;
             line-height: 15px;
-            font-size: 12px;
+            font-size: 14px;
             display: flex;
             align-items: center;
             margin-top: 5px;

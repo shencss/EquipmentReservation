@@ -10,8 +10,8 @@
                     <div :class="['equipment-icon', icon(item)]"></div>
                     <div class="equipment-info">
                         <div class="equipment-name">{{item.equipmentName}}</div>
-                        <div class="count">当前状态
-                            <span :style="statusStyle(item)">{{status(item)}}</span>
+                        <div class="equipment-type">设备类别
+                            <span>{{item.equipmentType}}</span>
                         </div>
                         <div class="operate-btns">
                             <div class="check-btn" @click="openDialog('DetailDialog', item)">使用情况</div>
@@ -37,24 +37,24 @@
                 <label>设备名称：</label>
                 <input type="text" v-model="addForm.equipmentName" placeholder="请输入设备名称"><br>
                 <label>设备类型：</label>
-                <select name="equipmentType" v-if="addForm.equipmentType != '5'" v-model="addForm.equipmentType" style="height: 26px;width: 100px">
+                <select name="equipmentType" v-if="addForm.equipmentType == '电脑' || addForm.equipmentType == '显示屏' || addForm.equipmentType == '键盘' || addForm.equipmentType == '鼠标'" v-model="addForm.equipmentType" style="height: 26px;width: 100px">
                     <option value="电脑">电脑</option>
-                    <option value="笔记本">笔记本</option>
+                    <option value="笔记本">显示屏</option>
                     <option value="键盘">键盘</option>
                     <option value="鼠标">鼠标</option>
                     <option value="其他">其他</option>
                 </select>
-                <input v-if="addForm.equipmentType == '5'" style="width: 100px"  type="text" placeholder="请输入设备型号" v-model="addForm.equipmentType"><br>
+                <input v-else style="width: 100px"  type="text" placeholder="请输入设备型号" v-model="addForm.equipmentType"><br>
                 <label>设备型号：</label>
                 <input type="text" placeholder="请输入设备型号" style="width: 100px" v-model="addForm.equipmentModel"><br>
-                <label>联系电话：</label>
-                <input type="text" placeholder="请输入联系电话"  v-model="addForm.phone"><br>
                 <label>设备地点：</label>
                 <input type="text" placeholder="请输入设备地点"  v-model="addForm.address"><br>
+                <label>联系电话：</label>
+                <input type="text" placeholder="请输入联系电话"  v-model="addForm.phone"><br>
                 <label>收费信息：</label>
                 <input type="text" placeholder="请输入收费信息"  v-model="addForm.cost"><br>
                 <label>使用注意：</label>
-                <textarea cols="25" rows="5" maxlength="1000" placeholder="请输入设备的使用注意事项" style="margin-left: 70px; position: relative; top: -12px" v-model="addForm.note"></textarea>
+                <textarea cols="25" rows="5" maxlength="1000" placeholder="请输入设备的使用注意事项"  v-model="addForm.note"></textarea>
             </div>
             <div class="operate-btns">
                 <div class="cancel-btn" @click="closeDialog('AddDialog')">取消</div>
@@ -68,14 +68,14 @@
                 <label>设备名称：</label>
                 <input type="text" v-model="modifyForm.equipmentName" placeholder="请输入设备名称"><br>
                 <label>设备类型：</label>
-                <select name="equipmentType" v-if="modifyForm.equipmentType != '5'" v-model="modifyForm.equipmentType" style="height: 26px;width: 100px">
+                <select name="equipmentType" v-if="addForm.equipmentType == '电脑' || addForm.equipmentType == '显示屏' || addForm.equipmentType == '键盘' || addForm.equipmentType == '鼠标'" v-model="modifyForm.equipmentType" style="height: 26px;width: 100px">
                     <option value="电脑">电脑</option>
-                    <option value="笔记本">笔记本</option>
+                    <option value="显示屏">显示屏</option>
                     <option value="键盘">键盘</option>
                     <option value="鼠标">鼠标</option>
                     <option value="其他">其他</option>
                 </select>
-                <input v-if="modifyForm.equipmentType == '5'" style="width: 100px"  type="text" placeholder="请输入设备型号" v-model="modifyForm.equipmentType"><br>
+                <input v-else style="width: 100px"  type="text" placeholder="请输入设备型号" v-model="modifyForm.equipmentType"><br>
                 <label>设备型号：</label>
                 <input type="text" placeholder="请输入设备型号" style="width: 100px" v-model="modifyForm.equipmentModel"><br>
                 <label>联系电话：</label>
@@ -85,10 +85,10 @@
                 <label>收费信息：</label>
                 <input type="text" placeholder="请输入收费信息"  v-model="modifyForm.cost"><br>
                 <label>使用注意：</label>
-                <textarea cols="25" rows="5" maxlength="1000" placeholder="请输入设备的使用注意事项" style="margin-left: 70px; position: relative; top: -12px" v-model="modifyForm.note"></textarea>
+                <textarea cols="25" rows="5" maxlength="1000" placeholder="请输入设备的使用注意事项"  v-model="modifyForm.note"></textarea>
             </div>
             <div class="operate-btns">
-                <div class="cancel-btn" @click="closeDialog('AddDialog')">取消</div>
+                <div class="cancel-btn" @click="closeDialog('ModifyDialog')">取消</div>
                 <div class="confirm-btn" @click="updateEquipment">确定</div>
             </div>
         </Dialog>
@@ -150,7 +150,8 @@ export default {
             equipmentList: [],
             addForm: {
                 equipmentName: '',
-                equipmentType: '',
+                type: '',
+                equipmentType: '电脑',
                 equipmentModel: '',
                 phone: '',
                 address: '',
@@ -159,6 +160,7 @@ export default {
             },
             modifyForm: {
                 equipmentName: '',
+                type: '',
                 equipmentType: '',
                 equipmentModel: '',
                 phone: '',
@@ -232,23 +234,21 @@ export default {
         icon() {
             return item => {
                 switch(item.equipmentType) {
-                    case '1':
+                    case '笔记本':
+                    case '电脑':
                         return 'computer';
                         break;
-                    case '2':
+                    case '显示屏':
                         return 'display';
                         break;
-                    case '3':
+                    case '键盘':
                         return 'keyboard';
                         break;
-                    case '4':
+                    case '鼠标':
                         return 'mouse';
                         break;
-                    case '5':
-                        return 'else';
-                        break;
                     default:
-                        return 'computer'
+                        return 'else'
                 }
             }
         },
@@ -359,7 +359,7 @@ export default {
             }
         },
         updateEquipment() {
-            this.$axios.get(getBaseUrl() + '&action=updateEquipment&equipmentId=' + this.modifyForm.equipmentId + '&equipmentName=' +  this.modifyForm.equipmentName + '&equipmentType=' + this.modifyForm.equipmentType + '&equipmentModel=' + this.addForm.equipmentModel + '&note=' + this.addForm.note).then(res => {
+            this.$axios.get(getBaseUrl() + '&action=updateEquipment&equipmentId=' + this.modifyForm.equipmentId + '&equipmentName=' +  this.modifyForm.equipmentName + '&equipmentType=' + this.modifyForm.equipmentType + '&equipmentModel=' + this.modifyForm.equipmentModel + '&note=' + this.modifyForm.note + '&address=' + this.modifyForm.address + '&phone=' + this.modifyForm.phone + '&cost=' + this.modifyForm.cost).then(res => {
                 this.showModifyDialog = false;
                 return this.$axios.get(getBaseUrl() + '&action=getAllEquipments');
             }).then(res => {
@@ -379,7 +379,7 @@ export default {
             });
         },
         addEquipment() {
-            this.$axios.get(getBaseUrl() + '&action=addEquipment&equipmentName=' +  this.addForm.equipmentName + '&equipmentType=' + this.addForm.equipmentType + '&equipmentModel=' + this.addForm.equipmentModel + '&note=' + this.addForm.note).then(res => {
+            this.$axios.get(getBaseUrl() + '&action=addEquipment&equipmentName=' +  this.addForm.equipmentName + '&equipmentType=' + this.addForm.equipmentType + '&equipmentModel=' + this.addForm.equipmentModel + '&note=' + this.addForm.note + '&address=' + this.addForm.address + '&phone=' + this.addForm.phone + '&cost=' + this.addForm.cost).then(res => {
                 this.showAddDialog = false;
                 return this.$axios.get(getBaseUrl() + '&action=getAllEquipments');
                 
@@ -475,12 +475,12 @@ export default {
                     font-size: 14px;
                     font-weight: bold;
                 }
-                .count {
+                .equipment-type {
                     font-size: 14px;
                     color: #BBB;
                     margin: 5px 0;
                     span {
-                        color: #F56C6C;
+                        color: #303133;
                         margin-left: 10px;
                     }
                 }
