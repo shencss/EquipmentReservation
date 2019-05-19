@@ -1,12 +1,12 @@
 <template>
 	<div class="app-nav">
-        <div :class="['nav-item', isActive('home') ? 'active-item' : '']" @click="checkNav('home')">
-            <span class="nav-icon nav-icon-home"></span>
-            <span class="nav-name">主页</span>
-        </div>
         <div :class="['nav-item', isActive('reservation') ? 'active-item' : '']" @click="checkNav('reservation')">
             <span class="nav-icon nav-icon-reservation"></span>
             <span class="nav-name">预约</span>
+        </div>
+        <div :class="['nav-item', isActive('mine') ? 'active-item' : '']" @click="checkNav('mine')">
+            <span class="nav-icon nav-icon-mine"></span>
+            <span class="nav-name">我的</span>
         </div>
         <!-- <div :class="['nav-item', isActive('mine') ? 'active-item' : '']" @click="checkNav('mine')">
             <span class="nav-icon nav-icon-mine"></span>
@@ -19,7 +19,7 @@
 export default {
     data() {
         return {
-            activeItem: 'home'
+            activeItem: 'reservation'
         };
     },
     mounted() {
@@ -30,7 +30,6 @@ export default {
             this.$router.replace({
                 name: itemName
             });
-            this.$store.commit('switchNav', itemName);
         }
     },
     computed: {
@@ -74,10 +73,7 @@ export default {
         .nav-name {
             margin-top: 3px;
             font-size: 10px;
-            color: #AAA;
-        }
-        .nav-icon-home {
-            background-image: url('../images/home.png');
+            color: #909399;
         }
         .nav-icon-reservation {
             background-image: url('../images/reservation.png');
@@ -89,9 +85,6 @@ export default {
     .active-item {
         .nav-name {
             color: #409EFF;
-        }
-        .nav-icon-home {
-            background-image: url('../images/home_active.png');
         }
         .nav-icon-reservation {
             background-image: url('../images/reservation_active.png');

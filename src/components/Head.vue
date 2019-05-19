@@ -1,5 +1,6 @@
 <template>
 	<div class="app-head">
+        <div class="back-btn" v-if="this.$route.name == 'reserve'" @click="goBack"></div>
         <div class="nav-name">{{navName}}</div>
     </div>
 </template>
@@ -11,12 +12,20 @@ export default {
 
         };
     },
-    mounted() {
-
-    },
     computed: {
         navName() {
-            return this.$store.state.navName || ''
+            if(this.$route.name == 'reservation') {
+                return '预约中心'
+            } else if(this.$route.name == 'mine') {
+                return '预约记录'
+            } else if(this.$route.name == 'reserve') {
+                return '预约设备'
+            }
+        }
+    },
+    methods: {
+        goBack() {
+            this.$router.go(-1);
         }
     }
 }
@@ -37,5 +46,15 @@ export default {
     text-align: center;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, .15);
     z-index: 99;
+    .back-btn {
+        position: absolute;
+        height: 25px;
+        width: 25px;
+        top: 7.5px;
+        left: 20px;
+        background-image: url('../images/back.png');
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
 }
 </style>

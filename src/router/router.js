@@ -1,6 +1,6 @@
 
 import App from '../components/App';
-import Home from '../components/Home'
+import Mine from '../components/Mine'
 import Reservation from '../components/Reservation'
 import Reserve from '../components/Reserve'
 
@@ -10,17 +10,17 @@ export default [{
     children: [ //二级路由。对应App.vue
         {
             path: '',
-            redirect: '/home'
-        },
-        {
-            name: 'home',
-            path: '/home',
-            component: Home
+            redirect: '/reservation'
         },
         {
             name: 'reservation',
             path: '/reservation',
             component: Reservation
+        },
+        {
+            name: 'mine',
+            path: '/mine',
+            component: Mine
         }, 
         {
             name: 'reserve',

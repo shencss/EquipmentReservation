@@ -1,17 +1,44 @@
 <template>
 	<div class="reserve">
-        <div class="equipment-name">联想笔记本电脑</div>
+        <div class="equipment-info">
+            <div class="equipment-name">
+                <span>设备名称：</span>
+                <span class="value">{{equipment.equipmentName}}</span>
+            </div>
+            <div class="equipment-type">
+                <span>设备类型：</span>
+                <span class="value">{{equipment.equipmentType}}</span>
+            </div>
+            <div class="equipment-model">
+                <span>设备型号：</span>
+                <span class="value">{{equipment.equipmentModel}}</span>
+            </div>
+            <div class="address">
+                <span>设备地点：</span>
+                <span class="value">{{equipment.address}}</span>
+            </div>
+            <div class="address">
+                <span>联系电话：</span>
+                <span class="value">{{equipment.phone}}</span>
+            </div>
+            <div class="address">
+                <span>收费信息：</span>
+                <span class="value">{{equipment.cost}}</span>
+            </div>
+            <div class="address">
+                <span>使用注意：</span>
+                <span class="value">{{equipment.note}}</span>
+            </div>
+        </div>
+        <div class="reserve-title">请选择预约时间：</div>
         <div class="date">
             <div class="pre-day-btn" @click="preDay"></div>
-            <div class="today">{{dayText + '（' + weekText + '）'}}</div>
+            <div class="today">{{dayText}}</div>
             <div class="next-day-btn" @click="nextDay"></div>
         </div>
         <div class="time-list">
-            <div :class="['time-block', time.status]" v-for="(time, index) in timeList" :key="index">{{time.startTime}} - {{time.endTime}}</div>
-            <div class="time-block operator" @click="openDialog('addDialog')">
-                <span class="add-icon"></span>
-                <span>待约</span>
-            </div>
+            <div :class="['time-block', time.status, time.selected ? 'selected' : '']" v-for="(time, index) in dateList" :key="index" @click="addReserve(time, index)">{{time.startTime}} - {{time.endTime}}</div>
+            <div class="time-block"></div>
         </div>
         <div class="description">
             <div class="reserved">
@@ -20,57 +47,20 @@
             </div>
             <div class="available">
                 <span class="block"></span>
-                <span>待约</span>
+                <span>可约</span>
             </div>
-            <div class="approve">
-                <span class="block"></span>
-                <span>待批</span>
-            </div>
-            <!-- <div class="passed">
+            <div class="passed">
                 <span class="block"></span>
                 <span>过去</span>
-            </div> -->
+            </div>
         </div>
-        <Dialog :visible="showAddDialog" @close="closeDialog('AddDialog')" class="add-dialog">
-            <div class="dialog-title">添加待约时间</div>
-            <div class="add-form">
-                <div class="form-item">
-                    <label>开始时间：</label>
-                    <input type="time" placeholder="请输入起始时间" style="width: 100px" v-model="addForm.startTime"><br>
-                </div>
-                <div class="form-item">
-                    <label>结束时间：</label>
-                    <input type="time" placeholder="请输入结束时间" style="width: 100px"  v-model="addForm.endTime"><br>
-                </div>
-                <div>将该时间安排同步至：</div>
-                <div class="repeat-list">
-                    <div class="repeat-choice">
-                        <label>仅当天</label>
-                        <input type="radio" v-model="addForm.repeat" name="repeat" value="once" />
-                    </div>
-                    <div class="repeat-choice">
-                        <label>每天</label>
-                        <input type="radio" v-model="addForm.repeat" name="repeat" value="day" />
-                    </div>
-                    <div class="repeat-choice">
-                        <label>每周一</label>
-                        <input type="radio" v-model="addForm.repeat" name="repeat" value="week" />
-                    </div>
-                    <div class="repeat-choice">
-                        <label>每月15号</label>
-                        <input type="radio" v-model="addForm.repeat" name="repeat" value="month" />
-                    </div>
-                </div>
-                <div class="error-text" v-if="showErrorText">
-                    <span class="error-icon"></span>
-                    <span>该时间段和已有时间段重复，请重新选择</span>
-                </div>
-            </div>
-            <div class="operate-btns">
-                <div class="cancel-btn" @click="closeDialog('AddDialog')">取消</div>
-                <div class="confirm-btn" @click="addTimeBlock">确定</div>
-            </div>
-        </Dialog>
+        <div class="reserve-title">更多需求：</div>
+        <textarea cols="25" rows="5" maxlength="1000" placeholder="请输入更多需求"  v-model="note" style="margin-left: 20px; width: calc(100% - 40px);
+        height: 100px;"></textarea>
+        <div class="operator-btns">
+            <div class="cancel-btn" @click="goBack">取消</div>
+            <div :class="['reserve-btn', reserveList.length > 0 ? '' : 'disabled']" @click="reserve">立即预约</div>
+        </div>
     </div>
 </template>
 
@@ -84,229 +74,48 @@ export default {
     },
     data() {
         return {
-            timeList: [
-                {
-                    startTime: '08:00',
-                    endTime: '09:00',
-                    repeat: 'once',
-                    status: 'available'
-                },
-                {
-                    startTime: '09:00',
-                    endTime: '10:00',
-                    repeat: 'once',
-                    status: 'available'
-                },
-                {
-                    startTime: '10:00',
-                    endTime: '11:00',
-                    repeat: 'once',
-                    status: 'reserved'
-                },
-                {
-                    startTime: '11:00',
-                    endTime: '12:00',
-                    repeat: 'once',
-                    status: 'available'
-                },
-                {
-                    startTime: '12:00',
-                    endTime: '13:00',
-                    repeat: 'once',
-                    status: 'available'
-                },
-                {
-                    startTime: '13:00',
-                    endTime: '14:00',
-                    repeat: 'once',
-                    status: 'approve'
-                },
-                {
-                    startTime: '15:00',
-                    endTime: '16:00',
-                    repeat: 'once',
-                    status: 'available'
-                },
-                {
-                    startTime: '16:00',
-                    endTime: '17:00',
-                    repeat: 'once',
-                    status: 'available'
-                }
-            ],
+            now : '',
             day: '',
             dayText: '',
-            weekText: '',
-            showAddDialog: false,
-            addForm: {
-                startTime: '',
-                endTime: '',
-                repeat: 'once'
-            },
-            showErrorText: false,
-            schedule: [
-                {
-                    startTime: '14:00',
-                    endTime: '15:00',
-                    date: 1558177542134,
-                    repeat: 'month'
-                },
-                {
-                    startTime: '11:00',
-                    endTime: '12:00',
-                    date: 1558177542136,
-                    repeat: 'once'
-                },
-                {
-                    startTime: '13:00',
-                    endTime: '14:00',
-                    date: 1558177542133,
-                    repeat: 'week'
-                },
-                {
-                    startTime: '12:00',
-                    endTime: '13:00',
-                    date: 1558177542138,
-                    repeat: 'day'
-                }
-            ],
-            approveList: [
-                {
-                    startTime: '11:00',
-                    endTime: '12:00',
-                    date: 1558177542136
-                }
-            ],
-            reserveList: [
-                {
-                    startTime: '14:00',
-                    endTime: '15:00',
-                    date: 1558177542136
-                }
-            ]
+            schedule: [],
+            forbid: [],
+            dateList: [],
+            reserveList: [],
+            note: ''
         };
     },
     computed: {
+        equipment() {
+            return JSON.parse(this.$route.query.data) || {}
+        }
     },
     mounted() {
         // 设置时间
-        this.day= new Date();
-        let year = this.day.getFullYear();
-        let month = this.day.getMonth() + 1;
-        month = month > 9 ? month : '0' + month;
-        let day = this.day.getDate();
-        day = day > 9 ? day : '0' + day;
-        this.dayText = year + '-' + month + '-' + day;
-        this.weekText = this.getWeekText(this.day.getDay());
+        this.now = new Date();
+        this.day = new Date();
+        if(this.$route.query.note) {
+            this.note = this.$route.query.note
+        }
+        this.setDayText();
         // schedule排序
+        this.schedule = this.equipment.schedules;
+        this.forbid = this.equipment.forbids;
         this.schedule = this.schedule.sort((a, b) => {
-            return this.isLater(b.startTime, a.startTime) ? 1 : -1;
+            return this.isLater(b.startTime, a.startTime) ? -1 : 1;
         });
         // 设置时间块
-        for(let i = 0, len = this.schedule.length; i < len; i++) {
-            switch(this.schedule[i].repeat) {
-                case 'once':
-                    if((this.day.getTime() - this.schedule[i].time) <  24 * 60 * 60 * 1000) {
-                        for(let k = 0, len3 = this.timeList.length; k < len3; k++) {
-                            if(this.isLater(this.schedule.endTime, this.timeList[k].startTime) && this.isLater(this.timeList[k].endTime, this.schedule[i].endTime)) {
-                                this.timeList.splice(i, 1, {
-                                    startTime: this.schedule[i].startTime,
-                                    endTime: this.timeList[k].endTime
-                                })
-                            }
-                        }
-                    }
-            }
-        }
+       this.getDateList();
     },
     methods: {
-        openDialog(dialogName) {
-            this.showAddDialog = true;
-        },
-        closeDialog(dialogName) {
-            if(dialogName === 'AddDialog') {
-                this.showAddDialog = false;
-            }
-        },
-        getTimeList() {
-            for(let i = 0, len = this.schedule.length; i < len; i++) {
-
-            }
-        },
-        isLater(time1, time2) {
-            let date= new Date();
-            time1 = date.setHours(time1.split(':')[0], time1.split(':')[1]);
-            time2 = date.setHours(time2.split(':')[0], time2.split(':')[1]);
-            return time1 > time2;
-        },
-        preDay() {
-            this.day = new Date(this.day.getTime() - 24 * 60 * 60 * 1000);
+        setDayText() {
             let year = this.day.getFullYear();
             let month = this.day.getMonth() + 1;
             month = month > 9 ? month : '0' + month;
             let day = this.day.getDate();
             day = day > 9 ? day : '0' + day;
-            this.dayText = year + '-' + month + '-' + day;
-            this.weekText = this.getWeekText(this.day.getDay());
+            this.dayText = year + '-' + month + '-' + day + '（' + this.getWeekDay(this.day.getDay()) + '）';
         },
-        nextDay() {
-            this.day = new Date(this.day.getTime() + 24 * 60 * 60 * 1000);
-            let year = this.day.getFullYear();
-            let month = this.day.getMonth() + 1;
-            month = month > 9 ? month : '0' + month;
-            let day = this.day.getDate();
-            day = day > 9 ? day : '0' + day;
-            this.dayText = year + '-' + month + '-' + day;
-            this.weekText = this.getWeekText(this.day.getDay());
-        },
-        addTimeBlock() {
-            let canAdd = false;
-            let date= new Date();
-            for(let i = 0, len = this.timeList.length; i < len; i++) {
-                if(i == 0) {
-                    if(this.isLater(this.timeList[0].startTime, this.addForm.endTime)) {
-                        this.timeList = [{
-                            startTime: this.addForm.startTime,
-                            endTime: this.addForm.endTime,
-                            repeat: this.addForm.repeat,
-                            status: 'available'
-                        }].concat(this.timeList);
-                        canAdd = true;
-                        break;
-                    }
-                } else if(i == len - 1) {
-                    if(this.isLater(this.addForm.startTime, this.timeList[i].endTime)) {
-                        this.timeList.push({
-                            startTime: this.addForm.startTime,
-                            endTime: this.addForm.endTime,
-                            repeat: this.addForm.repeat,
-                            status: 'available'
-                        });
-                        canAdd = true;
-                        break;
-                    }
-                } else {
-                    if(this.isLater(this.addForm.startTime, this.timeList[i - 0].endTime) && this.isLater(this.timeList[i].startTime, this.addForm.endTime)) {
-                        this.timeList.splice(i, 0, {
-                            startTime: this.addForm.startTime,
-                            endTime: this.addForm.endTime,
-                            repeat: this.addForm.repeat,
-                            status: 'available'
-                        });
-                        canAdd = true;
-                        break;
-                    }
-                }
-            }
-            if(!canAdd) {
-                this.showErrorText = true;
-            } else {
-                this.showAddDialog = false;
-                this.showErrorText = false;
-            }
-            
-        },
-        getWeekText(day) {
+        getWeekDay(day) {
             switch(day) {
                 case 1:
                     return '星期一';
@@ -332,6 +141,180 @@ export default {
                 default:
                     return '星期一';
             }
+        },
+        isLater(time1, time2) {
+            let date= new Date();
+            time1 = date.setHours(time1.split(':')[0], time1.split(':')[1]);
+            time2 = date.setHours(time2.split(':')[0], time2.split(':')[1]);
+            return time1 > time2;
+        },
+        isSameDay(date1, date2) {
+            return (date1 - date2) <  24 * 60 * 60 * 1000 && (date1 - date2) >= 0
+        },
+        isPassed(startTime) {
+            let day = new Date(this.day.getTime());
+            day.setHours(startTime.split(':')[0], startTime.split(':')[1], 0);
+            return this.now.getTime() > day.getTime();
+        },
+        getDateList() {
+            this.dateList = [];
+            for(let i = 0, len = this.schedule.length; i < len; i++) {
+                if(this.schedule[i].repeat == 'date') {
+                    if(this.isSameDay(this.day.getTime(), this.schedule[i].date)) {
+                        // 检查时间是否过去
+                        if(this.isPassed(this.schedule[i].startTime)) {
+                            this.schedule[i].status = 'passed';
+                        } else {
+                            this.schedule[i].status = 'available';
+                        }
+                        let date = {...this.schedule[i]}
+                        // 检查是否被选
+                        for(let k = 0, len3 = this.reserveList.length; k < len3; k++) {
+                            if(this.reserveList[k].date == this.day.getTime() && this.reserveList[k].startTime == this.schedule[i].startTime) {
+                                date.selected = true;
+                                break;
+                            }
+                        }
+                        this.dateList.push(date);
+                    }
+                } else if(this.schedule[i].repeat == 'day') {
+                    // 检查是否被禁止
+                    for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                        if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
+                            if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                this.schedule[i].forbid = true;
+                                break;
+                            } else {
+                                this.schedule[i].forbid = false ;
+                            }
+                        }
+                    }
+                    if(!this.schedule[i].forbid) {
+                        // 检查时间是否过去
+                        if(this.isPassed(this.schedule[i].startTime)) {
+                            this.schedule[i].status = 'passed';
+                        } else {
+                            this.schedule[i].status = 'available';
+                        }
+                        let date = {...this.schedule[i]}
+                        // 检查是否被选
+                        for(let k = 0, len3 = this.reserveList.length; k < len3; k++) {
+                            if(this.reserveList[k].date == this.day.getTime() && this.reserveList[k].startTime == this.schedule[i].startTime) {
+                                date.selected = true;
+                                break;
+                            }
+                        }
+                        this.dateList.push(date);
+                    }
+                } else if(this.schedule[i].repeat == 'week') {
+                    if(this.day.getDay() == this.schedule[i].week) {
+                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                    this.schedule[i].forbid = true;
+                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
+                                    break;
+                                } else {
+                                    this.schedule[i].forbid = false;
+                                }
+                            }
+                        }
+                        // 检查时间是否过去
+                        if(this.isPassed(this.schedule[i].startTime)) {
+                            this.schedule[i].status = 'passed';
+                        } else {
+                            this.schedule[i].status = 'available';
+                        }
+                        let date = {...this.schedule[i]}
+                        // 检查是否被选
+                        for(let k = 0, len3 = this.reserveList.length; k < len3; k++) {
+                            if(this.reserveList[k].date == this.day.getTime() && this.reserveList[k].startTime == this.schedule[i].startTime) {
+                                date.selected = true;
+                                break;
+                            }
+                        }
+                        this.dateList.push(date);
+                    }
+                } else if(this.schedule[i].repeat == 'month') {
+                    if(this.day.getDate() == this.schedule[i].month) {
+                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                    this.schedule[i].forbid = true;
+                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
+                                    break;
+                                } else {
+                                    this.schedule[i].forbid = false;
+                                }
+                            }
+                        }
+                        // 检查时间是否过去
+                        if(this.isPassed(this.schedule[i].startTime)) {
+                            this.schedule[i].status = 'passed';
+                        } else {
+                            this.schedule[i].status = 'available';
+                        }
+                        let date = {...this.schedule[i]}
+                        // 检查是否被选
+                        for(let k = 0, len3 = this.reserveList.length; k < len3; k++) {
+                            if(this.reserveList[k].date == this.day.getTime() && this.reserveList[k].startTime == this.schedule[i].startTime) {
+                                date.selected = true;
+                                break;
+                            }
+                        }
+                        this.dateList.push(date);
+                    }
+                }
+            }
+        },
+        preDay() {
+            this.now = new Date();
+            this.day = new Date(this.day.getTime() - 24 * 60 * 60 * 1000);
+            this.setDayText();
+            this.getDateList();
+        },
+        nextDay() {
+            this.now = new Date();
+            this.day = new Date(this.day.getTime() + 24 * 60 * 60 * 1000);
+            this.setDayText();
+            this.getDateList();
+        },
+        addReserve(time, index) {
+            if(time.status == 'available') {
+                if(time.selected){
+                    time.selected = false;
+                    this.dateList.splice(index, 1, time);
+                    for(let i = 0, len = this.reserveList.length; i < len; i++) {
+                        if(this.reserveList[i].date == this.day.getTime() && this.reserveList[i].startTime == time.startTime) {
+                            this.reserveList.splice(i, 1);
+                            break;
+                        }
+                    }
+                } else {
+                    time.selected = true;
+                    this.reserveList.push({
+                        date: this.day.getTime(),
+                        startTime: time.startTime,
+                        endTime: time.endTime
+                    });
+                }
+            }
+        },
+        reserve() {
+            if(this.reserveList.length > 0) {
+                let dates = encodeURI(JSON.stringify(this.reserveList));
+                let url = getBaseUrl() + '&action=reserve&equipmentId=' + this.equipment.equipmentId + '&userId=1' + '&note=' + this.note  + '&dates=' + dates;
+                this.$axios.get(url).then(res => {
+                    this.$router.push({
+                        path: '/mine'
+                    });
+                }).catch(err => {
+                    console.log(err);
+                });
+            }
+        },
+        goBack() {
+            this.$router.go(-1);
         }
     }
 }
@@ -339,14 +322,26 @@ export default {
 
 <style lang="scss">
 .reserve {
-    .equipment-name {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    .equipment-info {
         background-color: #FFF;
-        text-align: center;
-        color: #409EFF;
+        color: #909399;
+        padding: 20px;
+        div {
+            line-height: 25px;
+        }
+        .value {
+            color: #303133;
+        }
+    }
+    .reserve-title {
+        color: #303133;
         height: 40px;
-        line-height: 40px;
-        font-size: 16px;
-          font-weight: bold;
+        font-size: 15px;
+        line-height: 40px; 
+        padding-left: 20px; 
     }
     .date {
         background-color: rgba(64, 158, 255, .5);
@@ -374,6 +369,7 @@ export default {
         flex-wrap: wrap;
         background-color: #FFF;
         .time-block {
+            position: relative;
             display: inline-block;
             width: 33.33%;
             height: 55px;
@@ -392,28 +388,20 @@ export default {
             color: #67C23A;
             background-color: rgba(103, 194, 58, .5);
         }
-        .approve {
-            color: #E6A23C;
-            background-color: rgba(230, 162, 60, .5);
-        }
         .passed {
             color: #909399;
             background-color: rgba(144, 147, 153, .5);
         }
-        .operator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #67C23A;
-            background-color: rgba(103, 194, 58, .5);
-            .add-icon {
-                width: 15px;
-                height: 15px;
-                background-size: 100%;
-                background-repeat: no-repeat;
-                background-image: url('../images/more.png');
-                margin-right: 5px;
-            }
+        .selected::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            border: 3px solid #F56C6C;
         }
     }
     .description {
@@ -421,7 +409,8 @@ export default {
         justify-content: flex-start;
         align-items: center;
         margin-left: 30px;
-        margin-top: 10px;
+        margin-top: 20px;
+        margin-bottom: 10px;
         .reserved, .available, .approve, .passed {
             display: flex;
             justify-content: flex-start;
@@ -460,76 +449,26 @@ export default {
             }
         }
     }
-    .add-dialog {
-        .dialog-title {
-            height: 50px;
-            line-height: 50px;
-            font-size: 15px;
-            text-align: center;
-            border-bottom: 1px solid #409EFF;
+    .operator-btns {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 60px;
+        margin-top: 20px;
+        .cancel-btn, .reserve-btn {
+            height: 35px;
             background-color: #409EFF;
             color: #FFF;
-        }
-        .remind-text {
             font-size: 14px;
-            height: 70px;
-            line-height: 70px;
-            padding-left: 30px;
+            line-height: 35px;
+            text-align: center;
+            margin: 0 10px;
+            width: 80px;
+            border-radius: 5px;
+            cursor: pointer;
         }
-        .error-text {
-            color: #F56C6C;
-            line-height: 15px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            margin-top: 5px;
-            .error-icon {
-                margin-right: 2px;
-                display: inline-block;
-                width: 12px;
-                height: 12px;
-                background-size: 100% 100%;
-                background-image: url('../images/error.png');
-                background-repeat: no-repeat;
-            }
-        }
-        .operate-btns {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            .cancel-btn, .confirm-btn {
-                padding: 0 20px;
-                height: 30px;
-                line-height: 30px;
-                text-align: center;
-                font-size: 14px;
-                background-color: #409EFF;
-                color: #FFF;
-                border-radius: 3px;
-                margin: 0 10px 20px 10px;
-            }
-        }
-        .add-form {
-            font-size: 16px;
-            padding: 20px;
-            .form-item {
-                display: flex;
-                align-items: center;
-                margin-bottom: 15px;
-            }
-            .repeat-list {
-                color: #409EFF;
-                display: flex;
-                align-items: flex-start;
-                flex-direction: column;
-                margin-top: 5px;
-                .repeat-choice {
-                    font-size: 15px;
-                    margin-right: 20px;
-                    display: flex;
-                    align-items: center;
-                }
-            }
+        .disabled {
+            background-color: #909399;
         }
     }
 }

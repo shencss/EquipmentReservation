@@ -1,300 +1,124 @@
 <template>
 	<div class="reservation">
-        <div class="type-header">
-            <div @click="checkType('all')">所有预约</div>
-            <div @click="checkType('doing')">预约中</div>
-            <div @click="checkType('done')">已预约</div>
+        <div class="search-box">
+            <input id="search-input" v-model="searchForm.equipmentName" type="text" placeholder="搜索设备">
+            <span class="search-icon" @click="searchEquipment"></span>
         </div>
-        <div class="type-underline" :class="underlineClass"></div>
         <div class="equipment-list">
-            <div class="item-wrap" v-for="(item, index) in reservationList" :key=index>
-                <div class="equipment-item" v-if="showItem(item.status)"  @click="openDialog('DetailDialog', item)">
-                    <div :class="['equipment-icon', icon(item.equipment)]"></div>
-                    <div class="equipment-info">
-                        <div class="equipment-name">{{item.equipment.equipmentName}}</div>
-                        <div :class="['status', statusClass(item.status)]">预约状态：
-                            <span>{{statusText(item.status)}}</span>
-                            <span class="time">{{timeText(item.reserveTime)}}</span>
-                        </div>
-                        <div class="reserve-time"></div>
+            <div class="equipment-item" v-for="(item, index) in equipmentList" :key=index>
+                <div :class="['equipment-icon', icon(item)]"></div>
+                <div class="equipment-info">
+                    <div class="equipment-name">{{item.equipmentName}}</div>
+                    <div class="available-time" style="margin-top: 5px;">
+                        <span>可预约时间</span> 
                     </div>
-                    
-                    
+                    <div class="time-list" v-if="item.schedules.length > 0">
+                        <span v-for="(schedule, index2) in item.schedules.slice(0, 2)" :key="index2">
+                            {{timeText(schedule)}}: {{schedule.startTime}} - {{schedule.endTime}}
+                            <span v-if="index2 == 0 && item.schedules.length > 1">,</span>
+                        </span>
+                        <div v-if="item.schedules.length > 2" style="font-size: 10px">......</div>
+                    </div> 
                 </div>
+                <div class="reservation-btn" @click="goReserve(item)">预约</div>
             </div>
         </div>
-
-        <Dialog :visible="showCancelDialog" @close="closeDialog" class="cancel-dialog">
-            <div class="dialog-title">取消预约</div>
-            <div class="remind-text">
-                确定取消预约该设备吗？
-            </div>
-            <div class="operate-btns">
-                <div class="cancel-btn" @click="closeDialog('CancelDialog')">取消</div>
-                <div class="confirm-btn" @click="cancelReserve">确定</div>
-            </div>
-        </Dialog>
-
-        <Dialog :visible="showEndDialog" @close="closeDialog('EndDialog')" class="end-dialog">
-            <div class="dialog-title">结束预约</div>
-            <div class="remind-text">
-                确定结束使用该设备吗？
-            </div>
-            <div class="operate-btns">
-                <div class="cancel-btn" @click="closeDialog('EndDialog')">取消</div>
-                <div class="confirm-btn" @click="endUse">确定</div>
-            </div>
-        </Dialog>
-
-        <Dialog :visible="showDetailDialog" @close="closeDialog('DetailDialog')" class="detail-dialog">
-            <div class="dialog-title">预约详情</div>
-            <div class="equipment-info">
-                <div class="equipment-name">
-                    <span>设备名称</span>
-                    <span class="value">{{selectedItem.equipment.equipmentName}}</span>
-                </div>
-                <div class="equipment-type">
-                    <span>设备类型</span>
-                    <span class="value">{{equipmentType(selectedItem)}}</span>
-                </div>
-                <div class="equipment-address">
-                    <span>设备型号</span>
-                    <span class="value">{{selectedItem.equipment.equipmentModel}}</span>
-                </div>
-                <div class="available-time" style="margin-bottom: 10px">
-                    <span>可预约时间</span>
-                </div>
-                <div class="time-list">
-                    <span v-for="(period, index) in selectedItem.equipment.periods" :key="index">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
-                </div>
-                <div class="equipment-note">
-                    <span>注意事项</span>
-                    <span class="value">{{selectedItem.equipment.note}}</span>
-                </div>
-                <div class="available-time" style="margin-bottom: 10px">
-                    <span>预约时间</span>
-                </div>
-                <div class="time-list">
-                    <span v-for="(period, index) in selectedItem.periods" :key="index">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
-                </div>
-                <div class="available-time" style="margin-bottom: 10px" v-if="selectedItem.status == '3' || selectedItem.status == '4'">
-                    <span>已批准时间</span>
-                </div>
-                <div class="time-list" v-if="selectedItem.status == '3' || selectedItem.status == '4'">
-                    <span v-for="(period, index) in selectedItem.approvePeriods" :key="index">{{timeText(period.startTime)}} - {{timeText(period.endTime)}}</span>
-                </div>
-                 <div class="reserve-note" style="margin-top: 10px">
-                    <span>备注信息</span>
-                    <span class="value">{{selectedItem.note}}</span>
-                </div>
-            </div>
-            <div class="operate-btns" style="margin-top: 10px">
-                <div class="redo-btn">重新预约</div>
-                <div v-if="selectedItem.status == 3" class="end-btn" @click="openDialog('EndDialog')">结束使用</div>
-                <div v-if="selectedItem.status == 1" class="cancel-btn" @click="openDialog('CancelDialog')">取消预约</div>
-                <div class="confirm-btn" @click="closeDialog('DetailDialog')">确定</div>
-            </div>
-        </Dialog>
     </div>
 </template>
 
 <script>
-import Dialog from './Dialog.vue';
+import Dialog from './Dialog';
 import { getBaseUrl } from '../common/env';
 
+
 export default {
-    data() {
-        return {
-            type: 'all',
-            showCancelDialog: false,
-            showEndDialog: false,
-            showDetailDialog: false,
-            underlineClass: 'left',
-            reservationList: [],
-            selectedItem: {
-                equipment: {}
-            },
-        };
-    },
     components: {
         Dialog
     },
+    data() {
+        return {
+            equipmentList: [],
+            selectedItem: {},
+            searchForm: {
+                equipmentName: ''
+            },
+            weekText: ['每周日','每周一', '每周二','每周三','每周四','每周五','每周六'],
+            monthText: ['每月1号', '每月2号', '每月3号', '每月4号', '每月5号', '每月6号', '每月7号', '每月8号', '每月9号', '每月10号', '每月11号', '每月12号', '每月13号', '每月14号', '每月15号', '每月16号', '每月17号', '每月18号', '每月19号', '每月20号', '每月21号', '每月22号', '每月23号', '每月24号', '每月25号', '每月26号', '每月27号', '每月28号', '每月29号', '每月30号', '每月31号', ],
+        };
+    },
+    computed: {
+        icon() {
+            return item => {
+                if(item) {
+                    switch(item.equipmentType) {
+                        case '电脑':
+                        case '笔记本':
+                            return 'computer';
+                            break;
+                        case '显示屏':
+                            return 'display';
+                            break;
+                        case '键盘':
+                            return 'keyboard';
+                            break;
+                        case '鼠标':
+                            return 'mouse';
+                            break;
+                        default:
+                            return 'else'
+                    }
+                }
+            }
+        }
+    },
     mounted() {
-        this.$axios.get(getBaseUrl() + '&action=getUserReserveRecords&userId=1').then(res => {
-            this.reservationList = res.data.result;
-            this.selectedItem = this.reservationList[0];
+        this.$axios.get(getBaseUrl() + '&action=getAvailableEquipments').then(res => {
+            this.equipmentList = res.data.result;
         }).catch(err => {
             console.log(err);
         });
     },
     methods: {
-        timeText(millisecond) {
-            let date = new Date(millisecond);
-            let year = date.getFullYear();
-            let month = (date.getMonth() + 1) > 9 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1);
-            let day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
-            let hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
-            let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
-            return year + '-' + month + '-' + day + '  ' + hour + ':' + min;
-        },
-        checkType(type) {
-            if(type == 'all') {
-                this.type = 'all';
-               this.underlineClass = 'left';
-            } else if(type == 'doing') {
-                this.type = 'doing';
-                this.underlineClass = 'center';
-            } else {
-                this.type = 'done';
-                this.underlineClass = 'right';
+        timeText(schedule) {
+            switch(schedule.repeat) {
+                case 'date':
+                    return this.setDayText(schedule.date);
+                    break;
+                case 'day':
+                    return '每天';
+                    break;
+                case 'week':
+                    return this.weekText[schedule.week];
+                    break;
+                case 'month':
+                    return this.monthText[schedule.month - 1];
+                    break;
+                default:
             }
         },
-        closeDialog(dialogName) {
-            if(dialogName == 'CancelDialog') {
-                this.showCancelDialog = false;
-            } else if(dialogName == 'EndDialog') {
-                this.showDetailDialog = false;
-                this.showEndDialog = false;
-            } else if(dialogName == 'DetailDialog') {
-                this.showDetailDialog = false;
-            }
+        setDayText(time) {
+            time = new Date(time);
+            let year = time.getFullYear();
+            let month = time.getMonth() + 1;
+            month = month > 9 ? month : '0' + month;
+            let day = time.getDate();
+            day = day > 9 ? day : '0' + day;
+            return year + '-' + month + '-' + day;
         },
-        openDialog(dialogName, item) {
-            if(dialogName == 'CancelDialog') {
-                this.showDetailDialog = false;
-                this.showCancelDialog = true;
-            } else if(dialogName == 'EndDialog') {
-                this.showDetailDialog = false;
-                this.showEndDialog = true;
-            } else if(dialogName == 'DetailDialog') {
-                this.selectedItem = item;
-                this.showDetailDialog = true;
-            }
-        },
-        cancelReserve() {
-            this.$axios.get(getBaseUrl() + '&action=cancelReserve&recordId=' + this.selectedItem.recordId).then(res => {
-                return this.$axios.get(getBaseUrl() + '&action=getUserReserveRecords&userId=1');
-            }).then(res => {
-                this.reservationList = res.data.result;
+        searchEquipment() {
+            this.$axios.get(getBaseUrl() + '&action=getAvailableEquipments&pageNum=1&pageSize=20&equipmentName=' + this.searchForm.equipmentName).then(res => {
+                this.equipmentList = res.data.result;
             }).catch(err => {
                 console.log(err);
             });
-            this.showCancelDialog = false;
         },
-        endUse() {
-            this.$axios.get(getBaseUrl() + '&action=endReserve&recordId=' + this.selectedItem.recordId).then(res => {
-                return this.$axios.get(getBaseUrl() + '&action=getUserReserveRecords&userId=1');
-            }).then(res => {
-                this.reservationList = res.data.result;
-            }).catch(err => {
-                console.log(err);
+        goReserve(item) {
+            this.$router.push({
+                path: '/reserve',
+                query: {
+                    data: JSON.stringify(item)
+                }
             });
-            this.showEndDialog = false;
-        }
-    },
-    computed:{
-        icon() {
-            return item => {
-                if(item) {
-                    switch(item.equipmentType) {
-                        case '1':
-                            return 'computer';
-                            break;
-                        case '2':
-                            return 'display';
-                            break;
-                        case '3':
-                            return 'keyboard';
-                            break;
-                        case '4':
-                            return 'mouse';
-                            break;
-                        case '5':
-                            return 'else';
-                            break;
-                        default:
-                            return 'computer'
-                    }
-                }
-            }
-        },
-        statusText() {
-            return status => {
-                switch(status) {
-                    case '1':
-                        return '等待审批中';
-                        break;
-                    case '2':
-                        return '未批准';
-                        break;
-                    case '3':
-                        return '使用中';
-                        break;
-                    case '4':
-                        return '已结束';
-                        break;
-                    case '5':
-                        return '已取消';
-                        break;
-                    default:
-                        return '等待审批中'
-                }
-            }
-        },
-        statusClass() {
-            return status => {
-                switch(status) {
-                    case '1':
-                        return 'await';
-                        break;
-                    case '2':
-                        return 'refuse';
-                        break;
-                    case '3':
-                        return 'using';
-                        break;
-                    case '4':
-                        return 'end';
-                        break;
-                    default:
-                        return 'await'
-                }
-            }
-        },
-        showItem() {
-            return status => {
-                if (this.type === 'all') {
-                    return true;
-                } else if (this.type == 'doing' && status == 1) {
-                    return true;
-                } else if(this.type == 'done' && (status == 3 || status == 4)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        },
-        equipmentType() {
-            return item => {
-                if(item) {
-                    switch(item.equipmentType) {
-                        case 1:
-                            return '电脑';
-                            break;
-                        case 2:
-                            return '显示屏';
-                            break;
-                        case 3:
-                            return '键盘';
-                            break;
-                        case 4:
-                            return '鼠标';
-                            break;
-                        default:
-                            return '电脑'
-                    }
-                }
-            }
         }
     }
 }
@@ -302,62 +126,52 @@ export default {
 
 <style lang="scss">
 .reservation {
-    position: relative;
-    .type-header {
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #FFF;
-        color: #409EFF;
-        font-size: 12px;
-        div {
-            position: relative;
-            flex: 1;
-            text-align: center;
-            height: 35px;
-            line-height: 35px;
-        }
-        .active::after {
-            content: '';
-            display: inline-block;
-            width: 30px;
-            height: 2px;
-            background-color: #409EFF;
+    width: 100%;
+    box-sizing: border-box;
+    max-height: 100vh;
+    overflow: hidden;
+    .search-box {
+        position: relative;
+        box-sizing: border-box;
+        height: 50px;
+        padding: 10px 15px;
+        background-color: rgb(245, 245, 245);
+        .search-icon {
             position: absolute;
-            bottom: 6px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 15px;
+            right: 25px;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-image: url('../images/search.png');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
         }
-        border-bottom: 1px solid #EEE;
-    }
-    .type-underline {
-        height: 2px;
-        width: 30px;
-        background-color: #409EFF;
-        position: absolute;
-        top: 30px;
-        left: 16.66%;
-        transform: translateX(-50%);
-        transition: all .5s linear;
-    }
-    .center {
-        left: 50%;
-    }
-    .right {
-        left: 83.33%;
+        #search-input {
+            box-sizing: border-box;
+            height: 30px;
+            width: 100%;
+            outline: none;
+            border: none;
+            padding-left: 15px;
+            padding-right: 34px;
+            border-radius: 10px;
+        }
     }
     .equipment-list {
+        max-height: calc(100vh - 135px);
+        padding: 0 10px;
+        overflow-y: auto;
+        background-color: #FFF;
         .equipment-item {
-            position: relative;
-            height: 65px;
+            min-height: 80px;
             width: 100%;
             display: flex;
             justify-content: flex-start;
             align-items: center;
             border-bottom: 1px solid #EEE;
             box-sizing: border-box;
-            padding: 0 10px;
+            padding: 10px;
             .equipment-icon {
                 height: 50px;
                 width: 50px;
@@ -383,98 +197,46 @@ export default {
                 .equipment-name {
                     font-size: 14px;
                     font-weight: bold;
+                    color: #303133;
                 }
-                .status {
+                .count {
                     font-size: 12px;
                     color: #909399;
                     margin: 5px 0;
                     span {
-                        margin-left: 10px;
-                        font-weight: bold;
-                    }
-                    .time {
-                        float: right;
-                        color: #909399;
-                        font-weight: normal;
-                    }
-                }
-                .refuse {
-                    span {
                         color: #F56C6C;
-                    }
-                }
-                .await {
-                    span {
-                        color: #E6A23C;
-                    }
-                }
-                .using {
-                    span {
-                        color: #67C23A;
-                    }
-                }
-                .end {
-                    span {
-                        color: #666;
+                        margin-left: 10px;
                     }
                 }
                 .available-time {
+                    display: flex;
+                    justify-content: flex-start;
                     font-size: 12px;
                     color: #909399; 
+                }
+                .time-list {
+                    margin-top: 5px;
+                    flex-shrink: 1;
+                    color: #409EFF;
+                    font-size: 12px;
                     span {
-                        color: #409EFF;
-                        margin-left: 10px;
+                       
+                        margin-top: 5px;
                     }
                 }
             }
-           
-            .check-btn {
-                background-color: #409EFF;
-                margin-right: 5px;
-            }
-            .reserve-time {
-                position: absolute;
-                bottom: 3px;
-                right: 3px;
-                font-size: 12px;
-                color: #909399;
-            }
-        }
-    }
-    .cancel-dialog, .end-dialog {
-        .dialog-title {
-            height: 50px;
-            line-height: 50px;
-            font-size: 15px;
-            text-align: center;
-            border-bottom: 1px solid #409EFF;
-            background-color: #409EFF;
-            color: #FFF;
-        }
-        .remind-text {
-            font-size: 12px;
-            height: 70px;
-            line-height: 70px;
-            padding-left: 30px;
-        }
-        .operate-btns {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            .cancel-btn, .confirm-btn {
-                padding: 0 20px;
-                height: 30px;
-                line-height: 30px;
-                text-align: center;
-                font-size: 12px;
+            .reservation-btn {
                 background-color: #409EFF;
                 color: #FFF;
+                padding: 5px;
+                font-size: 12px;
                 border-radius: 3px;
-                margin: 0 10px 20px 10px;
+                cursor: pointer;
+                flex-shrink: 0;
             }
         }
     }
-    .detail-dialog {
+    .reservation-dialog {
         .dialog-title {
             height: 50px;
             line-height: 50px;
@@ -489,8 +251,44 @@ export default {
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            padding: 10px 20px 0 20px;
-            .equipment-name, .equipment-type, .equipment-address, .available-time, .equipment-note, .reserve-note {
+            padding: 0 20px;
+            .equipment-head {
+                 display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 5px 0;
+            }
+            .equipment-icon {
+                height: 50px;
+                width: 50px;
+                background-image: url('../images/computer.png');
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+                margin-right: 5px;
+            }
+            .display {
+                background-image: url('../images/display.png');
+            }
+            .keyboard {
+                background-image: url('../images/keyboard.png');
+            }
+            .mouse {
+                background-image: url('../images/mouse.png');
+            }
+            .else {
+                background-image: url('../images/else.png');
+            }
+            .equipment-name {
+                font-weight: bold;
+                font-size: 15px;
+            }
+            .line {
+                width: 100%;
+                height: 2px;
+                background-color: #409EFF;
+                margin-bottom: 10px;
+            }
+            .equipment-type, .equipment-address, .available-time, .equipment-note, .reserve-note {
                 width: 100%;
                 display: flex;
                 justify-content: space-between;
@@ -501,16 +299,19 @@ export default {
                     flex-basis: 70px;
                 }
                 .value {
-                    color:#303133;;
+                    color: #303133;
                     flex-grow: 1;
                 }
+            }
+            .reserve-note {
+                justify-content: flex-start;
             }
             .time-list {
                 flex-grow: 1;
                 font-size: 12px;
                 margin-bottom: 10px;
                 span {
-                    color: #303133;;
+                    color: #303133;
                     margin-bottom: 5px;
                     display: block;
                 }
@@ -582,7 +383,7 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
-            .cancel-btn, .confirm-btn, .end-btn, .check-btn, .redo-btn {
+            .cancel-btn, .confirm-btn {
                 padding: 0 20px;
                 height: 30px;
                 line-height: 30px;
@@ -591,15 +392,8 @@ export default {
                 background-color: #409EFF;
                 color: #FFF;
                 border-radius: 3px;
-                margin: 0 10px 20px 10px;
+                margin: 20px 10px;
             }
-            .end-btn, .cancel-btn {
-                background-color: #F56C6C;
-            }
-            .redo-btn {
-                background-color: #67C23A;
-            }
-             
         }
     }
 
