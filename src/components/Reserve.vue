@@ -54,6 +54,9 @@
                 <span>过去</span>
             </div>
         </div>
+        <div class="reserve-title">
+            <span>联系电话：</span><input type="text" maxlength="11" v-model="phone">
+        </div>
         <div class="reserve-title">更多需求：</div>
         <textarea cols="25" rows="5" maxlength="1000" placeholder="请输入更多需求"  v-model="note" style="margin-left: 20px; width: calc(100% - 40px);
         height: 100px;"></textarea>
@@ -81,7 +84,9 @@ export default {
             forbid: [],
             dateList: [],
             reserveList: [],
-            note: ''
+            note: '',
+            phone: '',
+            reserves: []
         };
     },
     computed: {
@@ -93,18 +98,16 @@ export default {
         // 设置时间
         this.now = new Date();
         this.day = new Date();
-        if(this.$route.query.note) {
-            this.note = this.$route.query.note
-        }
         this.setDayText();
         // schedule排序
         this.schedule = this.equipment.schedules;
         this.forbid = this.equipment.forbids;
+        this.reserves = this.equipment.reserves;
         this.schedule = this.schedule.sort((a, b) => {
             return this.isLater(b.startTime, a.startTime) ? -1 : 1;
         });
         // 设置时间块
-       this.getDateList();
+        this.getDateList();
     },
     methods: {
         setDayText() {
@@ -149,13 +152,16 @@ export default {
             return time1 > time2;
         },
         isSameDay(date1, date2) {
-            return (date1 - date2) <  24 * 60 * 60 * 1000 && (date1 - date2) >= 0
+            date1 = new Date(date1);
+            date2 = new Date(date2);
+            return date1.getFullYear() == date2.getFullYear() && date1.getMonth() == date2.getMonth() && date1.getDate() == date2.getDate();
         },
         isPassed(startTime) {
             let day = new Date(this.day.getTime());
             day.setHours(startTime.split(':')[0], startTime.split(':')[1], 0);
             return this.now.getTime() > day.getTime();
         },
+        /*
         getDateList() {
             this.dateList = [];
             for(let i = 0, len = this.schedule.length; i < len; i++) {
@@ -267,6 +273,136 @@ export default {
                 }
             }
         },
+        */
+        getDateList() {
+            this.dateList = [];
+            //获取dateList
+            for(let i = 0, len = this.schedule.length; i < len; i++) {
+                let date = {...this.schedule[i]};
+                if(date.repeat == 'date') {
+                    if(this.isSameDay(this.day.getTime(), date.date)) {
+                        // 检查是否被禁止
+                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                            if(date.scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                    date.forbid = true;
+                                    break;
+                                } else {
+                                    date.forbid = false ;
+                                }
+                            }
+                        }
+                        if(date.forbid) continue;
+                        // 检查时间块是否需要合并
+                        if(this.dateList.length > 0) {
+                            let lastDate = this.dateList[this.dateList.length - 1];
+                            if(this.isLater(lastDate.endTime, date.startTime)) {
+                                lastDate.endTime = date.endTime;
+                                this.dateList.splice(this.dateList.length - 1, 1, lastDate);
+                                continue;
+                            }
+                        }
+                        this.dateList.push(date);
+                    }
+                } else if(date.repeat == 'day') {
+                    // 检查是否被禁止
+                    for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                        if(date.scheduleId == this.forbid[j].scheduleId) {
+                            if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                date.forbid = true;
+                                break;
+                            } else {
+                                date.forbid = false ;
+                            }
+                        }
+                    }
+                    if(date.forbid) continue;
+                    // 检查时间块是否需要合并
+                    if(this.dateList.length > 0) {
+                        let lastDate = this.dateList[this.dateList.length - 1];
+                        if(this.isLater(lastDate.endTime, date.startTime)) {
+                            lastDate.endTime = date.endTime;
+                            this.dateList.splice(this.dateList.length - 1, 1, lastDate);
+                            continue;
+                        }
+                    }
+                    this.dateList.push(date);
+                } else if(date.repeat == 'week') {
+                    if(this.day.getDay() == date.week) {
+                        // 检查是否被禁止
+                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                            if(date.scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                    date.forbid = true;
+                                    break;
+                                } else {
+                                    date.forbid = false ;
+                                }
+                            }
+                        }
+                        if(date.forbid) continue;
+                        if(this.dateList.length > 0) {
+                            let lastDate = this.dateList[this.dateList.length - 1];
+                            if(this.isLater(lastDate.endTime, date.startTime)) {
+                                lastDate.endTime = date.endTime;
+                                this.dateList.splice(this.dateList.length - 1, 1, lastDate);
+                                continue;
+                            }
+                        }
+                        this.dateList.push(date);
+                    }
+                } else if(date.repeat == 'month') {
+                    if(this.day.getDate() == date.month) {
+                        // 检查是否被禁止
+                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                            if(date.scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                    date.forbid = true;
+                                    break;
+                                } else {
+                                    date.forbid = false ;
+                                }
+                            }
+                        }
+                        if(date.forbid) continue;
+                        if(this.dateList.length > 0) {
+                            let lastDate = this.dateList[this.dateList.length - 1];
+                            if(this.isLater(lastDate.endTime, date.startTime)) {
+                                lastDate.endTime = date.endTime;
+                                this.dateList.splice(this.dateList.length - 1, 1, lastDate);
+                                continue;
+                            }
+                        }
+                        this.dateList.push(date);
+                    }
+                }
+            }
+            // 设置dateList状态
+            for(let i = 0, len = this.dateList.length; i < len; i++) {
+                this.dateList[i].reserveIndex= [];
+                //  是否过时
+                if(this.isPassed(this.dateList[i].startTime)) {
+                    this.dateList[i].status = 'passed';
+                } else {
+                    this.dateList[i].status = 'available';
+                }
+                // 是否被预约
+                for(let j = 0, len2 = this.reserves.length; j < len2; j++) {
+                    if(this.reserves[j].startTime == this.dateList[i].startTime && this.reserves[j].endTime == this.dateList[i].endTime && this.isSameDay(this.day.getTime(), this.reserves[j].date) && this.reserves[j].status == 3) {
+                        if(this.dateList[i].status == 'available') {
+                            this.dateList[i].status = 'reserved';
+                        }
+                    }
+                }
+                // 检查是否被选
+                for(let k = 0, len3 = this.reserveList.length; k < len3; k++) {
+                    if(this.reserveList[k].date == this.day.getTime() && this.reserveList[k].startTime == this.dateList[i].startTime) {
+                        this.dateList[i].selected = true;
+                        break;
+                    }
+                }
+            }
+        },
         preDay() {
             this.now = new Date();
             this.day = new Date(this.day.getTime() - 24 * 60 * 60 * 1000);
@@ -303,7 +439,7 @@ export default {
         reserve() {
             if(this.reserveList.length > 0) {
                 let dates = encodeURI(JSON.stringify(this.reserveList));
-                let url = getBaseUrl() + '&action=reserve&equipmentId=' + this.equipment.equipmentId + '&userId=1' + '&note=' + this.note  + '&dates=' + dates;
+                let url = getBaseUrl() + '&action=reserve&equipmentId=' + this.equipment.equipmentId + '&userId=1' + '&note=' + this.note  + '&dates=' + dates + '&phone=' + this.phone;
                 this.$axios.get(url).then(res => {
                     this.$router.push({
                         path: '/mine'

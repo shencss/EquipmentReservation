@@ -113,11 +113,15 @@ export default {
             });
         },
         goReserve(item) {
-            this.$router.push({
-                path: '/reserve',
-                query: {
-                    data: JSON.stringify(item)
-                }
+            this.$axios.get(getBaseUrl() + '&action=getScheduleDetail&equipmentId=' + item.equipmentId).then(res => {
+                this.$router.push({
+                    path: '/reserve',
+                    query: {
+                        data: JSON.stringify(res.data.result)
+                    }
+                });
+            }).catch(err => {
+                console.log(err);
             });
         }
     }
