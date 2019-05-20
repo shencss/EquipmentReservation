@@ -1,9 +1,11 @@
 <template>
 	<div class="app-nav">
+        <!-- 
         <div :class="['nav-item', isActive('approval') ? 'active-item' : '']" @click="checkNav('approval')">
             <span class="nav-icon nav-icon-approval"></span>
             <span class="nav-name">审批</span>
         </div>
+        -->
         <div :class="['nav-item', isActive('schedule') ? 'active-item' : '']" @click="checkNav('schedule')">
             <span class="nav-icon nav-icon-schedule"></span>
             <span class="nav-name">排约</span>

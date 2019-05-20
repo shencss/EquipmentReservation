@@ -10,17 +10,26 @@
                 <div class="equipment-item">
                     <div :class="['equipment-icon', icon(item)]"></div>
                     <div class="equipment-info">
-                        <div class="equipment-name">{{item.equipmentName}}</div>
-                        <div class="available-time" style="margin: 5px 0">
+                        <div class="equipment-name">
+                            <span>{{item.equipmentName}}</span>
+                        </div>
+                        <div class="remind">有3名用户正在预约该设备，请进行审批</div>
+                        <div class="available-time">
                             <span>可预约时间</span> 
                         </div>
                         <div class="time-list" v-if="item.schedules.length > 0">
-                            <span v-for="(schedule, index2) in item.schedules.slice(0, 2)" :key="index2">{{timeText(schedule)}}: {{schedule.startTime}} - {{schedule.endTime}}</span>
-                            <span v-if="item.schedules.length > 2" style="font-size: 10px">......</span>
+                            <span v-for="(schedule, index2) in item.schedules.slice(0, 2)" :key="index2">
+                                <span>{{timeText(schedule)}}: {{schedule.startTime}} - {{schedule.endTime}}</span>
+                                <span v-if="index2 == 0 && item.schedules.length > 1">,</span>
+                            </span>
+                            <div v-if="item.schedules.length > 2" style="font-size: 10px">......</div>
                         </div>   
-                        <div v-else style="text-align: center; font-size: 14px">尚未安排可预约时间,请点击安排</div>
+                        <div v-else style="text-align: center; font-size: 14px; margin-top: 5px;">尚未安排可预约时间,请点击安排</div>
                     </div>
-                    <div class="arrange-btn" @click="goArrangement(item)">安排时间</div>
+                    <div class="operator-btns">
+                        <div class="arrange-btn" @click="goArrangement(item)">安排时间</div>
+                        <div class="approve-btn" @click="goApprove(item)">审批预约</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -117,6 +126,9 @@ export default {
                     data: item
                 }
             });
+        },
+        goApprove(item) {
+
         }
     }
 }
@@ -214,6 +226,11 @@ export default {
                     font-weight: bold;
                     color: #303133;
                 }
+                .remind {
+                    font-size: 12px;
+                    color: #F56C6C;
+                    margin: 2px 0 3px 0;
+                }
                 .available-time {
                     display: flex;
                     justify-content: flex-start;
@@ -221,18 +238,17 @@ export default {
                     color: #909399; 
                 }
                 .time-list {
-                    margin-top: 5px;
                     flex-shrink: 1;
                     color: #409EFF;
                     font-size: 12px;
+                    margin-top: 5px;
                     span {
-                        display: block;
                         margin-top: 5px;
                     }
                 }
             }
-            .reservation-btn, .arrange-btn {
-                background-color: #409EFF;
+            .approve-btn, .arrange-btn {
+                background-color: #67C23A;
                 color: #FFF;
                 padding: 5px;
                 font-size: 14px;
@@ -240,8 +256,9 @@ export default {
                 cursor: pointer;
                 flex-shrink: 0;
             }
-            .arrange-btn {
-                background-color: #67C23A;
+            .approve-btn {
+                background-color: #F56C6C;
+                margin-top: 5px;
             }
         }
     }
