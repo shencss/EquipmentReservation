@@ -1,5 +1,5 @@
 <template>
-	<div class="approve">
+	<div class="usage">
         <div class="overflow">
             <div class="equipment-info">
                 <div class="equipment-name">
@@ -31,7 +31,7 @@
                     <span class="value">{{equipment.note}}</span>
                 </div>
             </div>
-            <div class="reserve-title">审批使用预约：</div>
+            <div class="reserve-title">设备使用情况：</div>
             <div class="date">
                 <div class="pre-day-btn" @click="preDay"></div>
                 <div class="today">{{dayText}}</div>
@@ -50,9 +50,9 @@
                     <span class="block"></span>
                     <span>可约</span>
                 </div>
-                <div class="approve">
+                <div class="record">
                     <span class="block"></span>
-                    <span>待批</span>
+                    <span>过去已约</span>
                 </div>
                 <div class="passed">
                     <span class="block"></span>
@@ -60,63 +60,37 @@
                 </div>
             </div>
         </div>
-        <Dialog :visible="showApproveDialog" @close="closeDialog('ApproveDialog')" class="approve-dialog">
-            <div class="dialog-title">预约列表</div>
-            <div class="reserve-list">
-                <div class="reserve" v-for="index in selectedItem.reserveIndex" :key="index">
-                    <div class="reserve-info">
-                        <div class="user-name">
-                            <span>预约者：</span>
-                            <span class="value">{{reserves[index].userName}}</span>
-                        </div>
-                        <div class="phone">
-                            <span>联系电话：</span>
-                            <span class="value">{{reserves[index].phone}}</span>
-                        </div>
-                        <div class="note">
-                            <span>更多需求：</span>
-                            <span class="value">{{reserves[index].note}}</span>
-                        </div>
-                        <div class="time">
-                            <span>预约时间：</span>
-                            <span class="value">{{timeText(reserves[index].reserveTime)}}</span>
-                        </div>
-                    </div>
-                    <div class="operator-btns">
-                        <div class="approve-btn" @click="passReserve(index)">同意</div>
-                        <div class="reject-btn" @click="rejectReserve(index)">拒绝</div>
-                    </div>
-                </div>
-            </div>
-            <div class="operate-btns">
-                <div class="cancel-btn" @click="closeDialog('ApproveDialog')">关闭</div>
-            </div>
-        </Dialog>
+
         <Dialog :visible="showReservedDialog" @close="closeDialog('ReservedDialog')" class="reserved-dialog">
             <div class="dialog-title">预约详情</div>
             <div class="reserve-list">
-                <div class="reserve" v-for="index in selectedItem.reserveIndex" :key="index">
+                <div class="reserve">
                     <div class="reserve-info">
                         <div class="user-name">
                             <span>预约者：</span>
-                            <span class="value">{{reserves[index].userName}}</span>
+                            <span class="value">{{selectedItem.userName}}</span>
                         </div>
                         <div class="phone">
                             <span>联系电话：</span>
-                            <span class="value">{{reserves[index].phone}}</span>
+                            <span class="value">{{selectedItem.phone}}</span>
                         </div>
                         <div class="note">
                             <span>更多需求：</span>
-                            <span class="value">{{reserves[index].note}}</span>
+                            <span class="value">{{selectedItem.note}}</span>
                         </div>
                         <div class="time">
                             <span>预约时间：</span>
-                            <span class="value">{{timeText(reserves[index].reserveTime)}}</span>
+                            <span class="value">{{timeText(selectedItem.reserveTime)}}</span>
+                        </div>
+                        <div class="perform">
+                            <span>实施状态：</span>
+                            <span class="value">{{selectedItem.perform ? '已实施' : '未实施'}}</span>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="operate-btns">
+                <div class="perform-btn" v-if="!selectedItem.perform"  @click="perform">确认实施</div>
                 <div class="cancel-btn" @click="closeDialog('ReservedDialog')">关闭</div>
             </div>
         </Dialog>
@@ -141,7 +115,6 @@ export default {
             dateList: [],
             reserves: [],
             selectedItem: {},
-            showApproveDialog:  false,
             showReservedDialog: false
         };
     },
@@ -153,6 +126,7 @@ export default {
     mounted() {
         // 设置时间
         this.now = new Date();
+        this.day = new Date();
         this.schedule = this.equipment.schedules;
         this.forbid = this.equipment.forbids;
         this.reserves = this.equipment.reserves;
@@ -160,24 +134,11 @@ export default {
         this.schedule.sort((a, b) => {
             return this.isLater(b.startTime, a.startTime) ? -1 : 1;
         });
-        // reserves排序
-        this.reserves.sort((a, b) => {
-            return a.date - b.date;
-        });
-        if(this.reserves.length > 0) {
-            for(let i = 0, len = this.reserves.length; i < len; i++) {
-                if(this.reserves[i].status == 1) {
-                    this.day = new Date(this.reserves[i].date);
-                    break;
-                }
-            }
-        } else {
-            this.day = new Date();
-        }
         this.setDayText();
         
         // 设置时间块
         this.getDateList();
+        console.log(this.dateList)
     },
     methods: {
         setDayText() {
@@ -224,6 +185,7 @@ export default {
                     return '星期一';
             }
         },
+        // time1比time2晚吗嘛？
         isLater(time1, time2) {
             let date= new Date();
             time1 = date.setHours(time1.split(':')[0], time1.split(':')[1]);
@@ -354,13 +316,11 @@ export default {
                 }
                 for(let j = 0, len2 = this.reserves.length; j < len2; j++) {
                     // 是否被预约
-                    if(this.reserves[j].startTime == this.dateList[i].startTime && this.reserves[j].endTime == this.dateList[i].endTime && this.isSameDay(this.day.getTime(), this.reserves[j].date)) {
-                        if(this.dateList[i].status == 'available') {
-                            if(this.reserves[j].status == 1) {
-                                this.dateList[i].status = 'approve';
-                            } else if(this.reserves[j].status == 3) {
-                                this.dateList[i].status = 'reserved';
-                            }
+                    if(this.reserves[j].startTime == this.dateList[i].startTime && this.reserves[j].endTime == this.dateList[i].endTime && this.isSameDay(this.day.getTime(), this.reserves[j].date) && this.reserves[j].status == 3) {
+                        if(this.dateList[i].status == 'passed') {
+                            this.dateList[i].status = 'record';
+                        } else {
+                            this.dateList[i].status = 'reserved';
                         }
                         this.dateList[i].reserveIndex.push(j);
                     }
@@ -380,12 +340,13 @@ export default {
             this.getDateList();
         },
         openDialog(time) {
-            if(time.status == 'approve') {
-                this.showApproveDialog = true;
-            } else if(time.status == 'reserved') {
+             if(time.status == 'reserved') {
                 this.showReservedDialog = true;
+                this.selectedItem = this.reserves[time.reserveIndex[0]];
+            } else if(time.status == 'record') {
+                this.showReservedDialog = true;
+                this.selectedItem = this.reserves[time.reserveIndex[0]];
             }
-            this.selectedItem = time;
         },
         closeDialog(dialogName) {
             if(dialogName == 'ApproveDialog') {
@@ -396,16 +357,17 @@ export default {
         },
         passReserve(index) {
             let recordId = this.reserves[index].recordId;
-            let rejectIds = [];
+            let recordIds = [];
             for(let i = 0, len = this.selectedItem.reserveIndex.length; i < len; i++) {
-                if(this.selectedItem.reserveIndex[i] != index) {
-                    rejectIds.push(this.reserves[this.selectedItem.reserveIndex[i]].recordId);
+                if(i != index) {
+                    recordIds.push(this.reserves[i].recordId);
                 }
             }
-            rejectIds = encodeURI(JSON.stringify(rejectIds));
-            this.$axios.get(getBaseUrl() + '&action=passReserve&recordId=' + recordId + '&userId=2' + '&rejectIds=' + rejectIds).then(res => {
+            recordIds = encodeURI(JSON.stringify(recordIds));
+            this.$axios.get(getBaseUrl() + '&action=passReserve&recordId=' + recordId + '&userId=2').then(res => {
                 this.showApproveDialog = false;
-                this.selectedItem = {};
+                return this.$axios.get(getBaseUrl() + '&action=rejectReserve&recordIds=' + recordIds + '&userId=2');
+            }).then(res => {
                 return this.$axios.get(getBaseUrl() + '&action=getScheduleDetail&equipmentId=' + this.equipment.equipmentId);
             }).then(res => {
                 this.schedule = res.data.result.schedules;
@@ -437,10 +399,11 @@ export default {
             });
         },
         rejectReserve(index) {
-            let recordId = this.reserves[index].recordId
-            this.$axios.get(getBaseUrl() + '&action=rejectReserve&recordId=' + recordId + '&userId=2').then(res => {
+            let recordIds = [];
+            recordIds.push(this.reserves[index].recordId);
+            recordIds = encodeURI(JSON.stringify(recordIds));
+            this.$axios.get(getBaseUrl() + '&action=rejectReserve&recordIds=' + recordIds + '&userId=2').then(res => {
                 this.showApproveDialog = false;
-                this.selectedItem = {};
                 return this.$axios.get(getBaseUrl() + '&action=getScheduleDetail&equipmentId=' + this.equipment.equipmentId);
             }).then(res => {
                 this.schedule = res.data.result.schedules;
@@ -465,6 +428,7 @@ export default {
                     this.day = new Date();
                 }
                 this.setDayText();
+                
                 // 设置时间块
                 this.getDateList();
             }).catch(err => {
@@ -476,7 +440,7 @@ export default {
 </script>
 
 <style lang="scss">
-.approve {
+.usage {
     .overflow {
         height: 100%;
         overflow-x: hidden;
@@ -545,7 +509,7 @@ export default {
             color: #67C23A;
             background-color: rgba(103, 194, 58, .5);
         }
-        .approve {
+        .record {
             color: #E6A23C;
             background-color: rgba(230, 162, 60, .5);
         }
@@ -572,7 +536,7 @@ export default {
         margin-left: 30px;
         margin-top: 20px;
         margin-bottom: 10px;
-        .reserved, .available, .approve, .passed {
+        .reserved, .available, .approve, .passed, .record {
             display: flex;
             justify-content: flex-start;
             align-items: center;
@@ -597,7 +561,7 @@ export default {
                 background-color: #67C23A;
             }
         }
-        .approve {
+        .record {
             color: #E6A23C;
             .block {
                 background-color: #E6A23C;
@@ -692,7 +656,7 @@ export default {
             justify-content: center;
             align-items: center;
             margin: 0;
-            .cancel-btn, .confirm-btn {
+            .cancel-btn, .perform-btn {
                 padding: 0 20px;
                 height: 30px;
                 line-height: 30px;
@@ -702,6 +666,9 @@ export default {
                 color: #FFF;
                 border-radius: 3px;
                 margin: 0 10px 20px 10px;
+            }
+            .perform-btn {
+                background-color: #67C23A;
             }
         }
     }

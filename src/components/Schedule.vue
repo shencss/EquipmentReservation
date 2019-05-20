@@ -18,7 +18,7 @@
                         <div class="equipment-name">
                             <span>{{item.equipmentName}}</span>
                         </div>
-                        <div class="remind" v-if="item.reserves.length > 0">该设备有{{item.reserves.length}}条使用预约，请进行审批</div>
+                        <div class="remind" v-if="item.reserveCount > 0">该设备有{{item.reserveCount}}条使用预约，请进行审批</div>
                         <div class="available-time">
                             <span>可预约时间</span> 
                         </div>
@@ -33,7 +33,7 @@
                     </div>
                     <div class="operator-btns">
                         <div class="arrange-btn" @click="goArrangement(item)">安排时间</div>
-                        <div class="approve-btn" v-if="item.reserves.length > 0" @click="goApprove(item)">审批预约</div>
+                        <div class="approve-btn" v-if="item.reserveCount > 0" @click="goApprove(item)">审批预约</div>
                     </div>
                 </div>
             </div>
@@ -88,7 +88,7 @@ export default {
             return item => {
                 if (this.type === 'all') {
                     return true;
-                } else if (this.type == 'approve' && item.reserves.length > 0) {
+                } else if (this.type == 'approve' && item.reserveCount > 0) {
                     return true;
                 } else if(this.type == 'schedule' && item.schedules.length == 0) {
                     return true;
@@ -161,13 +161,18 @@ export default {
             });
         },
         goApprove(item) {
-            this.$router.push({
+            this.$axios.get(getBaseUrl() + '&action=getScheduleDetail&equipmentId=' + item.equipmentId).then(res => {
+                this.$router.push({
                     path: '/approve',
                     query: {
-                        data: JSON.stringify(item)
+                        data: JSON.stringify(res.data.result)
                     }
                 });
-            }
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+            
     }
 }
 </script>

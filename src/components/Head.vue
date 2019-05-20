@@ -1,6 +1,6 @@
 <template>
 	<div class="app-head">
-        <div class="back-btn" v-if="this.$route.name == 'approve' ||  this.$route.name == 'arrangement'" @click="goBack"></div>
+        <div class="back-btn" v-if="this.$route.name == 'usage' || this.$route.name == 'approve' ||  this.$route.name == 'arrangement'" @click="goBack"></div>
         <div class="nav-name">{{navName}}</div>
     </div>
 </template>
@@ -25,6 +25,8 @@ export default {
                 return '信息统计';
             } else if(this.$route.name == 'management') {
                 return '设备管理'
+            } else if(this.$route.name == 'usage') {
+                return '使用情况'
             }
         },
     },

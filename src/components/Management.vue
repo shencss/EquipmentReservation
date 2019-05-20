@@ -14,7 +14,7 @@
                             <span>{{item.equipmentType}}</span>
                         </div>
                         <div class="operate-btns">
-                            <div class="check-btn" @click="openDialog('DetailDialog', item)">使用情况</div>
+                            <div class="check-btn" @click="goUsage(item)">使用情况</div>
                             <div class="modify-btn" @click="openDialog('ModifyDialog', item)">修改信息</div>
                             <div class="delete-btn" @click="openDialog('DeleteDialog', item)">删除设备</div>
                         </div>
@@ -393,6 +393,18 @@ export default {
         searchEquipment() {
             this.$axios.get(getBaseUrl() + '&action=getAllEquipments&equipmentName=' + this.searchForm.equipmentName).then(res => {
                 this.equipmentList = res.data.result;
+            }).catch(err => {
+                console.log(err);
+            });
+        },
+        goUsage(item) {
+            this.$axios.get(getBaseUrl() + '&action=getScheduleDetail&equipmentId=' + item.equipmentId).then(res => {
+                this.$router.push({
+                    path: '/usage',
+                    query: {
+                        data: JSON.stringify(res.data.result)
+                    }
+                });
             }).catch(err => {
                 console.log(err);
             });

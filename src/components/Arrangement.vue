@@ -217,13 +217,9 @@ export default {
             return JSON.parse(this.$route.query.data) || {};
         }
     },
-    async mounted() {
-        await this.$axios.get(getBaseUrl() + '&action=getSchedules&equipmentId=' + this.equipment.equipmentId).then(res => {
-            this.schedule = res.data.result.schedule;
-            this.forbid = res.data.result.forbid;
-        }).catch(err => {
-            console.log(err);
-        });
+    mounted() {
+        this.schedule = this.equipment.schedules;
+        this.forbid = this.equipment.forbids;
         // 设置时间
         this.day= new Date();
         this.weekIndex = this.day.getDay();
@@ -244,7 +240,7 @@ export default {
                 case 'day': 
                     for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                         if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                            if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                            if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
                                 this.schedule[i].forbid = true;
                                 this.schedule[i].forbidId = this.forbid[j].forbidId;
                                 break;
@@ -258,7 +254,7 @@ export default {
                     if(this.day.getDay() == this.schedule[i].week) {
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                             if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
                                     this.schedule[i].forbid = true;
                                     this.schedule[i].forbidId = this.forbid[j].forbidId;
                                     break;
@@ -278,7 +274,7 @@ export default {
                     if(this.day.getDate() == this.schedule[i].month) {
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                             if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
                                     this.schedule[i].forbid = true;
                                     this.schedule[i].forbidId = this.forbid[j].forbidId;
                                     break;
@@ -339,13 +335,13 @@ export default {
             this.dateList = [];
             for(let i = 0, len = this.schedule.length; i < len; i++) {
                 if(this.schedule[i].repeat == 'date') {
-                    if(this.isNameDay(this.day.getTime(), this.schedule[i].date)) {
+                    if(this.isSameDay(this.day.getTime(), this.schedule[i].date)) {
                         this.dateList.push(this.schedule[i]);
                     }
                 } else if(this.schedule[i].repeat == 'day') {
                     for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                         if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                            if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                            if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
                                 this.schedule[i].forbid = true;
                                 this.schedule[i].forbidId = this.forbid[j].forbidId;
                                 break;
@@ -360,7 +356,7 @@ export default {
                     if(this.day.getDay() == this.schedule[i].week) {
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                             if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
                                     this.schedule[i].forbid = true;
                                     this.schedule[i].forbidId = this.forbid[j].forbidId;
                                     break;
@@ -376,7 +372,7 @@ export default {
                     if(this.day.getDate() == this.schedule[i].month) {
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                             if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isNameDay(this.day.getTime(), this.forbid[j].date)) {
+                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
                                     this.schedule[i].forbid = true;
                                     this.schedule[i].forbidId = this.forbid[j].forbidId;
                                     break;
@@ -471,8 +467,10 @@ export default {
             time2 = date.setHours(time2.split(':')[0], time2.split(':')[1]);
             return time1 >= time2;
         },
-        isNameDay(date1, date2) {
-            return (date1 - date2) <  24 * 60 * 60 * 1000 && (date1 - date2) >= 0
+        isSameDay(date1, date2) {
+            date1 = new Date(date1);
+            date2 = new Date(date2);
+            return date1.getFullYear() == date2.getFullYear() && date1.getMonth() == date2.getMonth() && date1.getDate() == date2.getDate();
         },
         setDayText() {
             let year = this.day.getFullYear();

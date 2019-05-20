@@ -5,6 +5,7 @@ import Statistics from '../components/Statistics'
 import Approve from '../components/Approve'
 import Management from '../components/Management'
 import Arrangement from '../components/Arrangement'
+import Usage from '../components/Usage'
 
 export default [{
     path: '/',
@@ -38,6 +39,11 @@ export default [{
             name: 'arrangement',
             path: '/arrangement',
             component: Arrangement
+        },
+        {
+            name: 'usage',
+            path: '/usage',
+            component: Usage
         },
     ]
 }];
