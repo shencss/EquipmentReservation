@@ -12,11 +12,23 @@
                 </div>
                 <div class="equipment-model">
                     <span>设备型号：</span>
-                    <span class="value">{{equipment.equipmentModel}}</span>
+                    <span class="value">{{equipment.equipmentModel ? equipment.equipmentModel : '无'}}</span>
                 </div>
                 <div class="address">
                     <span>设备地点：</span>
-                    <span class="value">{{equipment.address}}</span>
+                    <span class="value">{{equipment.address ? equipment.address : '无'}}</span>
+                </div>
+                <div class="address">
+                    <span>联系电话：</span>
+                    <span class="value">{{equipment.phone ? equipment.phone : '无'}}</span>
+                </div>
+                <div class="address">
+                    <span>收费信息：</span>
+                    <span class="value">{{equipment.cost ? equipment.cost : '无'}}</span>
+                </div>
+                <div class="address">
+                    <span>使用注意：</span>
+                    <span class="value">{{equipment.note ? equipment.note : '无'}}</span>
                 </div>
             </div>
             
@@ -202,7 +214,7 @@ export default {
     },
     computed: {
         equipment() {
-            return this.$route.query.data || {};
+            return JSON.parse(this.$route.query.data) || {};
         }
     },
     async mounted() {

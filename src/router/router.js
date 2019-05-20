@@ -2,11 +2,8 @@
 import App from '../components/App';
 import Schedule from '../components/Schedule'
 import Statistics from '../components/Statistics'
-import Approval from '../components/Approval'
+import Approve from '../components/Approve'
 import Management from '../components/Management'
-import ApprovalList from '../components/ApprovalList'
-import ApprovalDetail from '../components/ApprovalDetail'
-import Test from '../components/Test'
 import Arrangement from '../components/Arrangement'
 
 export default [{
@@ -23,22 +20,9 @@ export default [{
             component: Schedule
         },
         {
-            name: 'approval',
-            path: '/approval',
-            component: Approval,
-            redirect: '/approval/list',
-            children: [
-                {
-                    name: 'list',
-                    path: 'list',
-                    component: ApprovalList
-                },
-                {
-                    name: 'detail',
-                    path: 'detail',
-                    component: ApprovalDetail
-                }
-            ]
+            name: 'approve',
+            path: '/approve',
+            component: Approve,
         },
         {
             name: 'statistics',
@@ -49,11 +33,6 @@ export default [{
             name: 'management',
             path: '/management',
             component: Management
-        },
-        {
-            name: 'test',
-            path: '/test',
-            component: Test
         },
         {
             name: 'arrangement',

@@ -4,16 +4,21 @@
             <input id="search-input" v-model="searchForm.equipmentName" type="text" placeholder="输入设备名称搜索">
             <span class="search-icon" @click="searchEquipment"></span>
         </div>
-        
+        <div class="type-header">
+            <div @click="checkType('all')">所有</div>
+            <div @click="checkType('approve')">待审批</div>
+            <div @click="checkType('schedule')">待安排</div>
+        </div>
+        <div class="type-underline" :class="underlineClass"></div>
         <div class="equipment-list">
             <div class="item-warp" v-for="(item, index) in equipmentList" :key=index>
-                <div class="equipment-item">
+                <div class="equipment-item" v-if="showItem(item)">
                     <div :class="['equipment-icon', icon(item)]"></div>
                     <div class="equipment-info">
                         <div class="equipment-name">
                             <span>{{item.equipmentName}}</span>
                         </div>
-                        <div class="remind">有3名用户正在预约该设备，请进行审批</div>
+                        <div class="remind" v-if="item.reserves.length > 0">该设备有{{item.reserves.length}}条使用预约，请进行审批</div>
                         <div class="available-time">
                             <span>可预约时间</span> 
                         </div>
@@ -28,7 +33,7 @@
                     </div>
                     <div class="operator-btns">
                         <div class="arrange-btn" @click="goArrangement(item)">安排时间</div>
-                        <div class="approve-btn" @click="goApprove(item)">审批预约</div>
+                        <div class="approve-btn" v-if="item.reserves.length > 0" @click="goApprove(item)">审批预约</div>
                     </div>
                 </div>
             </div>
@@ -46,6 +51,8 @@ export default {
     },
     data() {
         return {
+            type: 'all',
+            underlineClass: 'left',
             equipmentList: [],
             selectedItem: {},
             searchForm: {
@@ -77,15 +84,40 @@ export default {
                 }
             }
         },
+        showItem() {
+            return item => {
+                if (this.type === 'all') {
+                    return true;
+                } else if (this.type == 'approve' && item.reserves.length > 0) {
+                    return true;
+                } else if(this.type == 'schedule' && item.schedules.length == 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
     },
     mounted() {
-        this.$axios.get(getBaseUrl() + '&action=getAllEquipments').then(res => {
+        this.$axios.get(getBaseUrl() + '&action=getScheduleEquipments').then(res => {
             this.equipmentList = res.data.result;
         }).catch(err => {
             console.log(err);
         });
     },
     methods: {
+        checkType(type) {
+            if(type == 'all') {
+                this.type = 'all';
+               this.underlineClass = 'left';
+            } else if(type == 'approve') {
+                this.type = 'approve';
+                this.underlineClass = 'center';
+            } else {
+                this.type = 'schedule';
+                this.underlineClass = 'right';
+            }
+        },
         timeText(schedule) {
             switch(schedule.repeat) {
                 case 'date':
@@ -113,6 +145,7 @@ export default {
             return year + '-' + month + '-' + day;
         },
         searchEquipment() {
+            this.checkType('all');
             this.$axios.get(getBaseUrl() + '&action=getAllEquipments&equipmentName=' + this.searchForm.equipmentName).then(res => {
                 this.equipmentList = res.data.result;
             }).catch(err => {
@@ -123,13 +156,18 @@ export default {
             this.$router.push({
                 path: '/arrangement',
                 query: {
-                    data: item
+                    data: JSON.stringify(item)
                 }
             });
         },
         goApprove(item) {
-
-        }
+            this.$router.push({
+                    path: '/approve',
+                    query: {
+                        data: JSON.stringify(item)
+                    }
+                });
+            }
     }
 }
 </script>
@@ -170,13 +208,13 @@ export default {
     }
     .type-header {
         position: relative;
-        height: 35px;
+        height: 40px;
         display: flex;
         justify-content: center;
         align-items: center;
         background-color: #FFF;
         color: #409EFF;
-        font-size: 14px;
+        font-size: 12px;
         div {
             position: relative;
             flex: 1;
@@ -184,6 +222,23 @@ export default {
             height: 35px;
             line-height: 35px;
         }
+        border-bottom: 1px solid #EEE;
+    }
+    .type-underline {
+        height: 2px;
+        width: 30px;
+        background-color: #409EFF;
+        position: absolute;
+        top: 120px;
+        left: 16.66%;
+        transform: translateX(-50%);
+        transition: all .5s linear;
+    }
+    .center {
+        left: 50%;
+    }
+    .right {
+        left: 83.33%;
     }
     .equipment-list {
         height: calc(100vh - 135px);
@@ -229,9 +284,10 @@ export default {
                 .remind {
                     font-size: 12px;
                     color: #F56C6C;
-                    margin: 2px 0 3px 0;
+                    margin-top: 2px;
                 }
                 .available-time {
+                    margin-top: 4px;
                     display: flex;
                     justify-content: flex-start;
                     font-size: 14px;
@@ -247,6 +303,9 @@ export default {
                     }
                 }
             }
+            .operator-btns {
+                flex-shrink: 0;
+            }
             .approve-btn, .arrange-btn {
                 background-color: #67C23A;
                 color: #FFF;
@@ -254,7 +313,6 @@ export default {
                 font-size: 14px;
                 border-radius: 3px;
                 cursor: pointer;
-                flex-shrink: 0;
             }
             .approve-btn {
                 background-color: #F56C6C;

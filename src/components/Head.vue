@@ -1,6 +1,6 @@
 <template>
 	<div class="app-head">
-        <div class="back-btn" v-if="navName == '预约审批' ||  this.$route.name == 'arrangement'" @click="goBack"></div>
+        <div class="back-btn" v-if="this.$route.name == 'approve' ||  this.$route.name == 'arrangement'" @click="goBack"></div>
         <div class="nav-name">{{navName}}</div>
     </div>
 </template>
@@ -19,9 +19,7 @@ export default {
         navName() {
             if(this.$route.name == 'schedule' || this.$route.name == 'arrangement') {
                 return '设备排约';
-            } else if(this.$route.name == 'list') {
-                return '预约审批';
-            } else if(this.$route.name == 'detail') {
+            } else if(this.$route.name == 'approve') {
                 return '预约审批';
             } else if(this.$route.name == 'statistics') {
                 return '信息统计';
