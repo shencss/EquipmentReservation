@@ -82,7 +82,7 @@ export default {
         timeText(schedule) {
             switch(schedule.repeat) {
                 case 'date':
-                    return this.setDayText(schedule.date);
+                    return schedule.date;
                     break;
                 case 'day':
                     return '每天';
@@ -95,15 +95,6 @@ export default {
                     break;
                 default:
             }
-        },
-        setDayText(time) {
-            time = new Date(time);
-            let year = time.getFullYear();
-            let month = time.getMonth() + 1;
-            month = month > 9 ? month : '0' + month;
-            let day = time.getDate();
-            day = day > 9 ? day : '0' + day;
-            return year + '-' + month + '-' + day;
         },
         searchEquipment() {
             this.$axios.get(getBaseUrl() + '&action=getAvailableEquipments&pageNum=1&pageSize=20&equipmentName=' + this.searchForm.equipmentName).then(res => {
@@ -163,8 +154,9 @@ export default {
         }
     }
     .equipment-list {
-        max-height: calc(100vh - 135px);
+        max-height: calc(100vh - 50px);
         padding: 0 10px;
+        overflow-x: hidden;
         overflow-y: auto;
         background-color: #FFF;
         .equipment-item {
@@ -232,8 +224,8 @@ export default {
             .reservation-btn {
                 background-color: #67C23A;
                 color: #FFF;
-                padding: 5px;
-                font-size: 12px;
+                padding: 6px 10px;
+                font-size: 14px;
                 border-radius: 3px;
                 cursor: pointer;
                 flex-shrink: 0;

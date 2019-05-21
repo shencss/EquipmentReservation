@@ -33,7 +33,7 @@
         <div class="reserve-title">请选择预约时间：</div>
         <div class="date">
             <div class="pre-day-btn" @click="preDay"></div>
-            <div class="today">{{dayText}}</div>
+            <div class="today">{{dayText + '（' + weekText[day.getDay()] + '）'}}</div>
             <div class="next-day-btn" @click="nextDay"></div>
         </div>
         <div class="time-list">
@@ -78,7 +78,7 @@ export default {
     data() {
         return {
             now : '',
-            day: '',
+            day: new Date(),
             dayText: '',
             schedule: [],
             forbid: [],
@@ -86,7 +86,8 @@ export default {
             reserveList: [],
             note: '',
             phone: '',
-            reserves: []
+            reserves: [],
+            weekText: ['星期日','星期一', '星期二','星期三','星期四','星期五','星期六'],
         };
     },
     computed: {
@@ -99,6 +100,11 @@ export default {
         this.now = new Date();
         this.day = new Date();
         this.setDayText();
+        // 获取电话和备注
+        if(this.$route.query.phone) {
+            this.phone = this.$route.query.phone;
+            this.note = this.$route.query.note;
+        }
         // schedule排序
         this.schedule = this.equipment.schedules;
         this.forbid = this.equipment.forbids;
@@ -116,34 +122,7 @@ export default {
             month = month > 9 ? month : '0' + month;
             let day = this.day.getDate();
             day = day > 9 ? day : '0' + day;
-            this.dayText = year + '-' + month + '-' + day + '（' + this.getWeekDay(this.day.getDay()) + '）';
-        },
-        getWeekDay(day) {
-            switch(day) {
-                case 1:
-                    return '星期一';
-                    break;
-                case 2:
-                    return '星期二';
-                    break;
-                case 3: 
-                    return '星期三';
-                    break;
-                case 4: 
-                    return '星期四';
-                    break;
-                case 5: 
-                    return '星期五';
-                    break;
-                case 6: 
-                    return '星期六';
-                    break;
-                case 0: 
-                    return '星期日';
-                    break;   
-                default:
-                    return '星期一';
-            }
+            this.dayText = year + '-' + month + '-' + day;
         },
         isLater(time1, time2) {
             let date= new Date();
@@ -151,140 +130,26 @@ export default {
             time2 = date.setHours(time2.split(':')[0], time2.split(':')[1]);
             return time1 > time2;
         },
-        isSameDay(date1, date2) {
-            date1 = new Date(date1);
-            date2 = new Date(date2);
-            return date1.getFullYear() == date2.getFullYear() && date1.getMonth() == date2.getMonth() && date1.getDate() == date2.getDate();
+        isSameDay(day, date) {
+            date = new Date(date);
+            return day.getFullYear() == date.getFullYear() && day.getMonth() == date.getMonth() && day.getDate() == date.getDate();
         },
         isPassed(startTime) {
             let day = new Date(this.day.getTime());
             day.setHours(startTime.split(':')[0], startTime.split(':')[1], 0);
             return this.now.getTime() > day.getTime();
         },
-        /*
-        getDateList() {
-            this.dateList = [];
-            for(let i = 0, len = this.schedule.length; i < len; i++) {
-                if(this.schedule[i].repeat == 'date') {
-                    if(this.isSameDay(this.day.getTime(), this.schedule[i].date)) {
-                        // 检查时间是否过去
-                        if(this.isPassed(this.schedule[i].startTime)) {
-                            this.schedule[i].status = 'passed';
-                        } else {
-                            this.schedule[i].status = 'available';
-                        }
-                        let date = {...this.schedule[i]}
-                        // 检查是否被选
-                        for(let k = 0, len3 = this.reserveList.length; k < len3; k++) {
-                            if(this.reserveList[k].date == this.day.getTime() && this.reserveList[k].startTime == this.schedule[i].startTime) {
-                                date.selected = true;
-                                break;
-                            }
-                        }
-                        this.dateList.push(date);
-                    }
-                } else if(this.schedule[i].repeat == 'day') {
-                    // 检查是否被禁止
-                    for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                        if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                            if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
-                                this.schedule[i].forbid = true;
-                                break;
-                            } else {
-                                this.schedule[i].forbid = false ;
-                            }
-                        }
-                    }
-                    if(!this.schedule[i].forbid) {
-                        // 检查时间是否过去
-                        if(this.isPassed(this.schedule[i].startTime)) {
-                            this.schedule[i].status = 'passed';
-                        } else {
-                            this.schedule[i].status = 'available';
-                        }
-                        let date = {...this.schedule[i]}
-                        // 检查是否被选
-                        for(let k = 0, len3 = this.reserveList.length; k < len3; k++) {
-                            if(this.reserveList[k].date == this.day.getTime() && this.reserveList[k].startTime == this.schedule[i].startTime) {
-                                date.selected = true;
-                                break;
-                            }
-                        }
-                        this.dateList.push(date);
-                    }
-                } else if(this.schedule[i].repeat == 'week') {
-                    if(this.day.getDay() == this.schedule[i].week) {
-                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
-                                    this.schedule[i].forbid = true;
-                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
-                                    break;
-                                } else {
-                                    this.schedule[i].forbid = false;
-                                }
-                            }
-                        }
-                        // 检查时间是否过去
-                        if(this.isPassed(this.schedule[i].startTime)) {
-                            this.schedule[i].status = 'passed';
-                        } else {
-                            this.schedule[i].status = 'available';
-                        }
-                        let date = {...this.schedule[i]}
-                        // 检查是否被选
-                        for(let k = 0, len3 = this.reserveList.length; k < len3; k++) {
-                            if(this.reserveList[k].date == this.day.getTime() && this.reserveList[k].startTime == this.schedule[i].startTime) {
-                                date.selected = true;
-                                break;
-                            }
-                        }
-                        this.dateList.push(date);
-                    }
-                } else if(this.schedule[i].repeat == 'month') {
-                    if(this.day.getDate() == this.schedule[i].month) {
-                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
-                                    this.schedule[i].forbid = true;
-                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
-                                    break;
-                                } else {
-                                    this.schedule[i].forbid = false;
-                                }
-                            }
-                        }
-                        // 检查时间是否过去
-                        if(this.isPassed(this.schedule[i].startTime)) {
-                            this.schedule[i].status = 'passed';
-                        } else {
-                            this.schedule[i].status = 'available';
-                        }
-                        let date = {...this.schedule[i]}
-                        // 检查是否被选
-                        for(let k = 0, len3 = this.reserveList.length; k < len3; k++) {
-                            if(this.reserveList[k].date == this.day.getTime() && this.reserveList[k].startTime == this.schedule[i].startTime) {
-                                date.selected = true;
-                                break;
-                            }
-                        }
-                        this.dateList.push(date);
-                    }
-                }
-            }
-        },
-        */
         getDateList() {
             this.dateList = [];
             //获取dateList
             for(let i = 0, len = this.schedule.length; i < len; i++) {
                 let date = {...this.schedule[i]};
                 if(date.repeat == 'date') {
-                    if(this.isSameDay(this.day.getTime(), date.date)) {
+                    if(this.isSameDay(this.day, date.date)) {
                         // 检查是否被禁止
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                             if(date.scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                if(this.isSameDay(this.day, this.forbid[j].date)) {
                                     date.forbid = true;
                                     break;
                                 } else {
@@ -308,7 +173,7 @@ export default {
                     // 检查是否被禁止
                     for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                         if(date.scheduleId == this.forbid[j].scheduleId) {
-                            if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                            if(this.isSameDay(this.day, this.forbid[j].date)) {
                                 date.forbid = true;
                                 break;
                             } else {
@@ -332,7 +197,7 @@ export default {
                         // 检查是否被禁止
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                             if(date.scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                if(this.isSameDay(this.day, this.forbid[j].date)) {
                                     date.forbid = true;
                                     break;
                                 } else {
@@ -356,7 +221,7 @@ export default {
                         // 检查是否被禁止
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                             if(date.scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                if(this.isSameDay(this.day, this.forbid[j].date)) {
                                     date.forbid = true;
                                     break;
                                 } else {
@@ -388,7 +253,7 @@ export default {
                 }
                 // 是否被预约
                 for(let j = 0, len2 = this.reserves.length; j < len2; j++) {
-                    if(this.reserves[j].startTime == this.dateList[i].startTime && this.reserves[j].endTime == this.dateList[i].endTime && this.isSameDay(this.day.getTime(), this.reserves[j].date) && this.reserves[j].status == 3) {
+                    if(this.reserves[j].startTime == this.dateList[i].startTime && this.reserves[j].endTime == this.dateList[i].endTime && this.isSameDay(this.day, this.reserves[j].date) && this.reserves[j].status == 3) {
                         if(this.dateList[i].status == 'available') {
                             this.dateList[i].status = 'reserved';
                         }
@@ -396,7 +261,7 @@ export default {
                 }
                 // 检查是否被选
                 for(let k = 0, len3 = this.reserveList.length; k < len3; k++) {
-                    if(this.reserveList[k].date == this.day.getTime() && this.reserveList[k].startTime == this.dateList[i].startTime) {
+                    if(this.reserveList[k].date == this.dayText && this.reserveList[k].startTime == this.dateList[i].startTime) {
                         this.dateList[i].selected = true;
                         break;
                     }
@@ -421,7 +286,7 @@ export default {
                     time.selected = false;
                     this.dateList.splice(index, 1, time);
                     for(let i = 0, len = this.reserveList.length; i < len; i++) {
-                        if(this.reserveList[i].date == this.day.getTime() && this.reserveList[i].startTime == time.startTime) {
+                        if(this.reserveList[i].date == this.dayText && this.reserveList[i].startTime == time.startTime) {
                             this.reserveList.splice(i, 1);
                             break;
                         }
@@ -429,7 +294,7 @@ export default {
                 } else {
                     time.selected = true;
                     this.reserveList.push({
-                        date: this.day.getTime(),
+                        date: this.dayText,
                         startTime: time.startTime,
                         endTime: time.endTime
                     });

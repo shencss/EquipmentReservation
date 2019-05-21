@@ -53,6 +53,10 @@ export default {
 	color: #303133;
 	
 }
+.app-content {
+	height: 100%;
+	overflow: hidden;
+}
 ::-webkit-scrollbar {
 	width: 0;
 }

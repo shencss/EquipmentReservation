@@ -81,7 +81,7 @@
                     <span>预约时间</span>
                 </div>
                 <div class="time-list">
-                    <span>{{getDayText(selectedItem.date) + ' ' + selectedItem.startTime + ' - ' + selectedItem.endTime}}</span>
+                    <span>{{selectedItem.date + ' ' + selectedItem.startTime + ' - ' + selectedItem.endTime}}</span>
                 </div>
                 <div class="reserve-note" style="margin-top: 10px">
                     <span>更多需求</span>
@@ -131,15 +131,6 @@ export default {
         });
     },
     methods: {
-        getDayText(date) {
-            date = new Date(date);  
-            let year = date.getFullYear();
-            let month = date.getMonth() + 1;
-            month = month > 9 ? month : '0' + month;
-            let day = date.getDate();
-            day = day > 9 ? day : '0' + day;
-            return year + '-' + month + '-' + day;
-        },
         timeText(millisecond) {
             let date = new Date(millisecond);
             let year = date.getFullYear();
@@ -194,12 +185,17 @@ export default {
             this.showCancelDialog = false;
         },
         goReserve(item) {
-            this.$router.push({
-                path: '/reserve',
-                query: {
-                    data: JSON.stringify(item.equipment),
-                    note: item.note
-                }
+            this.$axios.get(getBaseUrl() + '&action=getScheduleDetail&equipmentId=' + item.equipmentId).then(res => {
+                this.$router.push({
+                    path: '/reserve',
+                    query: {
+                        data: JSON.stringify(res.data.result),
+                        phone: item.phone,
+                        note: item.note
+                    }
+                });
+            }).catch(err => {
+                console.log(err);
             });
         }
     },
@@ -322,7 +318,7 @@ export default {
         align-items: center;
         background-color: #FFF;
         color: #409EFF;
-        font-size: 12px;
+        font-size: 14px;
         div {
             position: relative;
             flex: 1;
@@ -361,6 +357,9 @@ export default {
     }
     .equipment-list {
         background-color: #FFF;
+        max-height: calc(100% - 41px);
+        overflow-x: hidden;
+        overflow-y: auto;
         .equipment-item {
             position: relative;
             height: 65px;
