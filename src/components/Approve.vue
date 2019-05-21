@@ -44,7 +44,7 @@
             <div class="description">
                 <div class="reserved">
                     <span class="block"></span>
-                    <span>已约</span>
+                    <span>被约</span>
                 </div>
                 <div class="available">
                     <span class="block"></span>
@@ -52,16 +52,18 @@
                 </div>
                 <div class="approve">
                     <span class="block"></span>
-                    <span>待批</span>
+                    <span>待审批</span>
                 </div>
                 <div class="passed">
                     <span class="block"></span>
-                    <span>过去</span>
+                    <span>过时</span>
                 </div>
             </div>
         </div>
         <Dialog :visible="showApproveDialog" @close="closeDialog('ApproveDialog')" class="approve-dialog">
             <div class="dialog-title">预约列表</div>
+            <div class="close-btn" @click="closeDialog('ApproveDialog')"></div>
+            <div class="block">当前时间块：{{dayText + ' ' + selectedItem.startTime + ' - ' + selectedItem.endTime}}</div>
             <div class="reserve-list">
                 <div class="reserve" v-for="index in selectedItem.reserveIndex" :key="index">
                     <div class="reserve-info">
@@ -73,13 +75,13 @@
                             <span>联系电话：</span>
                             <span class="value">{{reserves[index].phone}}</span>
                         </div>
-                        <div class="note">
-                            <span>更多需求：</span>
-                            <span class="value">{{reserves[index].note}}</span>
-                        </div>
                         <div class="time">
                             <span>预约时间：</span>
                             <span class="value">{{timeText(reserves[index].reserveTime)}}</span>
+                        </div>
+                        <div class="note">
+                            <span>更多需求：</span>
+                            <span class="value">{{reserves[index].note}}</span>
                         </div>
                     </div>
                     <div class="operator-btns">
@@ -88,12 +90,11 @@
                     </div>
                 </div>
             </div>
-            <div class="operate-btns">
-                <div class="cancel-btn" @click="closeDialog('ApproveDialog')">关闭</div>
-            </div>
         </Dialog>
-        <Dialog :visible="showReservedDialog" @close="closeDialog('ReservedDialog')" class="reserved-dialog">
+        <!-- <Dialog :visible="showReservedDialog" @close="closeDialog('ReservedDialog')" class="reserved-dialog">
             <div class="dialog-title">预约详情</div>
+            <div class="close-btn" @click="closeDialog('ReservedDialog')"></div>
+            <div class="block">当前时间块：{{dayText + ' ' + selectedItem.startTime + ' - ' + selectedItem.endTime}}</div>
             <div class="reserve-list">
                 <div class="reserve" v-for="index in selectedItem.reserveIndex" :key="index">
                     <div class="reserve-info">
@@ -105,21 +106,18 @@
                             <span>联系电话：</span>
                             <span class="value">{{reserves[index].phone}}</span>
                         </div>
+                        <div class="time">
+                            <span>预约时间：</span>
+                            <span class="value">{{timeText(reserves[index].reserveTime)}}</span>
+                        </div>  
                         <div class="note">
                             <span>更多需求：</span>
                             <span class="value">{{reserves[index].note}}</span>
                         </div>
-                        <div class="time">
-                            <span>预约时间：</span>
-                            <span class="value">{{timeText(reserves[index].reserveTime)}}</span>
-                        </div>
                     </div>
                 </div>
             </div>
-            <div class="operate-btns">
-                <div class="cancel-btn" @click="closeDialog('ReservedDialog')">关闭</div>
-            </div>
-        </Dialog>
+        </Dialog> -->
     </div>
 </template>
 
@@ -380,16 +378,12 @@ export default {
         openDialog(time) {
             if(time.status == 'approve') {
                 this.showApproveDialog = true;
-            } else if(time.status == 'reserved') {
-                this.showReservedDialog = true;
             }
             this.selectedItem = time;
         },
         closeDialog(dialogName) {
             if(dialogName == 'ApproveDialog') {
                 this.showApproveDialog = false;
-            } else if(dialogName == 'ReservedDialog') {
-                this.showReservedDialog = false;
             }
         },
         passReserve(index) {
@@ -636,24 +630,42 @@ export default {
             line-height: 50px;
             font-size: 15px;
             text-align: center;
-            border-bottom: 1px solid #409EFF;
             background-color: #409EFF;
             color: #FFF;
         }
+        .close-btn {
+            height: 30px;
+            width: 30px;
+            background-image: url('../images/close2.png');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .block {
+            color: #409EFF;
+            line-height: 35px;
+            padding: 0 15px;
+        }
         .reserve-list {
             padding: 0 15px;
-            padding-bottom: 25px;
+            padding-bottom: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            .reserve:not(:last-of-type) {
+                border-bottom: 1px solid #409EFF;
+            }
             .reserve {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                border-bottom: 1px solid #409EFF;
-                padding: 15px 0;
+                padding: 8px;
                 .reserve-info {
                     font-size: 14px;
                     div {
-                        height: 20px;
-                        line-height: 20px;
+                        height: 15px;
+                        line-height: 15px;
                         color: #909399;
                     }
                     .value {
@@ -683,23 +695,6 @@ export default {
                         margin-right: 5px;
                     }
                 }
-            }
-        }
-        .operate-btns {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            .cancel-btn, .confirm-btn {
-                padding: 0 20px;
-                height: 30px;
-                line-height: 30px;
-                text-align: center;
-                font-size: 14px;
-                background-color: #409EFF;
-                color: #FFF;
-                border-radius: 3px;
-                margin: 0 10px 20px 10px;
             }
         }
     }

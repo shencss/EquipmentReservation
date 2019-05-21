@@ -34,7 +34,7 @@
             
             <div class="block-list">
                 <div class="arrangement-block">
-                    <div class="block-title">配置当日时间块：</div>
+                    <div class="block-title">配置某日可约时间块：</div>
                     <div class="date">
                         <div class="pre-day-btn" @click="preDay"></div>
                         <div class="today">{{dayText + '（' + weekText2[day.getDay()] + '）'}}</div>
@@ -43,10 +43,10 @@
                     <div class="time-list">
                         <div :class="['time-block', time.forbid ? 'forbid' : (time.passed ? 'passed' : 'available')]" v-for="(time, index) in dateList" :key="index">
                             <span>{{time.startTime}} - {{time.endTime}}</span>
-                            <span v-if="time.repeat == 'date'" class="delete-icon" @click="openDialog('DeleteDialog', 'date', time)"></span>
-                            <span v-if="time.repeat !== 'date' && !time.forbid" class="available-icon" @click="openDialog('ForbidDialog', 'date' ,time)"></span>
-                            <span v-if="time.repeat !== 'date' && time.forbid" class="forbid-icon" @click="openDialog('AvailableDialog', 'date', time)"></span>
-                            <span class="repeat-text" v-if="time.repeat !== 'date'">{{time.repeat == 'day' ? '每天' : (time.repeat == 'week' ? weekText[time.week] : monthText[time.month - 1])}}</span>
+                            <span v-if="time.repeat == 'date' && !time.passed" class="delete-icon" @click="openDialog('DeleteDialog', 'date', time)"></span>
+                            <span v-if="time.repeat !== 'date' && !time.forbid && !time.passed" class="available-icon" @click="openDialog('ForbidDialog', 'date' ,time)"></span>
+                            <span v-if="time.repeat !== 'date' && time.forbid && !time.passed" class="forbid-icon" @click="openDialog('AvailableDialog', 'date', time)"></span>
+                            <span class="repeat-text" v-if="time.repeat !== 'date'">{{time.repeat == 'day' ? '来自每天' : (time.repeat == 'week' ? '来自' + weekText[time.week] : '来自' + monthText[time.month - 1])}}</span>
                         </div>
                         <div class="time-block operator" @click="openDialog('AddDialog', 'date')" v-if="canAddBlock">
                             <span class="add-icon"></span>
@@ -66,7 +66,7 @@
                     </div>
                 </div>  
                 <div class="arrangement-block">
-                    <div class="block-title">配置每天时间块：</div>
+                    <div class="block-title">配置每天可约时间块：</div>
                     <div class="date" style="justify-content: center">
                         <span>每天</span>
                     </div>
@@ -83,7 +83,7 @@
                     </div>
                 </div>
                 <div class="arrangement-block">
-                    <div class="block-title">配置每周时间块：</div>
+                    <div class="block-title">配置每周可约时间块：</div>
                     <div class="date">
                         <div class="pre-day-btn" @click="preWeekDay"></div>
                         <div class="today">{{weekText[weekIndex]}}</div>
@@ -102,7 +102,7 @@
                     </div>
                 </div>
                 <div class="arrangement-block">
-                    <div class="block-title">配置每月时间块：</div>
+                    <div class="block-title">配置每月可约时间块：</div>
                     <div class="date">
                         <div class="pre-day-btn" @click="preMonthDay"></div>
                         <div class="today">{{monthText[monthIndex]}}</div>
@@ -152,8 +152,8 @@
             </div>
         </Dialog>
         <Dialog :visible="showForbidDialog" @close="closeDialog('ForbidDialog')" class="forbid-dialog">
-            <div class="dialog-title">禁用时间块</div>
-            <div class="remind-text">确认禁用该时间块？</div>
+            <div class="dialog-title">停用时间块</div>
+            <div class="remind-text">确认在该日停用该可约时间块？</div>
             <div class="operate-btns">
                 <div class="cancel-btn" @click="closeDialog('ForbidDialog')">取消</div>
                 <div class="confirm-btn" @click="forbidTimeBlock">确定</div>
@@ -161,7 +161,7 @@
         </Dialog>
         <Dialog :visible="showAvailableDialog" @close="closeDialog('AvailableDialog')" class="available-dialog">
             <div class="dialog-title">启用时间块</div>
-            <div class="remind-text">确认启用该时间块？</div>
+            <div class="remind-text">确认在该日启用该可约时间块？</div>
             <div class="operate-btns">
                 <div class="cancel-btn" @click="closeDialog('AvailableDialog')">取消</div>
                 <div class="confirm-btn" @click="availableTimeBlock">确定</div>
@@ -316,7 +316,6 @@ export default {
         isPassed(startTime) {
             let day = new Date(this.day.getTime());
             day.setHours(startTime.split(':')[0], startTime.split(':')[1], 0);
-            console.log(this.now.getTime() > day.getTime())
             return this.now.getTime() > day.getTime();
         },
         openDialog(dialogName, type, time) {
@@ -371,12 +370,11 @@ export default {
                     for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                         if(date.scheduleId == this.forbid[j].scheduleId) {
                             if(this.isSameDay(this.forbid[j].date)) {
+                                
                                 date.forbid = true;
                                 date.forbidId = this.forbid[j].forbidId;
-                                break;
                             } else {
                                 date.forbid = false;
-                                break;
                             }
                         }
                     }
@@ -394,7 +392,6 @@ export default {
                                     break;
                                 } else {
                                     date.forbid = false;
-                                    break;
                                 }
                             }
                         }
@@ -413,7 +410,6 @@ export default {
                                     break;
                                 } else {
                                     date.forbid = false;
-                                    break;
                                 }
                             }
                         }
@@ -774,9 +770,9 @@ export default {
             }
             .repeat-text {
                 position: absolute;
-                bottom: 2px;
-                right: 2px;;
-                font-size: 14px;
+                bottom: 1px;
+                right: 1px;;
+                font-size: 12px;
                 height: 35px;
             }
         }

@@ -398,11 +398,12 @@ export default {
             });
         },
         goUsage(item) {
-            this.$axios.get(getBaseUrl() + '&action=getScheduleDetail&equipmentId=' + item.equipmentId).then(res => {
+            this.$axios.get(getBaseUrl() + '&action=getEquipmentUsage&equipmentId=' + item.equipmentId).then(res => {
                 this.$router.push({
                     path: '/usage',
                     query: {
-                        data: JSON.stringify(res.data.result)
+                        reserves: JSON.stringify(res.data.result),
+                        equipment: JSON.stringify(item)
                     }
                 });
             }).catch(err => {

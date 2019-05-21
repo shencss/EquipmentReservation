@@ -32,36 +32,18 @@
                 </div>
             </div>
             <div class="reserve-title">设备使用情况：</div>
-            <div class="date">
-                <div class="pre-day-btn" @click="preDay"></div>
-                <div class="today">{{dayText + '（' + weekText[day.getDay()] + '）'}}</div>
-                <div class="next-day-btn" @click="nextDay"></div>
-            </div>
-            <div class="time-list">
-                <div :class="['time-block', time.status]" v-for="(time, index) in dateList" :key="index" @click="openDialog(time)">{{time.startTime}} - {{time.endTime}}</div>
-                <div class="time-block"></div>
-            </div>
-            <div class="description">
-                <div class="reserved">
-                    <span class="block"></span>
-                    <span>已约</span>
+            <div class="usage-list">
+                <div class="usage" v-for="(reserve, index) in reserves" :key="index">
+                    <span :class="reserve.perform ? 'perform' : 'question'"></span>
+                    <span>用户{{reserve.userName}}在{{periodText(reserve)}}期间，预约使用了该设备。</span>
+                    <span class="detail-btn" @click="openDialog('DetailDialog', reserve)">查看详情</span>
+                    <span v-if="!reserve.perform" class="perform-btn" @click="perform(reserve.recordId)">确认实施</span>
                 </div>
-                <div class="available">
-                    <span class="block"></span>
-                    <span>可约</span>
-                </div>
-                <div class="record">
-                    <span class="block"></span>
-                    <span>过去已约</span>
-                </div>
-                <div class="passed">
-                    <span class="block"></span>
-                    <span>过去</span>
-                </div>
+                <div class="perform-all-btn" v-if="showAllBtn" @click="performAll">确认所有实施</div>
             </div>
         </div>
 
-        <Dialog :visible="showReservedDialog" @close="closeDialog('ReservedDialog')" class="reserved-dialog">
+        <Dialog :visible="showDetailDialog" @close="closeDialog('DetailDialog')" class="detail-dialog">
             <div class="dialog-title">预约详情</div>
             <div class="reserve-list">
                 <div class="reserve">
@@ -78,6 +60,10 @@
                             <span>更多需求：</span>
                             <span class="value">{{selectedItem.note}}</span>
                         </div>
+                        <div class="period">
+                            <span>使用时间：</span>
+                            <span class="value">{{selectedItem.date + ' ' + selectedItem.startTime + '至' + selectedItem.endTime}}</span>
+                        </div>
                         <div class="time">
                             <span>预约时间：</span>
                             <span class="value">{{timeText(selectedItem.reserveTime)}}</span>
@@ -90,8 +76,8 @@
                 </div>
             </div>
             <div class="operate-btns">
-                <div class="perform-btn" v-if="!selectedItem.perform"  @click="perform">确认实施</div>
-                <div class="cancel-btn" @click="closeDialog('ReservedDialog')">关闭</div>
+                <div class="perform-btn" v-if="!selectedItem.perform"  @click="perform(selectedItem.recordId)">确认实施</div>
+                <div class="cancel-btn" @click="closeDialog('DetailDialog')">关闭</div>
             </div>
         </Dialog>
     </div>
@@ -107,47 +93,31 @@ export default {
     },
     data() {
         return {
-            now : '',
-            day: new Date(),
-            dayText: '',
-            schedule: [],
-            forbid: [],
-            dateList: [],
-            reserves: [],
             selectedItem: {},
-            showReservedDialog: false,
-            weekText: ['星期日','星期一', '星期二','星期三','星期四','星期五','星期六'],
+            showDetailDialog: false,
+            reserves: {}
         };
     },
     computed: {
         equipment() {
-            return JSON.parse(this.$route.query.data)|| {}
+            return JSON.parse(this.$route.query.equipment) || {}
+        },
+        showAllBtn() {
+            for(let i = 0, len = this.reserves.length; i < len; i++) {
+                if(!this.reserves[i].perform) {
+                    return true;
+                }
+            }
+            return false;
         }
     },
     mounted() {
-        // 设置时间
-        this.now = new Date();
-        this.day = new Date();
-        this.schedule = this.equipment.schedules;
-        this.forbid = this.equipment.forbids;
-        this.reserves = this.equipment.reserves;
-        // schedule排序
-        this.schedule.sort((a, b) => {
-            return this.isLater(b.startTime, a.startTime) ? -1 : 1;
-        });
-        this.setDayText();
-        
-        // 设置时间块
-        this.getDateList();
+        this.reserves = JSON.parse(this.$route.query.reserves);
     },
     methods: {
-        setDayText() {
-            let year = this.day.getFullYear();
-            let month = this.day.getMonth() + 1;
-            month = month > 9 ? month : '0' + month;
-            let day = this.day.getDate();
-            day = day > 9 ? day : '0' + day;
-            this.dayText = year + '-' + month + '-' + day ;
+        periodText(reserve) {
+            let date = reserve.date.slice(0, 4) + '年' + reserve.date.slice(5, 7) + '月' + reserve.date.slice(8, 20) + '日';
+            return date + reserve.startTime + '至' + reserve.endTime;
         },
         timeText(millisecond) {
             let date = new Date(millisecond);
@@ -158,277 +128,43 @@ export default {
             let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
             return year + '-' + month + '-' + day + '  ' + hour + ':' + min;
         },
-        getWeekDay(day) {
-            switch(day) {
-                case 1:
-                    return '星期一';
-                    break;
-                case 2:
-                    return '星期二';
-                    break;
-                case 3: 
-                    return '星期三';
-                    break;
-                case 4: 
-                    return '星期四';
-                    break;
-                case 5: 
-                    return '星期五';
-                    break;
-                case 6: 
-                    return '星期六';
-                    break;
-                case 0: 
-                    return '星期日';
-                    break;   
-                default:
-                    return '星期一';
-            }
-        },
-        // time1比time2晚吗嘛？
-        isLater(time1, time2) {
-            let date= new Date();
-            time1 = date.setHours(time1.split(':')[0], time1.split(':')[1]);
-            time2 = date.setHours(time2.split(':')[0], time2.split(':')[1]);
-            return time1 > time2;
-        },
-        isSameDay(date) {
-            return date === this.dayText;
-        },
-        isPassed(startTime) {
-            let day = new Date(this.day.getTime());
-            day.setHours(startTime.split(':')[0], startTime.split(':')[1], 0);
-            return this.now.getTime() > day.getTime();
-        },
-        getDateList() {
-            this.dateList = [];
-            //获取dateList
-            for(let i = 0, len = this.schedule.length; i < len; i++) {
-                let date = {...this.schedule[i]};
-                if(date.repeat == 'date') {
-                    if(this.isSameDay(date.date)) {
-                        // 检查是否被禁止
-                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                            if(date.scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.forbid[j].date)) {
-                                    date.forbid = true;
-                                    break;
-                                } else {
-                                    date.forbid = false ;
-                                }
-                            }
-                        }
-                        if(date.forbid) continue;
-                        // 检查时间块是否需要合并
-                        if(this.dateList.length > 0) {
-                            let lastDate = this.dateList[this.dateList.length - 1];
-                            if(this.isLater(lastDate.endTime, date.startTime)) {
-                                lastDate.endTime = date.endTime;
-                                this.dateList.splice(this.dateList.length - 1, 1, lastDate);
-                                continue;
-                            }
-                        }
-                        this.dateList.push(date);
-                    }
-                } else if(date.repeat == 'day') {
-                    // 检查是否被禁止
-                    for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                        if(date.scheduleId == this.forbid[j].scheduleId) {
-                            if(this.isSameDay(this.forbid[j].date)) {
-                                date.forbid = true;
-                                break;
-                            } else {
-                                date.forbid = false ;
-                            }
-                        }
-                    }
-                    if(date.forbid) continue;
-                    // 检查时间块是否需要合并
-                    if(this.dateList.length > 0) {
-                        let lastDate = this.dateList[this.dateList.length - 1];
-                        if(this.isLater(lastDate.endTime, date.startTime)) {
-                            lastDate.endTime = date.endTime;
-                            this.dateList.splice(this.dateList.length - 1, 1, lastDate);
-                            continue;
-                        }
-                    }
-                    this.dateList.push(date);
-                } else if(date.repeat == 'week') {
-                    if(this.day.getDay() == date.week) {
-                        // 检查是否被禁止
-                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                            if(date.scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.forbid[j].date)) {
-                                    date.forbid = true;
-                                    break;
-                                } else {
-                                    date.forbid = false ;
-                                }
-                            }
-                        }
-                        if(date.forbid) continue;
-                        if(this.dateList.length > 0) {
-                            let lastDate = this.dateList[this.dateList.length - 1];
-                            if(this.isLater(lastDate.endTime, date.startTime)) {
-                                lastDate.endTime = date.endTime;
-                                this.dateList.splice(this.dateList.length - 1, 1, lastDate);
-                                continue;
-                            }
-                        }
-                        this.dateList.push(date);
-                    }
-                } else if(date.repeat == 'month') {
-                    if(this.day.getDate() == date.month) {
-                        // 检查是否被禁止
-                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                            if(date.scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.forbid[j].date)) {
-                                    date.forbid = true;
-                                    break;
-                                } else {
-                                    date.forbid = false ;
-                                }
-                            }
-                        }
-                        if(date.forbid) continue;
-                        if(this.dateList.length > 0) {
-                            let lastDate = this.dateList[this.dateList.length - 1];
-                            if(this.isLater(lastDate.endTime, date.startTime)) {
-                                lastDate.endTime = date.endTime;
-                                this.dateList.splice(this.dateList.length - 1, 1, lastDate);
-                                continue;
-                            }
-                        }
-                        this.dateList.push(date);
-                    }
-                }
-            }
-            // 设置dateList状态
-            for(let i = 0, len = this.dateList.length; i < len; i++) {
-                this.dateList[i].reserveIndex= [];
-                //  是否过时
-                if(this.isPassed(this.dateList[i].startTime)) {
-                    this.dateList[i].status = 'passed';
-                } else {
-                    this.dateList[i].status = 'available';
-                }
-                for(let j = 0, len2 = this.reserves.length; j < len2; j++) {
-                    // 是否被预约
-                    if(this.reserves[j].startTime == this.dateList[i].startTime && this.reserves[j].endTime == this.dateList[i].endTime && this.isSameDay(this.reserves[j].date) && this.reserves[j].status == 3) {
-                        if(this.dateList[i].status == 'passed') {
-                            this.dateList[i].status = 'record';
-                        } else {
-                            this.dateList[i].status = 'reserved';
-                        }
-                        this.dateList[i].reserveIndex.push(j);
-                    }
-                }
-            }
-        },
-        preDay() {
-            this.now = new Date();
-            this.day = new Date(this.day.getTime() - 24 * 60 * 60 * 1000);
-            this.setDayText();
-            this.getDateList();
-        },
-        nextDay() {
-            this.now = new Date();
-            this.day = new Date(this.day.getTime() + 24 * 60 * 60 * 1000);
-            this.setDayText();
-            this.getDateList();
-        },
-        openDialog(time) {
-             if(time.status == 'reserved') {
-                this.showReservedDialog = true;
-                this.selectedItem = this.reserves[time.reserveIndex[0]];
-            } else if(time.status == 'record') {
-                this.showReservedDialog = true;
-                this.selectedItem = this.reserves[time.reserveIndex[0]];
+        openDialog(dialogName, reserve) {
+            if(dialogName == 'DetailDialog') {
+                this.selectedItem = reserve;
+                this.showDetailDialog = true;
             }
         },
         closeDialog(dialogName) {
-            if(dialogName == 'ApproveDialog') {
-                this.showApproveDialog = false;
-            } else if(dialogName == 'ReservedDialog') {
-                this.showReservedDialog = false;
+            if(dialogName == 'DetailDialog') {
+                this.showDetailDialog = false;
             }
         },
-        passReserve(index) {
-            let recordId = this.reserves[index].recordId;
+        perform(recordId) {
             let recordIds = [];
-            for(let i = 0, len = this.selectedItem.reserveIndex.length; i < len; i++) {
-                if(i != index) {
-                    recordIds.push(this.reserves[i].recordId);
-                }
-            }
+            recordIds.push(recordId);
             recordIds = encodeURI(JSON.stringify(recordIds));
-            this.$axios.get(getBaseUrl() + '&action=passReserve&recordId=' + recordId + '&userId=2').then(res => {
-                this.showApproveDialog = false;
-                return this.$axios.get(getBaseUrl() + '&action=rejectReserve&recordIds=' + recordIds + '&userId=2');
+            this.$axios.get(getBaseUrl() + '&action=performReserve&recordIds=' + recordIds).then(res => {
+                this.showDetailDialog = false;
+                return this.$axios.get(getBaseUrl() + '&action=getEquipmentUsage&equipmentId=' + this.equipment.equipmentId);
             }).then(res => {
-                return this.$axios.get(getBaseUrl() + '&action=getScheduleDetail&equipmentId=' + this.equipment.equipmentId);
-            }).then(res => {
-                this.schedule = res.data.result.schedules;
-                this.forbid = res.data.result.forbids;
-                this.reserves = res.data.result.reserves;
-                // schedule排序
-                this.schedule.sort((a, b) => {
-                    return this.isLater(b.startTime, a.startTime) ? -1 : 1;
-                });
-                // reserves排序
-                this.reserves.sort((a, b) => {
-                    return a.date - b.date;
-                });
-                if(this.reserves.length > 0) {
-                    for(let i = 0, len = this.reserves.length; i < len; i++) {
-                        if(this.reserves[i].status == 1) {
-                            this.day = new Date(this.reserves[i].date);
-                            break;
-                        }
-                    }
-                } else {
-                    this.day = new Date();
-                }
-                this.setDayText();
-                // 设置时间块
-                this.getDateList();
+                this.reserves = res.data.result;
             }).catch(err => {
                 console.log(err);
             });
         },
-        rejectReserve(index) {
+        performAll() {
             let recordIds = [];
-            recordIds.push(this.reserves[index].recordId);
-            recordIds = encodeURI(JSON.stringify(recordIds));
-            this.$axios.get(getBaseUrl() + '&action=rejectReserve&recordIds=' + recordIds + '&userId=2').then(res => {
-                this.showApproveDialog = false;
-                return this.$axios.get(getBaseUrl() + '&action=getScheduleDetail&equipmentId=' + this.equipment.equipmentId);
-            }).then(res => {
-                this.schedule = res.data.result.schedules;
-                this.forbid = res.data.result.forbids;
-                this.reserves = res.data.result.reserves;
-                // schedule排序
-                this.schedule.sort((a, b) => {
-                    return this.isLater(b.startTime, a.startTime) ? -1 : 1;
-                });
-                // reserves排序
-                this.reserves.sort((a, b) => {
-                    return a.date - b.date;
-                });
-                if(this.reserves.length > 0) {
-                    for(let i = 0, len = this.reserves.length; i < len; i++) {
-                        if(this.reserves[i].status == 1) {
-                            this.day = new Date(this.reserves[i].date);
-                            break;
-                        }
-                    }
-                } else {
-                    this.day = new Date();
+            for(let i = 0 , len = this.reserves.length; i < len; i++) {
+                if(!this.reserves[i].perform) {
+                    recordIds.push(this.reserves[i].recordId);
                 }
-                this.setDayText();
-                
-                // 设置时间块
-                this.getDateList();
+            }
+            recordIds = encodeURI(JSON.stringify(recordIds));
+            this.$axios.get(getBaseUrl() + '&action=performReserve&recordIds=' + recordIds).then(res => {
+                this.showDetailDialog = false;
+                return this.$axios.get(getBaseUrl() + '&action=getEquipmentUsage&equipmentId=' + this.equipment.equipmentId);
+            }).then(res => {
+                this.reserves = res.data.result;
             }).catch(err => {
                 console.log(err);
             });
@@ -462,139 +198,7 @@ export default {
         line-height: 40px; 
         padding-left: 20px; 
     }
-    .date {
-        background-color: rgba(64, 158, 255, .5);
-        color: #FFF;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 25px;
-        .pre-day-btn, .next-day-btn {
-            width: 28px;
-            height: 28px;
-            background-size: 100%;
-            background-repeat: no-repeat;
-            background-image: url('../images/pre.png');
-        }
-        .next-day-btn {
-            background-image: url('../images/next.png');
-        }
-    }
-    .time-list {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        flex-wrap: wrap;
-        background-color: #FFF;
-        .time-block {
-            position: relative;
-            display: inline-block;
-            width: 33.33%;
-            height: 55px;
-            line-height: 55px;
-            text-align: center;
-            font-weight: bold;
-            border: 1px solid #FFF;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-        .reserved {
-            color: #F56C6C;
-            background-color: rgba(244, 107, 107, .5);
-        }
-        .available {
-            color: #67C23A;
-            background-color: rgba(103, 194, 58, .5);
-        }
-        .record {
-            color: #E6A23C;
-            background-color: rgba(230, 162, 60, .5);
-        }
-        .passed {
-            color: #909399;
-            background-color: rgba(144, 147, 153, .5);
-        }
-        .selected::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: inline-block;
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-            border: 3px solid #F56C6C;
-        }
-    }
-    .description {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        margin-left: 30px;
-        margin-top: 20px;
-        margin-bottom: 10px;
-        .reserved, .available, .approve, .passed, .record {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            color: #F56C6C;
-            margin-right: 20px;
-            .block {
-                width: 17px;
-                height: 17px;
-                background-color: #F56C6C;
-                margin-right: 5px
-            }
-        }
-        .reserved {
-            color: #F56C6C;
-            .block {
-                background-color: #F56C6C;
-            }
-        }
-        .available {
-            color: #67C23A;
-            .block {
-                background-color: #67C23A;
-            }
-        }
-        .record {
-            color: #E6A23C;
-            .block {
-                background-color: #E6A23C;
-            }
-        }
-        .passed {
-            color: #909399;
-            .block {
-                background-color: #909399;
-            }
-        }
-    }
-    .operator-btns {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 60px;
-        margin-top: 20px;
-        .cancel-btn, .reserve-btn {
-            height: 35px;
-            background-color: #409EFF;
-            color: #FFF;
-            font-size: 14px;
-            line-height: 35px;
-            text-align: center;
-            margin: 0 10px;
-            width: 80px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .disabled {
-            background-color: #909399;
-        }
-    }
-    .approve-dialog, .reserved-dialog {
+    .detail-dialog {
         .dialog-title {
             height: 50px;
             line-height: 50px;
@@ -606,12 +210,11 @@ export default {
         }
         .reserve-list {
             padding: 0 15px;
-            padding-bottom: 25px;
+            padding-bottom: 5px;
             .reserve {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                border-bottom: 1px solid #409EFF;
                 padding: 15px 0;
                 .reserve-info {
                     font-size: 14px;
@@ -622,6 +225,11 @@ export default {
                     }
                     .value {
                         color: #303133;
+                    }
+                    .perform {
+                        .value {
+                            color: #F56C6C;
+                        }
                     }
 
                 }
@@ -670,11 +278,51 @@ export default {
             }
         }
     }
-    .reserved-dialog {
-        .reserve-list {
-            .reserve {
-                border-bottom: none;
+    .usage-list {
+        background-color: #FFF;
+        padding: 10px;
+        min-height: calc(100% - 255px);
+        box-sizing: border-box;
+        .usage {
+            line-height: 18px;
+            font-size: 14px;
+            margin: 10px;
+            .perform, .question {
+                display: inline-block;  
+                width: 15px;
+                height: 15px;
+                background-image: url('../images/available.png');
+                vertical-align: top;
+                margin-top: 1px;
             }
+            .question {
+                background-image: url('../images/question.png');
+            }
+            .detail-btn {
+                color: #409EFF;
+                text-decoration: underline;
+                cursor: pointer;
+            }
+            .perform-btn {
+                color: #67C23A;
+                text-decoration: underline;
+                cursor: pointer;
+                margin-left: 5px;
+            }
+        }
+        .perform-all-btn {
+            height: 30px;
+            padding: 0 5px;
+            line-height: 30px;
+            width: 100px;
+            margin: 0 auto;
+            margin-top: 50px;
+            border-radius: 3px; 
+            background-color: #67C23A;
+            font-size: 13px;
+            text-align: center;
+            color: #FFF;
+            cursor: pointer;
         }
     }
 }
