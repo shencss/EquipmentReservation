@@ -34,7 +34,7 @@
             <div class="reserve-title">审批使用预约：</div>
             <div class="date">
                 <div class="pre-day-btn" @click="preDay"></div>
-                <div class="today">{{dayText}}</div>
+                <div class="today">{{dayText + '（' + weekText[day.getDay()] + '）'}}</div>
                 <div class="next-day-btn" @click="nextDay"></div>
             </div>
             <div class="time-list">
@@ -134,7 +134,7 @@ export default {
     data() {
         return {
             now : '',
-            day: '',
+            day: new Date(),
             dayText: '',
             schedule: [],
             forbid: [],
@@ -142,7 +142,8 @@ export default {
             reserves: [],
             selectedItem: {},
             showApproveDialog:  false,
-            showReservedDialog: false
+            showReservedDialog: false,
+            weekText: ['星期日','星期一', '星期二','星期三','星期四','星期五','星期六'],
         };
     },
     computed: {
@@ -162,7 +163,7 @@ export default {
         });
         // reserves排序
         this.reserves.sort((a, b) => {
-            return a.date - b.date;
+            return new Date(a.date) - new Date(b.date);
         });
         if(this.reserves.length > 0) {
             for(let i = 0, len = this.reserves.length; i < len; i++) {
@@ -175,7 +176,6 @@ export default {
             this.day = new Date();
         }
         this.setDayText();
-        
         // 设置时间块
         this.getDateList();
     },
@@ -186,7 +186,7 @@ export default {
             month = month > 9 ? month : '0' + month;
             let day = this.day.getDate();
             day = day > 9 ? day : '0' + day;
-            this.dayText = year + '-' + month + '-' + day + '（' + this.getWeekDay(this.day.getDay()) + '）';
+            this.dayText = year + '-' + month + '-' + day;
         },
         timeText(millisecond) {
             let date = new Date(millisecond);
@@ -230,10 +230,8 @@ export default {
             time2 = date.setHours(time2.split(':')[0], time2.split(':')[1]);
             return time1 > time2;
         },
-        isSameDay(date1, date2) {
-            date1 = new Date(date1);
-            date2 = new Date(date2);
-            return date1.getFullYear() == date2.getFullYear() && date1.getMonth() == date2.getMonth() && date1.getDate() == date2.getDate();
+        isSameDay(date) {
+            return date === this.dayText;
         },
         isPassed(startTime) {
             let day = new Date(this.day.getTime());
@@ -246,11 +244,11 @@ export default {
             for(let i = 0, len = this.schedule.length; i < len; i++) {
                 let date = {...this.schedule[i]};
                 if(date.repeat == 'date') {
-                    if(this.isSameDay(this.day.getTime(), date.date)) {
+                    if(this.isSameDay(date.date)) {
                         // 检查是否被禁止
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                             if(date.scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                if(this.isSameDay(this.forbid[j].date)) {
                                     date.forbid = true;
                                     break;
                                 } else {
@@ -274,7 +272,7 @@ export default {
                     // 检查是否被禁止
                     for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                         if(date.scheduleId == this.forbid[j].scheduleId) {
-                            if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                            if(this.isSameDay(this.forbid[j].date)) {
                                 date.forbid = true;
                                 break;
                             } else {
@@ -298,7 +296,7 @@ export default {
                         // 检查是否被禁止
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                             if(date.scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                if(this.isSameDay(this.forbid[j].date)) {
                                     date.forbid = true;
                                     break;
                                 } else {
@@ -322,7 +320,7 @@ export default {
                         // 检查是否被禁止
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
                             if(date.scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
+                                if(this.isSameDay(this.forbid[j].date)) {
                                     date.forbid = true;
                                     break;
                                 } else {
@@ -354,7 +352,7 @@ export default {
                 }
                 for(let j = 0, len2 = this.reserves.length; j < len2; j++) {
                     // 是否被预约
-                    if(this.reserves[j].startTime == this.dateList[i].startTime && this.reserves[j].endTime == this.dateList[i].endTime && this.isSameDay(this.day.getTime(), this.reserves[j].date)) {
+                    if(this.reserves[j].startTime == this.dateList[i].startTime && this.reserves[j].endTime == this.dateList[i].endTime && this.isSameDay(this.reserves[j].date)) {
                         if(this.dateList[i].status == 'available') {
                             if(this.reserves[j].status == 1) {
                                 this.dateList[i].status = 'approve';
@@ -417,7 +415,7 @@ export default {
                 });
                 // reserves排序
                 this.reserves.sort((a, b) => {
-                    return a.date - b.date;
+                    return new Date(a.date) - new Date(b.date);
                 });
                 if(this.reserves.length > 0) {
                     for(let i = 0, len = this.reserves.length; i < len; i++) {
@@ -452,7 +450,7 @@ export default {
                 });
                 // reserves排序
                 this.reserves.sort((a, b) => {
-                    return a.date - b.date;
+                    return new Date(a.date) - new Date(b.date);
                 });
                 if(this.reserves.length > 0) {
                     for(let i = 0, len = this.reserves.length; i < len; i++) {

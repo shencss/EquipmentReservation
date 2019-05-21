@@ -37,18 +37,18 @@
                     <div class="block-title">配置当日时间块：</div>
                     <div class="date">
                         <div class="pre-day-btn" @click="preDay"></div>
-                        <div class="today">{{dayText}}</div>
+                        <div class="today">{{dayText + '（' + weekText2[day.getDay()] + '）'}}</div>
                         <div class="next-day-btn" @click="nextDay"></div>
                     </div>
                     <div class="time-list">
-                        <div :class="['time-block', time.forbid ? 'forbid' : 'available']" v-for="(time, index) in dateList" :key="index">
+                        <div :class="['time-block', time.forbid ? 'forbid' : (time.passed ? 'passed' : 'available')]" v-for="(time, index) in dateList" :key="index">
                             <span>{{time.startTime}} - {{time.endTime}}</span>
                             <span v-if="time.repeat == 'date'" class="delete-icon" @click="openDialog('DeleteDialog', 'date', time)"></span>
                             <span v-if="time.repeat !== 'date' && !time.forbid" class="available-icon" @click="openDialog('ForbidDialog', 'date' ,time)"></span>
                             <span v-if="time.repeat !== 'date' && time.forbid" class="forbid-icon" @click="openDialog('AvailableDialog', 'date', time)"></span>
                             <span class="repeat-text" v-if="time.repeat !== 'date'">{{time.repeat == 'day' ? '每天' : (time.repeat == 'week' ? weekText[time.week] : monthText[time.month - 1])}}</span>
                         </div>
-                        <div class="time-block operator" @click="openDialog('AddDialog', 'date')">
+                        <div class="time-block operator" @click="openDialog('AddDialog', 'date')" v-if="canAddBlock">
                             <span class="add-icon"></span>
                             <span>可约</span>
                         </div> 
@@ -180,9 +180,11 @@ export default {
     },
     data() {
         return {
+            now: new Date(),
             schedule: [],
             forbid: [],
-            day: '',
+            day: new Date(),
+            weekText2: ['星期日','星期一', '星期二','星期三','星期四','星期五','星期六'],
             dayText: '',
             weekText: ['每周日','每周一', '每周二','每周三','每周四','每周五','每周六'],
             weekIndex: 0,
@@ -215,9 +217,13 @@ export default {
     computed: {
         equipment() {
             return JSON.parse(this.$route.query.data) || {};
+        },
+        canAddBlock() {
+            return this.day >= this.now;
         }
     },
     mounted() {
+        this.now = new Date();
         this.schedule = this.equipment.schedules;
         this.forbid = this.equipment.forbids;
         // 设置时间
@@ -231,69 +237,88 @@ export default {
         });
         // 设置各个时间块
         for(let i = 0, len = this.schedule.length; i < len; i++) {
-            switch(this.schedule[i].repeat) {
+            let date = {...this.schedule[i]}
+            switch(date.repeat) {
                 case 'date':
-                    if((this.day.getTime() - this.schedule[i].date) <  24 * 60 * 60 * 1000 && (this.day.getTime() - this.schedule[i].date) > 0) {
-                        this.dateList.push(this.schedule[i]);
+                    if(this.isSameDay(date.date)) {
+                        if(this.isPassed(date.startTime)) {
+                            date.passed = true;
+                        }
+                        this.dateList.push(date);
                     }
                     break;
                 case 'day': 
                     for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                        if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                            if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
-                                this.schedule[i].forbid = true;
-                                this.schedule[i].forbidId = this.forbid[j].forbidId;
+                        if(date.scheduleId == this.forbid[j].scheduleId) {
+                            if(this.isSameDay(this.forbid[j].date)) {
+                                date.forbid = true;
+                                date.forbidId = this.forbid[j].forbidId;
                                 break;
                             }
                         }
                     }
-                    this.dateList.push(this.schedule[i]);
-                    this.dayList.push(this.schedule[i]);
+                    if(this.isPassed(date.startTime)) {
+                        date.passed = true;
+                    }
+                    this.dateList.push(date);
+                    this.dayList.push(date);
                     break;
                 case 'week':
-                    if(this.day.getDay() == this.schedule[i].week) {
+                    if(this.day.getDay() == date.week) {
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
-                                    this.schedule[i].forbid = true;
-                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
+                            if(date.scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isSameDay(this.forbid[j].date)) {
+                                    date.forbid = true;
+                                    date.forbidId = this.forbid[j].forbidId;
                                     break;
                                 }
                             }
                         }
-                        this.dateList.push(this.schedule[i]);
+                        if(this.isPassed(date.startTime)) {
+                            date.passed = true;
+                        }
+                        this.dateList.push(date);
                     }
                     if(this.weekList.length == 0) {
-                        this.weekList.push(this.schedule[i]);
-                        this.weekIndex = this.schedule[i].week
-                    } else if(this.schedule[i].week == this.weekIndex) {
-                        this.weekList.push(this.schedule[i]);
+                        this.weekList.push(date);
+                        this.weekIndex = date.week
+                    } else if(date.week == this.weekIndex) {
+                        this.weekList.push(date);
                     }
                     break;
                 case 'month':
-                    if(this.day.getDate() == this.schedule[i].month) {
+                    if(this.day.getDate() == date.month) {
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
-                                    this.schedule[i].forbid = true;
-                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
+                            if(date.scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isSameDay(this.forbid[j].date)) {
+                                    date.forbid = true;
+                                    date.forbidId = this.forbid[j].forbidId;
                                     break;
                                 }
                             }
                         }
-                        this.dateList.push(this.schedule[i]);
+                        if(this.isPassed(date.startTime)) {
+                            date.passed = true;
+                        }
+                        this.dateList.push(date);
                     }
                     if(this.monthList.length == 0) {
-                        this.monthList.push(this.schedule[i]);
-                        this.monthIndex = this.schedule[i].month - 1;
-                    } else if(this.schedule[i].month == this.monthIndex) {
-                        this.monthList.push(this.schedule[i]);
+                        this.monthList.push(date);
+                        this.monthIndex = date.month - 1;
+                    } else if(date.month == this.monthIndex) {
+                        this.monthList.push(date);
                     }
                 default:
             }
         }
     },
     methods: {
+        isPassed(startTime) {
+            let day = new Date(this.day.getTime());
+            day.setHours(startTime.split(':')[0], startTime.split(':')[1], 0);
+            console.log(this.now.getTime() > day.getTime())
+            return this.now.getTime() > day.getTime();
+        },
         openDialog(dialogName, type, time) {
             if(dialogName == 'AddDialog') {
                 this.addType = type;
@@ -334,58 +359,72 @@ export default {
         getDateList() {
             this.dateList = [];
             for(let i = 0, len = this.schedule.length; i < len; i++) {
-                if(this.schedule[i].repeat == 'date') {
-                    if(this.isSameDay(this.day.getTime(), this.schedule[i].date)) {
-                        this.dateList.push(this.schedule[i]);
+                let date = {...this.schedule[i]}
+                if(date.repeat == 'date') {
+                    if(this.isSameDay(date.date)) {
+                        if(this.isPassed(date.startTime)) {
+                            date.passed = true;
+                        }
+                        this.dateList.push(date);
                     }
-                } else if(this.schedule[i].repeat == 'day') {
+                } else if(date.repeat == 'day') {
                     for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                        if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                            if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
-                                this.schedule[i].forbid = true;
-                                this.schedule[i].forbidId = this.forbid[j].forbidId;
+                        if(date.scheduleId == this.forbid[j].scheduleId) {
+                            if(this.isSameDay(this.forbid[j].date)) {
+                                date.forbid = true;
+                                date.forbidId = this.forbid[j].forbidId;
                                 break;
                             } else {
-                                this.schedule[i].forbid = false;
+                                date.forbid = false;
                                 break;
                             }
                         }
                     }
-                    this.dateList.push(this.schedule[i]);
-                } else if(this.schedule[i].repeat == 'week') {
-                    if(this.day.getDay() == this.schedule[i].week) {
-                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
-                                    this.schedule[i].forbid = true;
-                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
-                                    break;
-                                } else {
-                                    this.schedule[i].forbid = false;
-                                    break;
-                                }
-                            }
-                        }
-                        this.dateList.push(this.schedule[i]);
+                    if(this.isPassed(date.startTime)) {
+                        date.passed = true;
                     }
-                } else if(this.schedule[i].repeat == 'month') {
-                    if(this.day.getDate() == this.schedule[i].month) {
+                    this.dateList.push(date);
+                } else if(date.repeat == 'week') {
+                    if(this.day.getDay() == date.week) {
                         for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
-                            if(this.schedule[i].scheduleId == this.forbid[j].scheduleId) {
-                                if(this.isSameDay(this.day.getTime(), this.forbid[j].date)) {
-                                    this.schedule[i].forbid = true;
-                                    this.schedule[i].forbidId = this.forbid[j].forbidId;
+                            if(date.scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isSameDay(this.forbid[j].date)) {
+                                    date.forbid = true;
+                                    date.forbidId = this.forbid[j].forbidId;
                                     break;
                                 } else {
-                                    this.schedule[i].forbid = false;
+                                    date.forbid = false;
                                     break;
                                 }
                             }
                         }
-                        this.dateList.push(this.schedule[i]);
+                        if(this.isPassed(date.startTime)) {
+                            date.passed = true;
+                        }
+                        this.dateList.push(date);
+                    }
+                } else if(date.repeat == 'month') {
+                    if(this.day.getDate() == date.month) {
+                        for(let j = 0, len2 = this.forbid.length; j < len2; j++) {
+                            if(date.scheduleId == this.forbid[j].scheduleId) {
+                                if(this.isSameDay(this.forbid[j].date)) {
+                                    date.forbid = true;
+                                    date.forbidId = this.forbid[j].forbidId;
+                                    break;
+                                } else {
+                                    date.forbid = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if(this.isPassed(date.startTime)) {
+                            date.passed = true;
+                        }
+                        this.dateList.push(date);
                     }
                 }
             }
+
         },
         preDay() {
             this.day = new Date(this.day.getTime() - 24 * 60 * 60 * 1000);
@@ -467,10 +506,8 @@ export default {
             time2 = date.setHours(time2.split(':')[0], time2.split(':')[1]);
             return time1 >= time2;
         },
-        isSameDay(date1, date2) {
-            date1 = new Date(date1);
-            date2 = new Date(date2);
-            return date1.getFullYear() == date2.getFullYear() && date1.getMonth() == date2.getMonth() && date1.getDate() == date2.getDate();
+        isSameDay(date) {
+            return date === this.dayText;
         },
         setDayText() {
             let year = this.day.getFullYear();
@@ -478,10 +515,10 @@ export default {
             month = month > 9 ? month : '0' + month;
             let day = this.day.getDate();
             day = day > 9 ? day : '0' + day;
-            this.dayText = year + '-' + month + '-' + day + '（' + this.getWeekDay(this.day.getDay()) + '）';
+            this.dayText = year + '-' + month + '-' + day;
         },
         addSchedule() {
-            let url = getBaseUrl() +  '&action=addSchedule&equipmentId=' + this.equipment.equipmentId + '&startTime=' + this.addForm.startTime + '&endTime=' + this.addForm.endTime + '&repeat=' + this.addType + '&date=' + this.day.getTime() +'&week=' + this.weekIndex +'&month=' + this.monthIndex;
+            let url = getBaseUrl() +  '&action=addSchedule&equipmentId=' + this.equipment.equipmentId + '&startTime=' + this.addForm.startTime + '&endTime=' + this.addForm.endTime + '&repeat=' + this.addType + '&date=' + this.dayText +'&week=' + this.weekIndex +'&month=' + this.monthIndex;
             this.$axios.get(url).then(res => {
                 return this.$axios.get(getBaseUrl() + '&action=getSchedules&equipmentId=' + this.equipment.equipmentId);
             }).then(res => {
@@ -507,7 +544,6 @@ export default {
         addTimeBlock() {
             let canAdd = false;
             let date = new Date();
-            
             if(!this.isLater(this.addForm.endTime, this.addForm.startTime)) {
                 this.showErrorText = true;
                 this.errorText = "开始时间不能晚于结束时间";
@@ -594,11 +630,11 @@ export default {
                 });
                 this.forbid = res.data.result.forbid;
                 this.getDateList();
-                if(this.addType == 'day') {
+                if(this.deleteType == 'day') {
                     this.getDayList();
-                } else if(this.addType == 'week') {
+                } else if(this.deleteType == 'week') {
                     this.getWeekList();
-                } else if(this.addType == 'month') {
+                } else if(this.deleteType == 'month') {
                     this.getMonthList();
                 }
             }).catch(err => {
@@ -606,7 +642,7 @@ export default {
             });
         },
         forbidTimeBlock() {
-            let url = getBaseUrl() +  '&action=addForbid&scheduleId=' + this.selectedItem.scheduleId + '&date=' + this.day.getTime() + '&equipmentId=' + this.equipment.equipmentId;
+            let url = getBaseUrl() +  '&action=addForbid&scheduleId=' + this.selectedItem.scheduleId + '&date=' + this.dayText + '&equipmentId=' + this.equipment.equipmentId;
             this.$axios.get(url).then(res => {
                 this.showForbidDialog = false;
                 return this.$axios.get(getBaseUrl() + '&action=getSchedules&equipmentId=' + this.equipment.equipmentId);
@@ -747,6 +783,10 @@ export default {
         .available {
             color: #67C23A;
             background-color: rgba(103, 194, 58, .5);
+        }
+        .passed {
+            color: #909399;
+            background-color: rgba(144, 147, 153, .5);
         }
         .forbid {
             color: #909399;

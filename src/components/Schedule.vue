@@ -121,7 +121,7 @@ export default {
         timeText(schedule) {
             switch(schedule.repeat) {
                 case 'date':
-                    return this.setDayText(schedule.date);
+                    return schedule.date;
                     break;
                 case 'day':
                     return '每天';
