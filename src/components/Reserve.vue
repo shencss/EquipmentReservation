@@ -43,15 +43,19 @@
         <div class="description">
             <div class="reserved">
                 <span class="block"></span>
-                <span>已约</span>
+                <span>被约</span>
             </div>
             <div class="available">
                 <span class="block"></span>
                 <span>可约</span>
             </div>
+            <div class="approve">
+                <span class="block"></span>
+                <span>待审批</span>
+            </div>
             <div class="passed">
                 <span class="block"></span>
-                <span>过去</span>
+                <span>过时</span>
             </div>
         </div>
         <div class="reserve-title">
@@ -250,11 +254,18 @@ export default {
                 } else {
                     this.dateList[i].status = 'available';
                 }
-                // 是否被预约
+                // 是否被预约或审批中
                 for(let j = 0, len2 = this.reserves.length; j < len2; j++) {
-                    if(this.reserves[j].startTime == this.dateList[i].startTime && this.reserves[j].endTime == this.dateList[i].endTime && this.isSameDay(this.reserves[j].date) && this.reserves[j].status == 3) {
+                    if(this.reserves[j].startTime == this.dateList[i].startTime && this.reserves[j].endTime == this.dateList[i].endTime && this.isSameDay(this.reserves[j].date)) {
                         if(this.dateList[i].status == 'available') {
-                            this.dateList[i].status = 'reserved';
+                            if(this.reserves[j].status == 3) {
+                                this.dateList[i].status = 'reserved';
+                            } else if(this.reserves[j].status == 1) {
+                                // 检查是否为自己的预约
+                                if(this.reserves[j].userId == 1) {
+                                    this.dateList[i].status = 'approve';
+                                }
+                            }
                         }
                     }
                 }
@@ -387,6 +398,10 @@ export default {
         .available {
             color: #67C23A;
             background-color: rgba(103, 194, 58, .5);
+        }
+        .approve {
+            color: #E6A23C;
+            background-color: rgba(230, 162, 60, .5);
         }
         .passed {
             color: #909399;

@@ -77,11 +77,11 @@
                     <span>使用注意</span>
                     <span class="value">{{selectedItem.equipment.note}}</span>
                 </div>
-                <div class="available-time" style="margin-bottom: 10px">
-                    <span>预约时间</span>
+                <div class="available-time" style="margin-bottom: 0px">
+                    <span>所约时间</span>
                 </div>
                 <div class="time-list">
-                    <span>{{selectedItem.date + ' ' + selectedItem.startTime + ' - ' + selectedItem.endTime}}</span>
+                    <span style="color: #409EFF; margin-bottom: 0">{{selectedItem.date + ' ' + selectedItem.startTime + ' - ' + selectedItem.endTime}}</span>
                 </div>
                 <div class="reserve-note" style="margin-top: 10px">
                     <span>更多需求</span>
@@ -93,7 +93,7 @@
                 </div>
             </div>
             <div class="operate-btns" style="margin-top: 10px">
-                <div class="redo-btn" @click="goReserve(selectedItem)">重新预约</div>
+                <div class="redo-btn" @click="goReserve(selectedItem)">再次预约</div>
                 <div v-if="selectedItem.status == 1" class="cancel-btn" @click="openDialog('CancelDialog')">取消预约</div>
                 <div class="confirm-btn" @click="closeDialog('DetailDialog')">确定</div>
             </div>
@@ -344,7 +344,7 @@ export default {
         width: 30px;
         background-color: #409EFF;
         position: absolute;
-        top: 30px;
+        top: 32px;
         left: 16.66%;
         transform: translateX(-50%);
         transition: all .5s linear;
@@ -482,6 +482,7 @@ export default {
         }
     }
     .detail-dialog {
+        font-size: 14px;
         .dialog-title {
             height: 50px;
             line-height: 50px;
@@ -501,9 +502,8 @@ export default {
                 width: 100%;
                 display: flex;
                 justify-content: space-between;
-                font-size: 13px;
                 color: #AAA;
-                margin-bottom: 15px;
+                margin-bottom: 10px;
                 span {
                     flex-basis: 70px;
                 }

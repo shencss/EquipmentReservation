@@ -15,7 +15,7 @@ export default {
     computed: {
         navName() {
             if(this.$route.name == 'reservation') {
-                return '预约中心'
+                return '可预约设备列表'
             } else if(this.$route.name == 'mine') {
                 return '预约记录'
             } else if(this.$route.name == 'reserve') {
