@@ -246,7 +246,7 @@ export default {
         left: 83.33%;
     }
     .equipment-list {
-        height: calc(100vh - 135px);
+        height: calc(100vh - 170px);
         overflow-y: auto;
         background-color: rgb(245, 245, 245);
         .equipment-item {
