@@ -147,6 +147,9 @@ export default {
     computed: {
         equipment() {
             return JSON.parse(this.$route.query.data)|| {}
+        },
+        user() {
+            return this.$store.state.user || {}
         }
     },
     mounted() {
@@ -395,7 +398,7 @@ export default {
                 }
             }
             rejectIds = encodeURI(JSON.stringify(rejectIds));
-            this.$axios.get(getBaseUrl() + '&action=passReserve&recordId=' + recordId + '&userId=2' + '&rejectIds=' + rejectIds).then(res => {
+            this.$axios.get(getBaseUrl() + '&action=passReserve&recordId=' + recordId + '&userId=' + this.user.userId + '&rejectIds=' + rejectIds).then(res => {
                 this.showApproveDialog = false;
                 this.selectedItem = {};
                 return this.$axios.get(getBaseUrl() + '&action=getScheduleDetail&equipmentId=' + this.equipment.equipmentId);
@@ -430,7 +433,7 @@ export default {
         },
         rejectReserve(index) {
             let recordId = this.reserves[index].recordId
-            this.$axios.get(getBaseUrl() + '&action=rejectReserve&recordId=' + recordId + '&userId=2').then(res => {
+            this.$axios.get(getBaseUrl() + '&action=rejectReserve&recordId=' + recordId + '&userId=' + this.user.userId).then(res => {
                 this.showApproveDialog = false;
                 this.selectedItem = {};
                 return this.$axios.get(getBaseUrl() + '&action=getScheduleDetail&equipmentId=' + this.equipment.equipmentId);

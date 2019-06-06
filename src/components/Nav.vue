@@ -36,7 +36,6 @@ export default {
             this.$router.replace({
                 name: itemName
             });
-            this.$store.commit('switchNav', itemName);
         }
     },
     computed: {

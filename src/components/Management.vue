@@ -168,62 +168,6 @@ export default {
                 cost: '',
                 note: ''
             },
-            recordList: [
-                {
-                    userName: '沈承胜',
-                    periods: [
-                        {
-                            startTime: '2019.5.2 18:00',
-                            endTime: '2019.5.3 18:00'
-                        },
-                        {
-                            startTime: '2019.5.2 18:00',
-                            endTime: '2019.5.3 18:00'
-                        },
-                        {
-                            startTime: '2019.5.2 18:00',
-                            endTime: '2019.5.3 18:00'
-                        }
-                    ],
-                    time: '2019.5.2 13:00'
-                },
-                {
-                    userName: '沈承胜',
-                    periods: [
-                        {
-                            startTime: '2019.5.2 18:00',
-                            endTime: '2019.5.3 18:00'
-                        },
-                        {
-                            startTime: '2019.5.2 18:00',
-                            endTime: '2019.5.3 18:00'
-                        },
-                        {
-                            startTime: '2019.5.2 18:00',
-                            endTime: '2019.5.3 18:00'
-                        }
-                    ],
-                    time: '2019.5.2 13:00'
-                },
-                {
-                    userName: '沈承胜',
-                    periods: [
-                        {
-                            startTime: '2019.5.2 18:00',
-                            endTime: '2019.5.3 18:00'
-                        },
-                        {
-                            startTime: '2019.5.2 18:00',
-                            endTime: '2019.5.3 18:00'
-                        },
-                        {
-                            startTime: '2019.5.2 18:00',
-                            endTime: '2019.5.3 18:00'
-                        }
-                    ],
-                    time: '2019.5.2 13:00'
-                }
-            ],
             selectedItem: {},
             searchForm: {
                 equipmentName: ''
