@@ -73,11 +73,11 @@
                         </div>
                         <div class="phone">
                             <span>联系电话：</span>
-                            <span class="value">{{reserves[index].phone}}</span>
+                            <div class="value">{{reserves[index].phone}}</div>
                         </div>
                         <div class="time">
                             <span>预约时间：</span>
-                            <span class="value">{{timeText(reserves[index].reserveTime)}}</span>
+                            <div class="value">{{timeText(reserves[index].reserveTime)}}</div>
                         </div>
                         <div class="note">
                             <span>更多需求：</span>
@@ -667,7 +667,6 @@ export default {
                 .reserve-info {
                     font-size: 14px;
                     div {
-                        height: 15px;
                         line-height: 15px;
                         color: #909399;
                     }

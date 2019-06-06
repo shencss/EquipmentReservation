@@ -11,7 +11,7 @@ export default new Vuex.Store({
     },
     mutations: {
         INIT_USER(state, user) {
-            state.user.userId = user.userId
+            state.user.userId = user.userID
             state.user.userName = user.userName
         }
     }
