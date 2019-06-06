@@ -97,6 +97,9 @@ export default {
     computed: {
         equipment() {
             return JSON.parse(this.$route.query.data) || {}
+        },
+        user() {
+            return this.$store.state.user || {}
         }
     },
     mounted() {
@@ -262,7 +265,7 @@ export default {
                                 this.dateList[i].status = 'reserved';
                             } else if(this.reserves[j].status == 1) {
                                 // 检查是否为自己的预约
-                                if(this.reserves[j].userId == 1) {
+                                if(this.reserves[j].userId == this.user.userId) {
                                     this.dateList[i].status = 'approve';
                                 }
                             }
@@ -314,7 +317,7 @@ export default {
         reserve() {
             if(this.reserveList.length > 0) {
                 let dates = encodeURI(JSON.stringify(this.reserveList));
-                let url = getBaseUrl() + '&action=reserve&equipmentId=' + this.equipment.equipmentId + '&userId=1' + '&note=' + this.note  + '&dates=' + dates + '&phone=' + this.phone;
+                let url = getBaseUrl() + '&action=reserve&equipmentId=' + this.equipment.equipmentId + '&userId=' + this.user.userId + '&note=' + this.note  + '&dates=' + dates + '&phone=' + this.phone;
                 this.$axios.get(url).then(res => {
                     this.$router.push({
                         path: '/mine'

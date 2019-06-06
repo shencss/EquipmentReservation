@@ -51,7 +51,7 @@
             <div class="equipment-info">
                 <div class="equipment-name">
                     <span>设备名称</span>
-                    <span class="value">{{selectedItem.equipment.equipmentName}}</span>
+                    <span class="value">{{selectedItem.equipment && selectedItem.equipment.equipmentName}}</span>
                 </div>
                 <div class="equipment-type">
                     <span>设备类型</span>
@@ -123,7 +123,7 @@ export default {
         Dialog
     },
     mounted() {
-        this.$axios.get(getBaseUrl() + '&action=getUserReserveRecords&userId=1').then(res => {
+        this.$axios.get(getBaseUrl() + '&action=getUserReserveRecords&userId=' + this.user.userId).then(res => {
             this.reservationList = res.data.result;
             this.selectedItem = this.reservationList[0];
         }).catch(err => {
@@ -176,7 +176,7 @@ export default {
         },
         cancelReserve() {
             this.$axios.get(getBaseUrl() + '&action=cancelReserve&recordId=' + this.selectedItem.recordId).then(res => {
-                return this.$axios.get(getBaseUrl() + '&action=getUserReserveRecords&userId=1');
+                return this.$axios.get(getBaseUrl() + '&action=getUserReserveRecords&userId=' + this.user.userId);
             }).then(res => {
                 this.reservationList = res.data.result;
             }).catch(err => {
@@ -303,6 +303,9 @@ export default {
                     }
                 }
             }
+        },
+        user() {
+            return this.$store.state.user || {}
         }
     }
 }

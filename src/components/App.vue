@@ -19,6 +19,7 @@ import Nav from './Nav';
 import 'style/reset';
 import 'style/common';
 // Vue.directive('loadmore', ...);
+import { getBaseUrl, getOpenInterfaceUrl, getAccessToken } from '../common/env'
 
 export default {
 	components: {
@@ -27,12 +28,30 @@ export default {
 	},
 	data() {
 		return {
-
+			user: {}
 		};
 	},
-	mounted() {
-
-	},
+	async created() {
+		// 获取吾托帮用户信息
+		await this.$axios.get(getOpenInterfaceUrl() + '/core/v4/user/me', {
+			params: {
+				access_token: getAccessToken(),
+				aid: '40039349578107852678',
+				format: 'JSON'
+			}
+		}).then(res => {
+			if(res.data.rows.length > 0) {
+				this.user = res.data.rows[0]
+			}
+		}).catch(err => {
+			console.log(err)
+		})
+		
+		this.$axios.get(getBaseUrl() + '&action=setUser&userId=' + this.user.userID + '&userName=' + this.user.userName).then(res => {
+			console.log('获取吾托帮用户成功')
+		})
+		this.$store.commit('INIT_USER', this.user)
+	}
 }
 </script>
 <style lang="scss">

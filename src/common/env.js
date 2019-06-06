@@ -6,6 +6,9 @@ export const getBaseUrl = () => {
 	return g_runToolUrl;
 };
 
+export const getOpenInterfaceUrl = () => {
+	return g_openInterfaceUrl
+}
 /**
  * 获取项目资源请求根路径
  */
